@@ -184,6 +184,27 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     align-items: stretch;
 }
 
+/* Responsive Product Columns */
+.modern-product-col {
+    padding: 8px; /* Gutter spacing */
+    flex: 0 0 50%;   /* 2 columns on mobile */
+    max-width: 50%;
+}
+
+@media (min-width: 768px) {
+    .modern-product-col {
+        flex: 0 0 33.3333%; /* 3 columns on tablet */
+        max-width: 33.3333%;
+    }
+}
+
+@media (min-width: 992px) {
+    .modern-product-col {
+        flex: 0 0 25%; /* 4 columns on desktop */
+        max-width: 25%;
+    }
+}
+
 /* Product Card Height Consistency */
 .products-row > * {
     display: flex;
@@ -229,8 +250,6 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 }
 
 .products-row img {
-    height: 200px;
-    object-fit: cover;
     width: 100%;
 }
 
@@ -605,16 +624,13 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 
 @if (setting('SLIDER_LAYOUT_STATUS') != 0 || setting('SLIDER_LAYOUT_STATUS') == "")
 @if (!empty(setting('SLIDER_LAYOUT')))
-<!--================ Hero Book Slider =================-->
 @include('frontend.partial.slider_style_' . setting('SLIDER_LAYOUT'))
 @else
 @include('frontend.partial.slider_style_1')
-<!--================ / Hero Book Slider =================-->
 @endif
 @endif
 
 @if (setting('BELOW_SLIDER_HTML_CODE_STATUS') != 0 || setting('BELOW_SLIDER_HTML_CODE_STATUS') == "")
-<!--================ CUSTOM HTML BELOW SLIDER =================-->
 <div class="modern-section">
     <div class="container">
         @php
@@ -622,11 +638,9 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
         @endphp
     </div>
 </div>
-<!--================ / CUSTOM HTML BELOW SLIDER =================-->
 @endif
 
 @if (setting('LATEST_PRODUCT_STATUS') != 0 || setting('LATEST_PRODUCT_STATUS') == "")
-<!--================ New Arrivals =================-->
 <div class="products-section modern-section">
     <div class="container">
         <div class="section-header">
@@ -641,7 +655,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
         
         @if($products->count() > 0)
             <div class="products-row">
-                @foreach ($products->take(6) as $product)
+                @foreach ($products->take(4) as $product)
                 <x-product-grid-view :product="$product" classes="modern-product-col" />
                 @endforeach
             </div>
@@ -660,11 +674,9 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
         @endif
     </div>
 </div>
-<!--================ / New Arrivals =================-->
 @endif
 
 @if (setting('NOTICE_STATUS') != 0 || setting('NOTICE_STATUS') == "")
-<!--================ BOOK ANNOUNCEMENTS =================-->
 <div class="modern-section">
     <div class="container">
         <div class="card book-announcement">
@@ -679,11 +691,9 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
         </div>
     </div>
 </div>
-<!--================ / BOOK ANNOUNCEMENTS =================-->
 @endif
 
 @if (setting('TOP_CAT_STATUS') != 0 || setting('TOP_CAT_STATUS') == "")
-<!--================ Book Genres & Categories =================-->
 <div class="book-genres modern-section">
     <div class="container">
         <div class="section-header">
@@ -715,11 +725,9 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
         </div>
     </div>
 </div>
-<!--================ / Book Genres & Categories =================-->
 @endif
 
 @if (setting('HERO_SLIDER_1') != 0 || setting('HERO_SLIDER_1') == "")
-<!--================ Featured Book Collections =================-->
 @if (setting('HERO_SLIDER_1_TEXT'))
 <div class="modern-section">
     <div class="container">
@@ -743,7 +751,6 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 @endif
 
 @if (setting('SELLER_STATUS') != 0 || setting('SELLER_STATUS') == "")
-<!--================ Publishers & Authors =================-->
 <div class="modern-section">
     <div class="container">
         <div class="section-header">
@@ -777,11 +784,9 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
         </div>
     </div>
 </div>
-<!--================ / Publishers & Authors ===============-->
 @endif
 
 @if (setting('FEATURE_PRODUCT_STATUS') != 0 || setting('FEATURE_PRODUCT_STATUS') == "")
-<!--================ Bestsellers =================-->
 <div class="products-section modern-section">
     <div class="container">
         <div class="section-header">
@@ -796,7 +801,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
         
         @if($randomProducts->count() > 0)
             <div class="products-row">
-                @foreach ($randomProducts->take(6) as $randomProduct)
+                @foreach ($randomProducts->take(4) as $randomProduct)
                 <x-product-grid-view :product="$randomProduct" classes="modern-product-col" />
                 @endforeach
             </div>
@@ -814,11 +819,9 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
         @endif
     </div>
 </div>
-<!--================ / Bestsellers =================-->
 @endif
 
 @if (setting('HERO_SLIDER_2') != 0 || setting('HERO_SLIDER_2') == "")
-<!--================ Book Promotions =================-->
 <div class="modern-section">
     <div class="container">
         <div class="row">
@@ -875,7 +878,7 @@ $products = \App\Models\Product::whereIn('id', $productIds)->take(12)->where('st
             </a>
         </div>
         <div class="products-row">
-            @foreach ($products->take(6) as $product)
+            @foreach ($products->take(4) as $product)
             <x-product-grid-view :product="$product" classes="modern-product-col" />
             @endforeach
         </div>
@@ -892,44 +895,7 @@ $products = \App\Models\Product::whereIn('id', $productIds)->take(12)->where('st
 @endif
 @endif
 
-@if (setting('BRAND_STATUS') != 0 || setting('BRAND_STATUS') == "")
-<!--================ Featured Publishers =================-->
-<div class="modern-section">
-    <div class="container">
-        <div class="section-header">
-            <div>
-                <h2 class="section-title">🏢 Shop by Publishers</h2>
-            </div>
-            <a href="/brands/list" class="view-all-btn">
-                <span>See More</span>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-        <div class="publishers-grid">
-            @foreach (App\Models\Brand::where('status',1)->take(8)->get() as $brand)
-            <a href="{{route('brand.product',['slug'=>$brand->slug])}}" class="publisher-card">
-                <div class="cover-image"></div>
-                <div class="profile-section">
-                    <img src="{{asset('uploads/brand/'.$brand->cover_photo)}}" alt="{{$brand->name}} Publisher" class="profile-image">
-                    <h4>{{$brand->name}}</h4>
-                    <p class="publisher-label">Publisher</p>
-                </div>
-            </a>
-            @endforeach
-        </div>
-        <div class="mobile-see-more">
-            <a href="/brands/list" class="view-all-btn">
-                <span>See More</span>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-    </div>
-</div>
-<!--================ / Featured Publishers =================-->
-@endif
-
 @if (setting('CATEGORY_SMALL_SUMMERY') != 0 || setting('CATEGORY_SMALL_SUMMERY') == "")
-<!--================ Book Collections Summary =================-->
 <div class="modern-section">
     <div class="container">
         <div class="section-header">
@@ -960,7 +926,6 @@ $products = \App\Models\Product::whereIn('id', $productIds)->take(12)->where('st
 @endif
 
 @if (setting('NEWS_LETTER_STATUS') != 0 || setting('NEWS_LETTER_STATUS') == "")
-<!--================ Book Newsletter =================-->
 <div class="newsletter-section">
     <div class="container">
         <div class="newsletter-content">

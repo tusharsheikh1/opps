@@ -236,14 +236,15 @@
         display: none !important; /* Hide arrows on mobile for better UX */
     }
     
+    /* MODIFICATION: Set border-radius to 0 for full-width */
     .slideshow {
-        border-radius: 8px;
+        border-radius: 0;
     }
     
     .slider .item,
     .slider .item a,
     .slider .item img {
-        border-radius: 8px;
+        border-radius: 0;
     }
 }
 
@@ -265,13 +266,13 @@
     }
     
     .slideshow {
-        border-radius: 6px;
+        border-radius: 0; /* Keep it 0 for smaller screens too */
     }
     
     .slider .item,
     .slider .item a,
     .slider .item img {
-        border-radius: 6px;
+        border-radius: 0; /* Keep it 0 for smaller screens too */
     }
 }
 
@@ -348,7 +349,7 @@
 </style>
 
 <section class="hero-area">
-    <div class="container-fluid px-3">
+    <div class="container-fluid px-0 px-md-3">
         <div class="row">
             <div class="hero-slider col-12">
                 <div class="slideshow">
