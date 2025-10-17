@@ -426,12 +426,14 @@
             <div class="stat-card variant-info">
                 <div class="stat-header">
                     <div class="stat-info">
-                        <h3>{{ number_format($products) }}</h3>
+                        <h3>{{ number_format($products ?? 0) }}</h3>
                         <p>Total Products</p>
-                        <div class="metric-trend trend-up">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>{{ $growth_metrics['products'] ?? '12%' }} from last month</span>
-                        </div>
+                        @if(isset($growth_metrics['products']))
+                            <div class="metric-trend trend-up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>{{ $growth_metrics['products'] }} from last month</span>
+                            </div>
+                        @endif
                     </div>
                     <div class="stat-icon">
                         <i class="fas fa-boxes"></i>
@@ -443,7 +445,7 @@
                     </div>
                 </div>
                 <div class="stat-footer">
-                    <a href="{{ routeHelper('product') }}">
+                    <a href="{{ route('admin.product.index') }}">
                         <span>Manage Products</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -454,12 +456,14 @@
             <div class="stat-card variant-warning">
                 <div class="stat-header">
                     <div class="stat-info">
-                        <h3>{{ number_format($quantity) }}</h3>
+                        <h3>{{ number_format($quantity ?? 0) }}</h3>
                         <p>Total Inventory</p>
-                        <div class="metric-trend trend-neutral">
-                            <i class="fas fa-minus"></i>
-                            <span>{{ $growth_metrics['quantity'] ?? 'No change' }}</span>
-                        </div>
+                        @if(isset($growth_metrics['quantity']))
+                            <div class="metric-trend trend-neutral">
+                                <i class="fas fa-minus"></i>
+                                <span>{{ $growth_metrics['quantity'] }}</span>
+                            </div>
+                        @endif
                     </div>
                     <div class="stat-icon">
                         <i class="fas fa-warehouse"></i>
@@ -471,7 +475,7 @@
                     </div>
                 </div>
                 <div class="stat-footer">
-                    <a href="{{ routeHelper('product') }}">
+                    <a href="{{ route('admin.product.index') }}">
                         <span>View Inventory</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -482,12 +486,14 @@
             <div class="stat-card variant-success">
                 <div class="stat-header">
                     <div class="stat-info">
-                        <h3>{{ number_format($orders) }}</h3>
+                        <h3>{{ number_format($orders ?? 0) }}</h3>
                         <p>Total Orders</p>
-                        <div class="metric-trend trend-up">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>{{ $growth_metrics['orders'] ?? '23%' }} from last month</span>
-                        </div>
+                        @if(isset($growth_metrics['orders']))
+                            <div class="metric-trend trend-up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>{{ $growth_metrics['orders'] }} from last month</span>
+                            </div>
+                        @endif
                     </div>
                     <div class="stat-icon">
                         <i class="fas fa-shopping-cart"></i>
@@ -499,7 +505,7 @@
                     </div>
                 </div>
                 <div class="stat-footer">
-                    <a href="{{ routeHelper('order') }}">
+                    <a href="{{ route('admin.order.index') }}">
                         <span>View All Orders</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -510,11 +516,11 @@
             <div class="stat-card">
                 <div class="stat-header">
                     <div class="stat-info">
-                        <h3>{{ number_format($pending_orders) }}</h3>
+                        <h3>{{ number_format($pending_orders ?? 0) }}</h3>
                         <p>Pending Orders</p>
                         <div class="metric-trend trend-down">
                             <i class="fas fa-arrow-down"></i>
-                            <span>5% from yesterday</span>
+                            <span>Needs attention</span>
                         </div>
                     </div>
                     <div class="stat-icon">
@@ -527,7 +533,7 @@
                     </div>
                 </div>
                 <div class="stat-footer">
-                    <a href="{{ routeHelper('order/pending') }}">
+                    <a href="{{ route('admin.order.pending') }}">
                         <span>Process Orders</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -538,11 +544,11 @@
             <div class="stat-card variant-secondary">
                 <div class="stat-header">
                     <div class="stat-info">
-                        <h3>{{ number_format($processing_orders) }}</h3>
+                        <h3>{{ number_format($processing_orders ?? 0) }}</h3>
                         <p>Processing Orders</p>
                         <div class="metric-trend trend-up">
                             <i class="fas fa-arrow-up"></i>
-                            <span>8% from yesterday</span>
+                            <span>In progress</span>
                         </div>
                     </div>
                     <div class="stat-icon">
@@ -555,7 +561,7 @@
                     </div>
                 </div>
                 <div class="stat-footer">
-                    <a href="{{ routeHelper('order/processing') }}">
+                    <a href="{{ route('admin.order.processing') }}">
                         <span>View Processing</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -566,11 +572,11 @@
             <div class="stat-card variant-success">
                 <div class="stat-header">
                     <div class="stat-info">
-                        <h3>{{ number_format($delivered_orders) }}</h3>
+                        <h3>{{ number_format($delivered_orders ?? 0) }}</h3>
                         <p>Completed Orders</p>
                         <div class="metric-trend trend-up">
                             <i class="fas fa-arrow-up"></i>
-                            <span>15% from last week</span>
+                            <span>Successfully delivered</span>
                         </div>
                     </div>
                     <div class="stat-icon">
@@ -583,8 +589,66 @@
                     </div>
                 </div>
                 <div class="stat-footer">
-                    <a href="{{ routeHelper('order/delivered') }}">
+                    <a href="{{ route('admin.order.delivered') }}">
                         <span>View Completed</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cancelled Orders -->
+            <div class="stat-card variant-danger">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>{{ number_format($cancel_orders ?? 0) }}</h3>
+                        <p>Cancelled Orders</p>
+                        <div class="metric-trend trend-neutral">
+                            <i class="fas fa-times"></i>
+                            <span>Refund pending</span>
+                        </div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 25%"></div>
+                    </div>
+                </div>
+                <div class="stat-footer">
+                    <a href="{{ route('admin.order.cancel') }}">
+                        <span>View Cancelled</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Total Customers -->
+            <div class="stat-card variant-info">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>{{ number_format($customers ?? 0) }}</h3>
+                        <p>Total Customers</p>
+                        @if(isset($growth_metrics['customers']))
+                            <div class="metric-trend trend-up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>{{ $growth_metrics['customers'] }} new this week</span>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 65%"></div>
+                    </div>
+                </div>
+                <div class="stat-footer">
+                    <a href="{{ route('admin.customer.index') }}">
+                        <span>View Customers</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -613,27 +677,27 @@
                 <div class="quick-stats">
                     <div class="quick-stat-item">
                         <span class="quick-stat-label">Vendor Earnings</span>
-                        <span class="quick-stat-value">${{ number_format($vendor_amount) }}</span>
+                        <span class="quick-stat-value">{{ setting('CURRENCY_SYMBOL') ?? '$' }}{{ number_format($vendor_amount ?? 0, 2) }}</span>
                     </div>
                     <div class="quick-stat-item">
                         <span class="quick-stat-label">Vendor Pending</span>
-                        <span class="quick-stat-value">${{ number_format($vendor_pamount) }}</span>
+                        <span class="quick-stat-value">{{ setting('CURRENCY_SYMBOL') ?? '$' }}{{ number_format($vendor_pamount ?? 0, 2) }}</span>
                     </div>
                     <div class="quick-stat-item">
                         <span class="quick-stat-label">Admin Earnings</span>
-                        <span class="quick-stat-value">${{ number_format($admin_amount) }}</span>
+                        <span class="quick-stat-value">{{ setting('CURRENCY_SYMBOL') ?? '$' }}{{ number_format($admin_amount ?? 0, 2) }}</span>
                     </div>
                     <div class="quick-stat-item">
                         <span class="quick-stat-label">Admin Pending</span>
-                        <span class="quick-stat-value">${{ number_format($pending_amount) }}</span>
+                        <span class="quick-stat-value">{{ setting('CURRENCY_SYMBOL') ?? '$' }}{{ number_format($pending_amount ?? 0, 2) }}</span>
                     </div>
                     <div class="quick-stat-item">
                         <span class="quick-stat-label">Commission</span>
-                        <span class="quick-stat-value">${{ number_format($commission) }}</span>
+                        <span class="quick-stat-value">{{ setting('CURRENCY_SYMBOL') ?? '$' }}{{ number_format($commission ?? 0, 2) }}</span>
                     </div>
                     <div class="quick-stat-item">
-                        <span class="quick-stat-label">Total Customers</span>
-                        <span class="quick-stat-value">{{ number_format($customers) }}</span>
+                        <span class="quick-stat-label">Low Stock Items</span>
+                        <span class="quick-stat-value">{{ number_format($low_products) }}</span>
                     </div>
                 </div>
             </div>
@@ -671,106 +735,143 @@
             }, 500);
 
             // Create sales chart with real data
-            const ctx = document.getElementById('salesChart').getContext('2d');
-            
-            // Get real data from Laravel controller
-            const chartData = @json($chart_data ?? null);
-            
-            // Fallback data if chart_data is not available
-            const defaultData = {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                orders: [{{ $delivered_orders ?? 5 }}, {{ $processing_orders ?? 8 }}, {{ $pending_orders ?? 3 }}, {{ $cancel_orders ?? 2 }}, {{ $orders ?? 15 }}, {{ $delivered_orders ?? 10 }}, {{ $orders ?? 20 }}],
-                revenue: [{{ $vendor_amount ?? 500 }}, {{ $admin_amount ?? 300 }}, {{ $commission ?? 200 }}, 375, 700, 550, 875]
-            };
-            
-            const finalData = chartData || defaultData;
-            
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: finalData.labels,
-                    datasets: [{
-                        label: 'Orders',
-                        data: finalData.orders,
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#6366f1',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6
-                    }, {
-                        label: 'Revenue ($)',
-                        data: finalData.revenue,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#10b981',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: 2,
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
+            const ctx = document.getElementById('salesChart');
+            if (ctx) {
+                const chartContext = ctx.getContext('2d');
+                
+                // Get real data from Laravel controller
+                const chartData = @json($chart_data ?? null);
+                
+                // Fallback data if chart_data is not available
+                const defaultData = {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    orders: [
+                        {{ $delivered_orders ?? 5 }}, 
+                        {{ $processing_orders ?? 8 }}, 
+                        {{ $pending_orders ?? 3 }}, 
+                        {{ $cancel_orders ?? 2 }}, 
+                        {{ round(($orders ?? 15) * 0.8) }}, 
+                        {{ round(($delivered_orders ?? 10) * 1.2) }}, 
+                        {{ $orders ?? 20 }}
+                    ],
+                    revenue: [
+                        {{ round(($vendor_amount ?? 500) * 0.7) }}, 
+                        {{ round(($admin_amount ?? 300) * 0.9) }}, 
+                        {{ round(($commission ?? 200) * 1.1) }}, 
+                        {{ round(($vendor_amount ?? 500) * 0.75) }}, 
+                        {{ round(($admin_amount ?? 300) * 1.3) }}, 
+                        {{ round(($commission ?? 200) * 1.4) }}, 
+                        {{ round(($vendor_amount ?? 500) * 0.95) }}
+                    ]
+                };
+                
+                const finalData = chartData || defaultData;
+                
+                new Chart(chartContext, {
+                    type: 'line',
+                    data: {
+                        labels: finalData.labels,
+                        datasets: [{
+                            label: 'Orders',
+                            data: finalData.orders,
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#6366f1',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6
+                        }, {
+                            label: 'Revenue ({{ setting('CURRENCY_SYMBOL') ?? '$' }})',
+                            data: finalData.revenue,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6
+                        }]
                     },
-                    layout: {
-                        padding: {
-                            top: 10,
-                            bottom: 10
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20,
-                                font: {
-                                    size: 12,
-                                    weight: '500'
-                                }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 2,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        layout: {
+                            padding: {
+                                top: 10,
+                                bottom: 10
                             }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: '#e2e8f0',
-                                drawBorder: false
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20,
+                                    font: {
+                                        size: 12,
+                                        weight: '500'
+                                    }
+                                }
                             },
-                            ticks: {
-                                color: '#64748b',
-                                font: {
-                                    size: 11
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            if (context.dataset.label.includes('Revenue')) {
+                                                label += '{{ setting('CURRENCY_SYMBOL') ?? '$' }}' + context.parsed.y.toFixed(2);
+                                            } else {
+                                                label += context.parsed.y;
+                                            }
+                                        }
+                                        return label;
+                                    }
                                 }
                             }
                         },
-                        x: {
-                            grid: {
-                                display: false
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: '#e2e8f0',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    color: '#64748b',
+                                    font: {
+                                        size: 11
+                                    }
+                                }
                             },
-                            ticks: {
-                                color: '#64748b',
-                                font: {
-                                    size: 11
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: '#64748b',
+                                    font: {
+                                        size: 11
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
         });
     </script>
 @endpush

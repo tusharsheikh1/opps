@@ -23,13 +23,13 @@ use Illuminate\Support\Facades\DB;
 class ProductController extends Controller
 {
     // show products by category
-    public function showProductByCategory($slug,Request $request)
+    public function showProductByCategory($slug, Request $request)
     {
-        $i=1;
+        $i = 1;
         if ($request->ajax()) {
-            $skip=$request->skip/2;
-        }else{
-            $skip=0;
+            $skip = $request->skip / 2;
+        } else {
+            $skip = 0;
         }
 
         $category = Category::with(['products' => function($query) use ($skip) {
@@ -39,93 +39,66 @@ class ProductController extends Controller
         ->where('status', true)
         ->firstOrFail();
 
-            $products=$category;
-            $data = '';
-            $data2 = '';
+        $products = $category;
+        $data = '';
+        $data2 = '';
        
         if ($request->ajax()) {
-            if($category->products->count() > 0){
-            foreach ($category->products as $product) {
-                $data .= View::make("components.product-grid-view")
-                ->with("product", $product)
-                ->render();
-                $data2 .= View::make("components.product-list-view")
-                ->with("product", $product)
-                ->render();
-            }}
-            return json_encode(array($data, $data2));;
+            if($category->products->count() > 0) {
+                foreach ($category->products as $product) {
+                    $data .= View::make("components.product-grid-view")
+                        ->with("product", $product)
+                        ->render();
+                    $data2 .= View::make("components.product-list-view")
+                        ->with("product", $product)
+                        ->render();
+                }
+            }
+            return json_encode(array($data, $data2));
         }
-        return view('frontend.category-product', compact('category','slug'));
+        return view('frontend.category-product', compact('category', 'slug'));
     }
-     public function showProductByBrand($slug,Request $request)
+    
+    public function showProductByBrand($slug, Request $request)
     {
-        $i=1;
+        $i = 1;
         if ($request->ajax()) {
-            $skip=$request->skip/2;
-        }else{
-            $skip=0;
+            $skip = $request->skip / 2;
+        } else {
+            $skip = 0;
         }
-        $brand=Brand::where('slug',$slug)->first();
-        $products =  Product::where('status','1')->where('brand_id',$brand->id)
-        ->skip($skip)
-        ->take(16)->get();
+        $brand = Brand::where('slug', $slug)->first();
+        $products = Product::where('status', '1')->where('brand_id', $brand->id)
+            ->skip($skip)
+            ->take(16)->get();
 
-            $data = '';
-            $data2 = '';
+        $data = '';
+        $data2 = '';
        
         if ($request->ajax()) {
-            if($products->count() > 0){
-            foreach ($products as $product) {
-                $data .= View::make("components.product-grid-view")
-                ->with("product", $product)
-                ->render();
-                $data2 .= View::make("components.product-list-view")
-                ->with("product", $product)
-                ->render();
-            }}
-            return json_encode(array($data, $data2));;
+            if($products->count() > 0) {
+                foreach ($products as $product) {
+                    $data .= View::make("components.product-grid-view")
+                        ->with("product", $product)
+                        ->render();
+                    $data2 .= View::make("components.product-list-view")
+                        ->with("product", $product)
+                        ->render();
+                }
+            }
+            return json_encode(array($data, $data2));
         }
-        return view('frontend.product', compact('slug','products'));
+        return view('frontend.product', compact('slug', 'products'));
     }
-     public function showProductByAuthor($slug,Request $request)
-    {
-        $i=1;
-        if ($request->ajax()) {
-            $skip=$request->skip/2;
-        }else{
-            $skip=0;
-        }
-        $products =  Product::where('status','1')->where('author_id',$slug)
-        ->skip($skip)
-        ->take(16)->get();
-
-            $data = '';
-            $data2 = '';
-       
-        if ($request->ajax()) {
-            if($products->count() > 0){
-            foreach ($products as $product) {
-                $data .= View::make("components.product-grid-view")
-                ->with("product", $product)
-                ->render();
-                $data2 .= View::make("components.product-list-view")
-                ->with("product", $product)
-                ->render();
-            }}
-            return json_encode(array($data, $data2));;
-        }
-        return view('frontend.product', compact('slug','products'));
-    }
-
 
     // show products by sub category
-    public function showProductBySubCategory($slug,Request $request)
+    public function showProductBySubCategory($slug, Request $request)
     {
-        $i=1;
+        $i = 1;
         if ($request->ajax()) {
-            $skip=$request->skip/2;
-        }else{
-            $skip=0;
+            $skip = $request->skip / 2;
+        } else {
+            $skip = 0;
         }
         $data = '';
         $data2 = '';
@@ -135,241 +108,279 @@ class ProductController extends Controller
         ->where('slug', $slug)
         ->where('status', true)
         ->firstOrFail();
+        
         if ($request->ajax()) {
-            if($subCategory->products->count() > 0){
-            foreach ($subCategory->products as $product) {
-                $data .= View::make("components.product-grid-view")
-                ->with("product", $product)
-                ->render();
-                $data2 .= View::make("components.product-list-view")
-                ->with("product", $product)
-                ->render();
-            }}
-            return json_encode(array($data, $data2));;
-        } $type='0';
-        return view('frontend.sub-category-product', compact('subCategory','slug','type'));
-    }
-    public function showProductByMiniCategory($slug,Request $request)
-    {   $type='1';
-        $i=1;
-        if ($request->ajax()) {
-            $skip=$request->skip/2;
-        }else{
-            $skip=0;
+            if($subCategory->products->count() > 0) {
+                foreach ($subCategory->products as $product) {
+                    $data .= View::make("components.product-grid-view")
+                        ->with("product", $product)
+                        ->render();
+                    $data2 .= View::make("components.product-list-view")
+                        ->with("product", $product)
+                        ->render();
+                }
+            }
+            return json_encode(array($data, $data2));
         }
-        $data = '';
-        $data2 = '';
-        $subCategory = miniCategory::with(['products' => function($query) use ($skip){
-            return $query->where('status', true)->latest('id')->take(16)->skip($skip);
-        }])
-        ->where('slug', $slug)
-        ->where('status', true)
-        ->firstOrFail();
-         if ($request->ajax()) {
-            if($subCategory->products->count() > 0){
-            foreach ($subCategory->products as $product) {
-                $data .= View::make("components.product-grid-view")
-                ->with("product", $product)
-                ->render();
-                $data2 .= View::make("components.product-list-view")
-                ->with("product", $product)
-                ->render();
-            }}
-            return json_encode(array($data, $data2));;
-        }
-        return view('frontend.sub-category-product', compact('subCategory','slug','type'));
+        $type = '0';
+        return view('frontend.sub-category-product', compact('subCategory', 'slug', 'type'));
     }
-      public function showProductByextraCategory($slug,Request $request)
+    
+    public function showProductByMiniCategory($slug, Request $request)
     {
-        $type='2';
-        $i=1;
+        $type = '1';
+        $i = 1;
         if ($request->ajax()) {
-            $skip=$request->skip/2;
-        }else{
-            $skip=0;
+            $skip = $request->skip / 2;
+        } else {
+            $skip = 0;
         }
         $data = '';
         $data2 = '';
-        $subCategory = ExtraMiniCategory::with(['products' => function($query) use ($skip){
+        $subCategory = miniCategory::with(['products' => function($query) use ($skip) {
             return $query->where('status', true)->latest('id')->take(16)->skip($skip);
         }])
         ->where('slug', $slug)
         ->where('status', true)
         ->firstOrFail();
+        
         if ($request->ajax()) {
-            if($subCategory->products->count() > 0){
-            foreach ($subCategory->products as $product) {
-                $data .= View::make("components.product-grid-view")
-                ->with("product", $product)
-                ->render();
-                $data2 .= View::make("components.product-list-view")
-                ->with("product", $product)
-                ->render();
-            }}
-            return json_encode(array($data, $data2));;
+            if($subCategory->products->count() > 0) {
+                foreach ($subCategory->products as $product) {
+                    $data .= View::make("components.product-grid-view")
+                        ->with("product", $product)
+                        ->render();
+                    $data2 .= View::make("components.product-list-view")
+                        ->with("product", $product)
+                        ->render();
+                }
+            }
+            return json_encode(array($data, $data2));
         }
-        return view('frontend.sub-category-product', compact('subCategory','type','slug'));
+        return view('frontend.sub-category-product', compact('subCategory', 'slug', 'type'));
+    }
+    
+    public function showProductByextraCategory($slug, Request $request)
+    {
+        $type = '2';
+        $i = 1;
+        if ($request->ajax()) {
+            $skip = $request->skip / 2;
+        } else {
+            $skip = 0;
+        }
+        $data = '';
+        $data2 = '';
+        $subCategory = ExtraMiniCategory::with(['products' => function($query) use ($skip) {
+            return $query->where('status', true)->latest('id')->take(16)->skip($skip);
+        }])
+        ->where('slug', $slug)
+        ->where('status', true)
+        ->firstOrFail();
+        
+        if ($request->ajax()) {
+            if($subCategory->products->count() > 0) {
+                foreach ($subCategory->products as $product) {
+                    $data .= View::make("components.product-grid-view")
+                        ->with("product", $product)
+                        ->render();
+                    $data2 .= View::make("components.product-list-view")
+                        ->with("product", $product)
+                        ->render();
+                }
+            }
+            return json_encode(array($data, $data2));
+        }
+        return view('frontend.sub-category-product', compact('subCategory', 'type', 'slug'));
     }
     
     /**
      * show products by collection
-     *
-     * @param  mixed $slug
-     * @return void
      */
-    public function showProductByCollection($slug,Request $request)
+    public function showProductByCollection($slug, Request $request)
     {
-        $i=1;
+        $i = 1;
         if ($request->ajax()) {
-            $skip=$request->skip/2;
-        }else{
-            $skip=0;
+            $skip = $request->skip / 2;
+        } else {
+            $skip = 0;
         }
 
-        $collection  = Collection::where('slug', $slug)->where('status', true)->firstOrFail();
+        $collection = Collection::where('slug', $slug)->where('status', true)->firstOrFail();
         $categoryIds = $collection->categories->pluck('id');
-        $productIds  = DB::table('category_product')->whereIn('category_id', $categoryIds)->get()->pluck('product_id');
-        $products    = Product::whereIn('id', $productIds)->where('status', true)->latest('id')->take(4)->skip($skip)->get();
+        $productIds = DB::table('category_product')->whereIn('category_id', $categoryIds)->get()->pluck('product_id');
+        $products = Product::whereIn('id', $productIds)->where('status', true)->latest('id')->take(4)->skip($skip)->get();
         $data = '';
         $data2 = '';
+        
         if ($request->ajax()) {
-            if($products->count() > 0){
-            foreach ($products as $product) {
-                $data .= View::make("components.product-grid-view")
-                ->with("product", $product)
-                ->render();
-                $data2 .= View::make("components.product-list-view")
-                ->with("product", $product)
-                ->render();
-            }}
-            return json_encode(array($data, $data2));;
+            if($products->count() > 0) {
+                foreach ($products as $product) {
+                    $data .= View::make("components.product-grid-view")
+                        ->with("product", $product)
+                        ->render();
+                    $data2 .= View::make("components.product-list-view")
+                        ->with("product", $product)
+                        ->render();
+                }
+            }
+            return json_encode(array($data, $data2));
         }
         return view('frontend.collection-product', compact('products', 'collection'));
     }
 
     public function showAllProduct(Request $request)
     {
-        $i=1;
+        $i = 1;
         if ($request->ajax()) {
-            $skip=$request->skip/2;
-        }else{
-            $skip=0;
+            $skip = $request->skip / 2;
+        } else {
+            $skip = 0;
         }
-        $products =  Product::where('status','1')
-        ->skip($skip)->orderBy('id', 'desc')
-        ->take(16)->get();
+        $products = Product::where('status', '1')
+            ->skip($skip)->orderBy('id', 'desc')
+            ->take(16)->get();
 
-
-        
         $data = '';
         $data2 = '';
         if ($request->ajax()) {
-            if($products->count() > 0){
-            foreach ($products as $product) {
-                $data .= View::make("components.product-grid-view")
-                ->with("product", $product)
-                ->render();
-                $data2 .= View::make("components.product-list-view")
-                ->with("product", $product)
-                ->render();
-            }}
-            return json_encode(array($data, $data2));;
+            if($products->count() > 0) {
+                foreach ($products as $product) {
+                    $data .= View::make("components.product-grid-view")
+                        ->with("product", $product)
+                        ->render();
+                    $data2 .= View::make("components.product-list-view")
+                        ->with("product", $product)
+                        ->render();
+                }
+            }
+            return json_encode(array($data, $data2));
         }
         return view('frontend.product', compact('products')); 
     }
 
     public function productSearch(Request $request)
     {
-        $i=1;
+        $i = 1;
         if ($request->ajax()) {
-            $skip=$request->skip/2;
-        }else{
-            $skip=0;
+            $skip = $request->skip / 2;
+        } else {
+            $skip = 0;
         }
         $data = '';
         $data2 = '';
         $products = Product::whereLike(['title', 'full_description', 'tags.name'], $request->keyword)
-                            ->filter('status', true)
-                            ->latest('id')
-                             ->skip($skip)
-                            ->take(16)->get();
+            ->filter('status', true)
+            ->latest('id')
+            ->skip($skip)
+            ->take(16)->get();
+            
         if ($request->ajax()) {
-            if($products->count() > 0){
-            foreach ($products as $product) {
-                $data .= View::make("components.product-grid-view")
-                ->with("product", $product)
-                ->render();
-                $data2 .= View::make("components.product-list-view")
-                ->with("product", $product)
-                ->render();
-            }}
-            return json_encode(array($data, $data2));;
+            if($products->count() > 0) {
+                foreach ($products as $product) {
+                    $data .= View::make("components.product-grid-view")
+                        ->with("product", $product)
+                        ->render();
+                    $data2 .= View::make("components.product-list-view")
+                        ->with("product", $product)
+                        ->render();
+                }
+            }
+            return json_encode(array($data, $data2));
         }
-        $key=$request->keyword;
-        return view('frontend.search-product', compact('products','key'));
+        $key = $request->keyword;
+        return view('frontend.search-product', compact('products', 'key'));
     }
+    
     public function advanceSearch(Request $request)
     {
         $products = Product::whereLike(['title', 'full_description', 'tags.name'], $request->key)
-                            ->filter('status', true)
-                            ->latest('id')
-                            ->paginate(20);
-        $data='';
-        if($products->count() > 0){
-            
+            ->filter('status', true)
+            ->latest('id')
+            ->paginate(20);
+        $data = '';
+        
+        if($products->count() > 0) {
             foreach ($products as $product) {
-                $data .='<style>.pin:hover{background:gainsboro !important}</style><div class="product col-lg-12" style="height: initial;">
+                $data .= '<style>.pin:hover{background:gainsboro !important}</style><div class="product col-lg-12" style="height: initial;">
                             <div class="product-wrapper list-comp">
                             <a href="'.route('product.details', $product->slug).'">
                                 <div class="pin" style="display:flex;margin-bottom: 0;background: white;padding: 5px;border-bottom: 1px solid gainsboro;">
                                         <div class="thumbnail">
-                                            
-                                                <img style="object-fit:fill;width: 60px;height: 60px;max-width: 100px;" src="'.asset('uploads/product/'.$product->image).'" alt="Product Image">
-                                           
+                                            <img style="object-fit:fill;width: 60px;height: 60px;max-width: 100px;" src="'.asset('uploads/product/'.$product->image).'" alt="Product Image">
                                         </div>
-                                    
                                     <div class="detaisls">
                                             <h5 style="font-size:15px">'.$product->title.'</h5>
                                              <h5 style="font-size:15px">by:'.$product->user->shop_info->name.'</h5>
-                                                                           </div>
+                                    </div>
                                 </div>
                                 </a>
                             </div>
                         </div>';
             }
         }
-        return json_encode($data);;
+        return json_encode($data);
     }
+    
     // show product details
     public function productDetails($slug)
     {
-        $product = Product::with('comments', 'reviews')->where('slug', $slug)->where('status', true)->firstOrFail();
+        $product = Product::with([
+            'comments', 
+            'reviews', 
+            'colors', 
+            'attributes_values.attribute', // Eager load attribute relationship
+            'images'
+        ])
+        ->where('slug', $slug)
+        ->where('status', true)
+        ->firstOrFail();
+            
         $product->reach += 1;
         $product->update();
+        
         $colors_product = DB::table('color_product')
-        ->select('*')
+            ->select('*')
             ->join('colors', 'colors.id', '=', 'color_product.color_id')
             ->where('color_product.product_id', $product->id)
             ->get();
-        $attributes = Attribute::all();
+        
+        // Get only attributes that are actually assigned to this product
+        $productAttributeIds = $product->attributes_values->pluck('attributes_id')->unique();
+        $attributes = Attribute::whereIn('id', $productAttributeIds)->get();
 
         return view('frontend.single-product', compact('product', 'colors_product', 'attributes'));
     }
-     // show product details
+    
+    // show product details for campaign
     public function productDetails1($slug)
     {
-        $campaigns_product= CampaingProduct::find($slug);
-        $product = Product::with('comments', 'reviews')->where('id', $campaigns_product->product_id)->where('status', true)->firstOrFail();
-        $product->reach+=1;
+        $campaigns_product = CampaingProduct::find($slug);
+        $product = Product::with([
+            'comments', 
+            'reviews', 
+            'colors', 
+            'attributes_values.attribute', // Eager load attribute relationship
+            'images'
+        ])
+        ->where('id', $campaigns_product->product_id)
+        ->where('status', true)
+        ->firstOrFail();
+            
+        $product->reach += 1;
         $product->update();
-         $colors_product = DB::table('color_product')
-                    ->select('*')
-                    ->join('colors', 'colors.id', '=', 'color_product.color_id')
-                    ->where('color_product.product_id', $product->id)
-                    ->get();
-           $attributes = Attribute::all();
+        
+        $colors_product = DB::table('color_product')
+            ->select('*')
+            ->join('colors', 'colors.id', '=', 'color_product.color_id')
+            ->where('color_product.product_id', $product->id)
+            ->get();
+        
+        // Get only attributes that are actually assigned to this product
+        $productAttributeIds = $product->attributes_values->pluck('attributes_id')->unique();
+        $attributes = Attribute::whereIn('id', $productAttributeIds)->get();
 
-        return view('frontend.single-product', compact('product','colors_product','attributes','campaigns_product'));
+        return view('frontend.single-product', compact('product', 'colors_product', 'attributes', 'campaigns_product'));
     }
 
     // add to cart product
@@ -384,13 +395,11 @@ class ProductController extends Controller
         
         $user = auth()->user();
         if ($user->role_id == 2 || $user->role_id == 3) {
-            
             return response()->json([
                 'alert'   => 'success',
                 'message' => 'Product add to cart successfully'
             ]);
-        }
-        else {
+        } else {
             return response()->json([
                 'alert'   => 'error',
                 'message' => 'Please login your account!!'
@@ -400,9 +409,6 @@ class ProductController extends Controller
     
     /**
      * comment by product
-     *
-     * @param  mixed $slug
-     * @return void
      */
     public function comment(Request $request, $slug)
     {
@@ -424,11 +430,6 @@ class ProductController extends Controller
     
     /**
      * product comment reply
-     *
-     * @param  mixed $request
-     * @param  mixed $slug
-     * @param  mixed $id
-     * @return void
      */
     public function reply(Request $request, $slug, $id)
     {
@@ -451,106 +452,103 @@ class ProductController extends Controller
 
     /**
      * product filtering by requested data
-     *
-     * @param  mixed $request
-     * @return void
      */
     public function productFilter(Request $request)
     {
         $products = Product::where('status', '1');
 
-
-        // return $request;
         $unr = $request->unr;
-        // $request->amount = null;
+        
         // Pricing level string to int
-        if(isset($request->amount)){
+        if(isset($request->amount)) {
             if (setting('CURRENCY_CODE_MIN')) {
                 $currency_code_min = setting('CURRENCY_CODE_MIN');
             } else {
                 $currency_code_min = "Tk";
             }
-            $min        = (int)str_replace($currency_code_min, '', substr($request->amount, 0, strpos($request->amount, '-')));
-            $max        = (int)str_replace($currency_code_min, '', substr($request->amount, strpos($request->amount, "-") + 1));
-            $products   = $products->whereBetween('regular_price', [$min, $max]);
-            
-        } else{
+            $min = (int)str_replace($currency_code_min, '', substr($request->amount, 0, strpos($request->amount, '-')));
+            $max = (int)str_replace($currency_code_min, '', substr($request->amount, strpos($request->amount, "-") + 1));
+            $products = $products->whereBetween('regular_price', [$min, $max]);
+        } else {
             $min = 0;
             $max = 9999999999999999999999999;
         }
 
-        // $min = 1;
-        // $max = 9999999999999999999999999;
-        
-        // dd($max);
-
         // check category
-            if ($request->extra_category != '') {
-                $sub_category = ExtraMiniCategory::where('slug', $request->extra_category)->pluck('id');
-                $sub_category_product_ids = DB::table('extra_mini_category_product')->where('extra_mini_category_id', $sub_category)->get()->pluck('product_id');
-                $products = $products->whereIn('id', $sub_category_product_ids);
-            } elseif ($request->mini_category != '') {
-                $sub_category = miniCategory::where('slug', $request->mini_category)->pluck('id');
-                $sub_category_product_ids = DB::table('mini_category_product')->where('mini_category_id', $sub_category)->get()->pluck('product_id');
-                $products = $products->whereIn('id', $sub_category_product_ids);
-            } elseif ($request->sub_category != '') {
-                $sub_category = SubCategory::where('slug', $request->sub_category)->pluck('id');
-                $sub_category_product_ids = DB::table('product_sub_category')->where('sub_category_id', $sub_category)->get()->pluck('product_id');
-                $products = $products->whereIn('id', $sub_category_product_ids);
-            } elseif ($request->category != '') {
-                $category = Category::where('slug', $request->category)->pluck('id');
-                $category_product_ids = DB::table('category_product')->where('category_id', $category)->get()->pluck('product_id');
-                $products = $products->whereIn('id', $category_product_ids);
-            }
+        if ($request->extra_category != '') {
+            $sub_category = ExtraMiniCategory::where('slug', $request->extra_category)->pluck('id');
+            $sub_category_product_ids = DB::table('extra_mini_category_product')->where('extra_mini_category_id', $sub_category)->get()->pluck('product_id');
+            $products = $products->whereIn('id', $sub_category_product_ids);
+        } elseif ($request->mini_category != '') {
+            $sub_category = miniCategory::where('slug', $request->mini_category)->pluck('id');
+            $sub_category_product_ids = DB::table('mini_category_product')->where('mini_category_id', $sub_category)->get()->pluck('product_id');
+            $products = $products->whereIn('id', $sub_category_product_ids);
+        } elseif ($request->sub_category != '') {
+            $sub_category = SubCategory::where('slug', $request->sub_category)->pluck('id');
+            $sub_category_product_ids = DB::table('product_sub_category')->where('sub_category_id', $sub_category)->get()->pluck('product_id');
+            $products = $products->whereIn('id', $sub_category_product_ids);
+        } elseif ($request->category != '') {
+            $category = Category::where('slug', $request->category)->pluck('id');
+            $category_product_ids = DB::table('category_product')->where('category_id', $category)->get()->pluck('product_id');
+            $products = $products->whereIn('id', $category_product_ids);
+        }
 
         // check request collection
-            if ($request->collection != '') {
-                $collection  = Collection::where('slug', $request->collection)->first();
-                $categoryIds = $collection->categories->pluck('id');
-                $collection_product_ids  = DB::table('category_product')->whereIn('category_id', $categoryIds)->get()->pluck('product_id');
-                $products = $products->whereIn('id', $collection_product_ids);
-            }
-        // check request brands
-        // check request colors
-        // check request rating
+        if ($request->collection != '') {
+            $collection = Collection::where('slug', $request->collection)->first();
+            $categoryIds = $collection->categories->pluck('id');
+            $collection_product_ids = DB::table('category_product')->whereIn('category_id', $categoryIds)->get()->pluck('product_id');
+            $products = $products->whereIn('id', $collection_product_ids);
+        }
         
-        // Attributets
+        // check request rating
         if ($request->rating != '') {
             $rating_product_ids = DB::table('reviews')->where('rating', $request->rating)->get()->pluck('product_id');
             $products = $products->whereIn('id', $rating_product_ids);
         }
+        
+        // Filter by color
         if ($request->colors != '') {
             $colors = Color::whereIn('slug', $request->colors)->pluck('id');
             $color_product_ids = DB::table('color_product')->whereIn('color_id', $colors)->get()->pluck('product_id');
-
             $products = $products->whereIn('id', $color_product_ids);
         }
 
-
-    
+        // Filter by attributes
         $s_attri = $request->input('attri');
         if (!empty($s_attri)) {
-            $brands = AttributeValue::whereIn('slug', $s_attri)->pluck('id');
-            $brandProductIds = DB::table('attribute_product')->whereIn('attribute_value_id', $brands)->pluck('product_id');
-            if ($brandProductIds->count() > 0) {
-                $products = $products->whereIn('id', $brandProductIds->toArray());
+            $attributeValues = AttributeValue::whereIn('slug', $s_attri)->pluck('id');
+            $attributeProductIds = DB::table('attribute_product')->whereIn('attribute_value_id', $attributeValues)->pluck('product_id');
+            if ($attributeProductIds->count() > 0) {
+                $products = $products->whereIn('id', $attributeProductIds->toArray());
             } else {
-                // No products found, reset the query to get no products
                 $products = $products->where('id', 0);
             }
         }
 
-        $brands = $request->input('brands'); // Get brands from the request
+        // Filter by brands
+        $brands = $request->input('brands');
         if (!empty($brands)) {
-            $brandIds = Brand::whereIn('slug', $brands)->pluck('id'); // Fetch IDs of brands in the request
+            $brandIds = Brand::whereIn('slug', $brands)->pluck('id');
             if ($brandIds->count() > 0) {
-                $products = $products->whereIn('brand_id', $brandIds); // Filter products based on brand IDs
+                $products = $products->whereIn('brand_id', $brandIds);
             }
         }
+        
+        // Filter out products with zero stock if they have variations
+        $products = $products->where(function($query) {
+            $query->where('quantity', '>', 0)
+                  ->orWhereHas('colors', function($q) {
+                      $q->where('qnty', '>', 0);
+                  })
+                  ->orWhereHas('attributes_values', function($q) {
+                      $q->where('qnty', '>', 0);
+                  });
+        });
 
         // sorting
-        $sort       = new Sorting();
-        $value      = $sort->getValue($request->sort);
+        $sort = new Sorting();
+        $value = $sort->getValue($request->sort);
         if ($value == $sort->oldToNew) {
             $products = $products->orderBy('id', 'asc')->get();
         } elseif ($value == $sort->best) {
@@ -567,164 +565,296 @@ class ProductController extends Controller
             $products = $products->orderBy('id', 'desc')->get();
         }
 
-
-
         return view('frontend.filter-product', compact('products', 'request', 'min', 'max', 'unr'));
     }
     
     /**
-     * show product details to cart
-     *
-     * @param  mixed $slug
-     * @return void
+     * show product details to cart with stock information
      */
     public function productInfo($slug)
     {
         $product = Product::with(array(
             'colors' => function ($query) {
-                $query->select('code', 'name', 'slug');
+                $query->select('colors.id', 'code', 'name', 'slug')
+                      ->withPivot('qnty', 'price');
             },
             'sizes' => function ($query) {
-                $query->select('name');
-            }
-        ))->where('slug', $slug)->firstOrFail(['id', 'slug', 'regular_price', 'discount_price', 'image']);
-        $attributes = Attribute::all();
+                $query->select('sizes.id', 'name')
+                      ->withPivot('qnty', 'price');
+            },
+            'attributes_values.attribute' // Eager load attribute
+        ))->where('slug', $slug)->firstOrFail(['id', 'slug', 'regular_price', 'discount_price', 'image', 'quantity']);
+        
+        // Get only attributes that are actually assigned to this product
+        $productAttributeIds = $product->attributes_values->pluck('attributes_id')->unique();
+        $attributes = Attribute::whereIn('id', $productAttributeIds)->get();
+        
         $attrs = '';
         $values = '';
+        
         foreach ($attributes as $attribute) {
             $attribute_prouct = DB::table('attribute_product')
-            ->select('*')
+                ->select('*')
                 ->join('attribute_values', 'attribute_values.id', '=', 'attribute_product.attribute_value_id')
                 ->addselect('attribute_values.name as vName')
                 ->addselect('attribute_values.id as vid')
+                ->addselect('attribute_product.qnty as stock')
+                ->addselect('attribute_product.price as attr_price')
                 ->join('attributes', 'attributes.id', '=', 'attribute_values.attributes_id')
                 ->where('attribute_product.product_id', $product->id)
                 ->where('attributes.id', $attribute->id)
                 ->get();
+                
             if ($attribute_prouct->count() > 0) {
-
                 $attrs .= '<div class="col-12 pl-0 mb-2">
                                 <p><strong>Select ' . $attribute->name . ':</strong></p>
                             </div>';
+                            
                 foreach ($attribute_prouct as $attr) {
-                    $attrs .=  '<div class="form-check col-2 col-sm-2"><input id="' . $attr->vName . '" class="form-check-input get_attri_price pp' . $attribute->slug . '" type="radio" name="' . $attribute->slug . '" value="' . $attr->vid . '"><label class="form-check-label" for="' . $attr->vName . '">' . $attr->vName . '</label></div>';
-                    $attrs .=
-                        "<script>
+                    $stockStatus = $attr->stock > 0 ? '' : ' (Out of Stock)';
+                    $disabled = $attr->stock > 0 ? '' : ' disabled';
+                    $stockInfo = $attr->stock > 0 ? ' data-stock="' . $attr->stock . '"' : '';
+                    $priceInfo = ' data-price="' . $attr->attr_price . '"';
+                    
+                    $attrs .= '<div class="form-check col-2 col-sm-2"><input id="' . $attr->vName . '" class="form-check-input get_attri_price pp' . $attribute->slug . '" type="radio" name="' . $attribute->slug . '" value="' . $attr->vid . '"' . $disabled . $stockInfo . $priceInfo . '><label class="form-check-label" for="' . $attr->vName . '">' . $attr->vName . $stockStatus . '</label></div>';
+                    $attrs .= "<script>
                         $(document).on('click', '.pp" . $attribute->slug . "', function(e) {
                             $('input#" . $attribute->slug . "').val(this.value);
                         })
                     </script>";
                 }
+                
                 foreach ($attribute_prouct as $vattr) {
                     $vid = $vattr->vid;
                 }
                 $values .= '<input type="hidden" name="' . $attribute->slug . '" id="' . $attribute->slug . '" value="blank">';
             }
         }
-        return response()->json(array($product, $attrs, $values));
+        
+        // Add stock information for colors
+        $colorStocks = [];
+        foreach ($product->colors as $color) {
+            $colorStocks[$color->id] = [
+                'stock' => $color->pivot->qnty,
+                'price' => $color->pivot->price
+            ];
+        }
+        
+        // Get color-specific images
+        $colorImages = [];
+        foreach ($product->colors as $color) {
+            $images = $product->getColorImages($color->id);
+            if ($images->count() > 0) {
+                $colorImages[$color->id] = $images->pluck('name')->toArray();
+            }
+        }
+        
+        return response()->json(array(
+            'product' => $product, 
+            'attrs' => $attrs, 
+            'values' => $values, 
+            'colorStocks' => $colorStocks,
+            'colorImages' => $colorImages
+        ));
     }
-     public function productInfo1($id)
+    
+    public function productInfo1($id)
     {
-        $camp=CampaingProduct::find($id);
-         $slug=$camp->product_id;
+        $camp = CampaingProduct::find($id);
+        $slug = $camp->product_id;
         $product = Product::with(array(
             'colors' => function ($query) {
-                $query->select('code', 'name','slug');
+                $query->select('colors.id', 'code', 'name', 'slug')
+                      ->withPivot('qnty', 'price');
             },
             'sizes' => function ($query) {
-                $query->select('name');
-            }
-        ))->where('id', $slug)->firstOrFail(['id', 'slug', 'regular_price', 'discount_price', 'image']);
-                    $attributes = Attribute::all();
-                    $attrs='';
-                    $values='';
-                    foreach ($attributes as $attribute){
-                            $attribute_prouct = DB::table('attribute_product')
-                              ->select('*')
-                              ->join('attribute_values', 'attribute_values.id', '=', 'attribute_product.attribute_value_id')
-                              ->addselect('attribute_values.name as vName' )
-                              ->addselect('attribute_values.id as vid' )
-                              ->join('attributes', 'attributes.id', '=', 'attribute_values.attributes_id')
-                              ->where('attribute_product.product_id', $product->id)
-                                ->where('attributes.id', $attribute->id)
-                              ->get();
-                        if($attribute_prouct->count() > 0){
-
-                            $attrs.='<div class="col-12 pl-0 mb-2">
+                $query->select('sizes.id', 'name')
+                      ->withPivot('qnty', 'price');
+            },
+            'attributes_values.attribute' // Eager load attribute
+        ))->where('id', $slug)->firstOrFail(['id', 'slug', 'regular_price', 'discount_price', 'image', 'quantity']);
+        
+        // Get only attributes that are actually assigned to this product
+        $productAttributeIds = $product->attributes_values->pluck('attributes_id')->unique();
+        $attributes = Attribute::whereIn('id', $productAttributeIds)->get();
+        
+        $attrs = '';
+        $values = '';
+        
+        foreach ($attributes as $attribute) {
+            $attribute_prouct = DB::table('attribute_product')
+                ->select('*')
+                ->join('attribute_values', 'attribute_values.id', '=', 'attribute_product.attribute_value_id')
+                ->addselect('attribute_values.name as vName')
+                ->addselect('attribute_values.id as vid')
+                ->addselect('attribute_product.qnty as stock')
+                ->addselect('attribute_product.price as attr_price')
+                ->join('attributes', 'attributes.id', '=', 'attribute_values.attributes_id')
+                ->where('attribute_product.product_id', $product->id)
+                ->where('attributes.id', $attribute->id)
+                ->get();
+                
+            if($attribute_prouct->count() > 0) {
+                $attrs .= '<div class="col-12 pl-0 mb-2">
                                 <p><strong>Select '.$attribute->name.':</strong></p>
                             </div>';
-                           foreach ($attribute_prouct as $attr){
-                                 $attrs.=  '<div class="form-check col-2 col-sm-2"><input id="'.$attr->vName.'" class="form-check-input get_attri_price" type="radio" name="'.$attribute->slug.'" value="'.$attr->vid.'"><label class="form-check-label" for="'.$attr->vName.'">'.$attr->vName.'</label></div>';
-                                  $attrs.=  
-                                  "<script>
+                            
+                foreach ($attribute_prouct as $attr) {
+                    $stockStatus = $attr->stock > 0 ? '' : ' (Out of Stock)';
+                    $disabled = $attr->stock > 0 ? '' : ' disabled';
+                    $stockInfo = $attr->stock > 0 ? ' data-stock="' . $attr->stock . '"' : '';
+                    $priceInfo = ' data-price="' . $attr->attr_price . '"';
+                    
+                    $attrs .= '<div class="form-check col-2 col-sm-2"><input id="'.$attr->vName.'" class="form-check-input get_attri_price pp'.$attribute->slug.'" type="radio" name="'.$attribute->slug.'" value="'.$attr->vid.'"'.$disabled.$stockInfo.$priceInfo.'><label class="form-check-label" for="'.$attr->vName.'">'.$attr->vName.$stockStatus.'</label></div>';
+                    $attrs .= "<script>
                         $(document).on('click', '.pp".$attribute->slug."', function(e) {
                             $('input#".$attribute->slug."').val(this.value);
                         })
                     </script>";
-                             
-                            }
-                        foreach ($attribute_prouct as $vattr){ $vid=$vattr->vid;}
-                          $values.='<input type="hidden" name="'.$attribute->slug.'" id="'.$attribute->slug.'" value="blank">';
-                       }
-                      
-                    }
-        return response()->json(array($product,$attrs,$values,$camp));
-    }
-    public function getAttrPrice(Request $request){
-        $attributes = Attribute::all();
-        $price=0;
-        foreach ($attributes as $attribute){
-        $attribute_prouct = DB::table('attribute_product')
-                              ->select('*')
-                              ->join('attribute_values', 'attribute_values.id', '=', 'attribute_product.attribute_value_id')
-                              ->addselect('attribute_values.name as vName' )
-                              ->addselect('attribute_product.id as vid' )
-                              ->join('attributes', 'attributes.id', '=', 'attribute_values.attributes_id')
-                              ->where('attribute_product.product_id', $request->id)
-                                ->where('attributes.id', $attribute->id)
-                              ->get();
-        if($attribute_prouct->count() > 0){
-            $slug=$attribute->slug;
-            $id=$request->$slug;
-            if($id>0){
-                 $attr_pro=DB::table('attribute_product')->where('product_id',$request->id)->where('attribute_value_id',$id)->first();
-                $price +=$attr_pro->price;
+                }
+                
+                foreach ($attribute_prouct as $vattr) {
+                    $vid = $vattr->vid;
+                }
+                $values .= '<input type="hidden" name="'.$attribute->slug.'" id="'.$attribute->slug.'" value="blank">';
             }
-           
-        }}
-
-       $c=Color::where('slug',$request->color)->first();
-        if(!empty($c)){
-            $color=DB::table('color_product')->where('product_id',$request->id)->where('color_id',$c->id)->first();
-        }
-        $product=Product::find($request->id);
-        if(isset($request->camp)){
-           $camp= CampaingProduct::find($request->camp);
-           $op=$camp->price;
-        }elseif(empty($product->discount_price)){
-           $op= $product->regular_price;
-        }else{
-            $op=$product->discount_price;
-        }
-        if(!empty($color)){
-            $price+=$op+$color->price;
-        }else{
-            $price+=$op;
         }
         
-       return response()->json($price);
+        // Add stock information for colors
+        $colorStocks = [];
+        foreach ($product->colors as $color) {
+            $colorStocks[$color->id] = [
+                'stock' => $color->pivot->qnty,
+                'price' => $color->pivot->price
+            ];
+        }
+        
+        // Get color-specific images
+        $colorImages = [];
+        foreach ($product->colors as $color) {
+            $images = $product->getColorImages($color->id);
+            if ($images->count() > 0) {
+                $colorImages[$color->id] = $images->pluck('name')->toArray();
+            }
+        }
+        
+        return response()->json(array(
+            'product' => $product, 
+            'attrs' => $attrs, 
+            'values' => $values, 
+            'camp' => $camp,
+            'colorStocks' => $colorStocks,
+            'colorImages' => $colorImages
+        ));
     }
-    public function allBrand(){
-        $brands=Brand::where('status','1')->get();
-    return view('frontend.brands', compact('brands'));
-    }
-    public function lowStock()
-{
-    $products = Product::where('quantity', '<', 6)
-                      ->with(['category', 'user'])
-                      ->orderBy('quantity', 'asc')
-                      ->paginate(50);
     
-    return view('admin.e-commerce.product.low-stock', compact('products'));
-}
+    /**
+     * Get price based on selected attributes and color
+     */
+    public function getAttrPrice(Request $request)
+    {
+        // Get only attributes that are actually assigned to this product
+        $product = Product::with('attributes_values.attribute')->find($request->id);
+        $productAttributeIds = $product->attributes_values->pluck('attributes_id')->unique();
+        $attributes = Attribute::whereIn('id', $productAttributeIds)->get();
+        
+        $price = 0;
+        
+        foreach ($attributes as $attribute) {
+            $attribute_prouct = DB::table('attribute_product')
+                ->select('*')
+                ->join('attribute_values', 'attribute_values.id', '=', 'attribute_product.attribute_value_id')
+                ->addselect('attribute_values.name as vName')
+                ->addselect('attribute_product.id as vid')
+                ->join('attributes', 'attributes.id', '=', 'attribute_values.attributes_id')
+                ->where('attribute_product.product_id', $request->id)
+                ->where('attributes.id', $attribute->id)
+                ->get();
+                
+            if($attribute_prouct->count() > 0) {
+                $slug = $attribute->slug;
+                $id = $request->$slug;
+                if($id > 0) {
+                    $attr_pro = DB::table('attribute_product')->where('product_id', $request->id)->where('attribute_value_id', $id)->first();
+                    $price += $attr_pro->price;
+                }
+            }
+        }
+
+        $c = Color::where('slug', $request->color)->first();
+        if(!empty($c)) {
+            $color = DB::table('color_product')->where('product_id', $request->id)->where('color_id', $c->id)->first();
+        }
+        
+        if(isset($request->camp)) {
+            $camp = CampaingProduct::find($request->camp);
+            $op = $camp->price;
+        } elseif(empty($product->discount_price)) {
+            $op = $product->regular_price;
+        } else {
+            $op = $product->discount_price;
+        }
+        
+        if(!empty($color)) {
+            $price += $op + $color->price;
+        } else {
+            $price += $op;
+        }
+        
+        return response()->json($price);
+    }
+    
+    public function allBrand()
+    {
+        $brands = Brand::where('status', '1')->get();
+        return view('frontend.brands', compact('brands'));
+    }
+    
+    /**
+     * Check stock availability for a specific variation
+     */
+    public function checkStock(Request $request)
+    {
+        $product = Product::find($request->product_id);
+        
+        if (!$product) {
+            return response()->json(['available' => false, 'message' => 'Product not found']);
+        }
+        
+        // Check if product has variations
+        if ($product->hasVariations()) {
+            $availableStock = 0;
+            
+            // Check color stock if color is selected
+            if ($request->has('color_id') && $request->color_id) {
+                $availableStock = $product->getColorStock($request->color_id);
+            }
+            
+            // Check attribute stock if attribute is selected
+            if ($request->has('attribute_value_id') && $request->attribute_value_id) {
+                $availableStock = $product->getAttributeStock($request->attribute_value_id);
+            }
+            
+            $requestedQty = $request->quantity ?? 1;
+            
+            return response()->json([
+                'available' => $availableStock >= $requestedQty,
+                'stock' => $availableStock,
+                'message' => $availableStock >= $requestedQty 
+                    ? 'In stock' 
+                    : ($availableStock > 0 ? "Only $availableStock available" : 'Out of stock')
+            ]);
+        } else {
+            // Simple product without variations
+            $requestedQty = $request->quantity ?? 1;
+            
+            return response()->json([
+                'available' => $product->quantity >= $requestedQty,
+                'stock' => $product->quantity,
+                'message' => $product->quantity >= $requestedQty 
+                    ? 'In stock' 
+                    : ($product->quantity > 0 ? "Only {$product->quantity} available" : 'Out of stock')
+            ]);
+        }
+    }
 }

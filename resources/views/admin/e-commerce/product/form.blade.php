@@ -2,431 +2,79 @@
 
 @section('title')
     @isset($product)
-        বই পণ্য সম্পাদনা করুন 
-    @else 
-        বই পণ্য যোগ করুন
+        Edit Product
+    @else
+        Add New Product
     @endisset
 @endsection
 
 @push('css')
-    <!-- Select2 -->
     <link rel="stylesheet" href="/assets/plugins/select2/css/select2.min.css">
     <link rel="stylesheet" href="/assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css" integrity="sha512-EZSUkJWTjzDlspOoPSpUFR0o0Xy7jdzW//6qhUkoZ9c4StFkVsp9fbbd0O06p9ELS3H486m4wmrCELjza4JEog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css" />
     <link rel="stylesheet" href="/assets/plugins/summernote/summernote-bs4.min.css">
-    <link rel="stylesheet" href="/assets/plugins/dropzone/min/dropzone.min.css">
-    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link type="text/css" rel="stylesheet" href="/assets/plugins/file-uploader/image-uploader.min.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <style>
-        :root {
-            --primary-color: #667eea;
-            --primary-light: #f093fb;
-            --secondary-color: #764ba2;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --dark-color: #1f2937;
-            --light-color: #f8fafc;
-            --border-color: #e5e7eb;
-            --text-primary: #111827;
-            --text-secondary: #6b7280;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --radius-sm: 6px;
-            --radius-md: 8px;
-            --radius-lg: 12px;
-        }
-
-        body {
-            font-family: 'Hind Siliguri', 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-
-        .content-wrapper {
-            background: transparent;
-        }
-
-        .modern-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            transition: all 0.3s ease;
-        }
-
-        .modern-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        .modern-card-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-            padding: 1.5rem;
-            border: none;
-        }
-
-        .modern-form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .modern-label {
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-            display: block;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.025em;
-        }
-
-        .modern-input {
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 0.75rem 1rem;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-        }
-
-        .modern-input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            background: white;
-            outline: none;
-        }
-
-        .modern-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .modern-select {
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-        }
-
-        .modern-btn {
-            border-radius: var(--radius-md);
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-            border: none;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .modern-btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            box-shadow: var(--shadow-md);
-        }
-
-        .modern-btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-lg);
-            color: white;
-        }
-
-        .modern-btn-success {
-            background: linear-gradient(135deg, var(--success-color), #059669);
-            color: white;
-        }
-
-        .modern-btn-danger {
-            background: linear-gradient(135deg, var(--danger-color), #dc2626);
-            color: white;
-        }
-
-        .modern-btn-info {
-            background: linear-gradient(135deg, #06b6d4, #0891b2);
-            color: white;
-        }
-
-        .modern-section {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .modern-section-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-            cursor: pointer;
-            padding: 1rem;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            border-radius: var(--radius-md);
-            transition: all 0.2s ease;
-        }
-
-        .modern-section-header:hover {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
-        }
-
-        .modern-section-title {
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin: 0;
-        }
-
-        .modern-section-icon {
-            width: 24px;
-            height: 24px;
-            color: var(--primary-color);
-        }
-
-        .modern-switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .modern-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .modern-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .modern-slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .modern-slider {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        }
-
-        input:checked + .modern-slider:before {
-            transform: translateX(26px);
-        }
-
-        .file-upload-modern {
-            border: 2px dashed var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 2rem;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.5);
-            transition: all 0.2s ease;
-        }
-
-        .file-upload-modern:hover {
-            border-color: var(--primary-color);
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        .price-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-
-        .price-card {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 1rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .color-selector {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-top: 0.5rem;
-        }
-
-        .color-item {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 3px solid white;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: var(--shadow-md);
-        }
-
-        .color-item:hover {
-            transform: scale(1.1);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .breadcrumb-modern {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: var(--radius-md);
-            padding: 0.75rem 1rem;
-        }
-
-        .breadcrumb-modern a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .breadcrumb-modern .active {
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .book-section {
-            border-left: 4px solid #f59e0b;
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
-        }
-
-        .media-section {
-            border-left: 4px solid #06b6d4;
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(6, 182, 212, 0.05));
-        }
-
-        .alert-modern {
-            border: none;
-            border-radius: var(--radius-md);
-            backdrop-filter: blur(10px);
-        }
-
-        .form-row-modern {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
-        }
-
-        .book-cover-highlight {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
-            border: 2px dashed #f59e0b;
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            text-align: center;
-            position: relative;
-        }
-
-        .book-cover-highlight::before {
-            content: "📚";
-            font-size: 2rem;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .form-row-modern {
-                grid-template-columns: 1fr;
-            }
-            
-            .price-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         .dropify-wrapper .dropify-message p {
             font-size: initial;
         }
-
-        .note-editor {
-            box-shadow: none !important;
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #007bff;
+            border-color: #006fe6;
+            color: #fff;
         }
-
-        .invalid-feedback {
-            display: block;
-            color: var(--danger-color);
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
+        .attribute-details {
+            display: none;
         }
-
-        .is-invalid {
-            border-color: var(--danger-color) !important;
+        .color-swatch {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            margin-right: 10px;
         }
-
-        .text-danger {
-            color: var(--danger-color) !important;
+        .color-variation-item {
+            transition: all 0.3s ease;
         }
-
-        .step-indicator {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: var(--radius-lg);
-            backdrop-filter: blur(10px);
+        .color-variation-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
-        .step {
-            flex: 1;
-            text-align: center;
-            padding: 0.5rem;
-            border-radius: var(--radius-md);
-            color: white;
-            font-weight: 600;
-            font-size: 0.875rem;
+        .color-images-area {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
         }
-
-        .step.active {
-            background: rgba(255, 255, 255, 0.3);
+        .attribute-item {
+            transition: all 0.2s ease;
+        }
+        .attribute-item:hover {
+            background-color: #f8f9fa !important;
         }
     </style>
 @endpush
 
 @section('content')
-<!-- কন্টেন্ট হেডার (পেজ হেডার) -->
 <section class="content-header">
     <div class="container-fluid">
-        <div class="row mb-4">
+        <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="text-white font-weight-bold">
+                <h1>
                     @isset($product)
-                        📖 বই পণ্য সম্পাদনা করুন 
-                    @else 
-                        📚 নতুন বই যোগ করুন
+                        Edit Product
+                    @else
+                        Add New Product
                     @endisset
                 </h1>
             </div>
             <div class="col-sm-6">
-                <ol class="breadcrumb breadcrumb-modern float-sm-right">
-                    <li class="breadcrumb-item"><a href="{{routeHelper('dashboard')}}">🏠 হোম</a></li>
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('admin.product.index') }}">Products</a></li>
                     <li class="breadcrumb-item active">
                         @isset($product)
-                            বই সম্পাদনা 
-                        @else 
-                            বই যোগ করুন
+                            Edit Product
+                        @else
+                            Add Product
                         @endisset
                     </li>
                 </ol>
@@ -435,1135 +83,599 @@
     </div>
 </section>
 
-<!-- মূল কন্টেন্ট -->
 <section class="content">
-    @if($errors->any())
-        @foreach($errors->all() as $error)
-            <div class="alert alert-danger alert-modern">
-                <i class="fas fa-exclamation-triangle mr-2"></i>{{ $error }}
-            </div>
-        @endforeach
-    @endif
-
-    <!-- ধাপ নির্দেশক -->
-    <div class="step-indicator">
-        <div class="step active">📚 বইয়ের তথ্য</div>
-        <div class="step active">💰 মূল্য নির্ধারণ</div>
-        <div class="step active">📸 বইয়ের কভার</div>
-        <div class="step active">🏷️ বিভাগ</div>
-        <div class="step">⚙️ সেটিংস</div>
-    </div>
-
-    <div class="modern-card">
-        <div class="modern-card-header">
-            <div class="row align-items-center">
-                <div class="col-sm-6">
-                    <h3 class="mb-0 d-flex align-items-center">
-                        <i class="fas fa-book mr-3"></i>
-                        @isset($product)
-                            বই পণ্য সম্পাদনা
-                        @else 
-                            ক্যাটালগে নতুন বই যোগ করুন
-                        @endisset
-                    </h3>
+    <div class="container-fluid">
+        @if($errors->any())
+            @foreach($errors->all() as $error)
+                <div class="alert alert-danger alert-dismissible fade show">
+                    {{ $error }}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
                 </div>
-                <div class="col-sm-6 text-right">
-                    @isset($product)
-                    <a href="{{routeHelper('product/'. $product->id)}}" class="modern-btn modern-btn-info">
-                        <i class="fas fa-eye"></i>
-                        বই প্রিভিউ
-                    </a>
-                    @endisset
-                    <a href="{{routeHelper('product')}}" class="modern-btn modern-btn-danger">
-                        <i class="fas fa-arrow-left"></i>
-                        ক্যাটালগে ফিরুন
-                    </a>
-                </div>
-            </div>
-        </div>
+            @endforeach
+        @endif
 
-        <div class="row">
-            <form class="col-lg-8" action="{{ isset($product) ? routeHelper('product/'.$product->id) : routeHelper('product') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                @isset($product)
-                    <input type="hidden" value="{{$product->id}}" id="id">
-                    @method('PUT')
-                @endisset
-                <input type="hidden" value="book" name="ptypen">
+        <form action="{{ isset($product) ? route('admin.product.update', $product->id) : route('admin.product.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @isset($product)
+                @method('PUT')
+                <input type="hidden" value="{{ $product->id }}" id="productId">
+            @endisset
 
-                <div class="card-body p-4">
-                    <!-- ১. বইয়ের তথ্য বিভাগ - সবচেয়ে গুরুত্বপূর্ণ -->
-                    <div class="modern-section book-section">
-                        <div class="modern-section-header" data-toggle="collapse" data-target="#bookDetails" aria-expanded="true">
-                            <i class="fas fa-book-open modern-section-icon"></i>
-                            <h4 class="modern-section-title">📚 বইয়ের তথ্য</h4>
-                            <i class="fas fa-chevron-down ml-auto"></i>
+            <div class="row">
+                <!-- Left Column -->
+                <div class="col-md-8">
+                    <!-- General Information -->
+                    <div class="card card-primary card-outline">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-info-circle"></i> General Information</h3>
                         </div>
-                        
-                        <div class="collapse show" id="bookDetails">
-                            <div class="modern-form-group">
-                                <label for="title" class="modern-label">📖 বইয়ের নাম <span class="text-danger">*</span></label>
-                                <input type="text" name="title" id="title" placeholder="সম্পূর্ণ বইয়ের নাম লিখুন" class="form-control modern-input @error('title') is-invalid @enderror" value="{{ $product->title ?? old('title') }}" required>
-                                @error('title')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="title">Product Title <span class="text-danger">*</span></label>
+                                <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ $product->title ?? old('title') }}" required placeholder="Enter product title">
+                                @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
 
-                            <div class="form-row-modern">
-                                <div class="modern-form-group">
-                                    <label for="author_id" class="modern-label">✍️ লেখক <span class="text-danger">*</span></label>
-                                    <select class="form-control modern-select select2" name="author_id" required>
-                                        <option value="">লেখক নির্বাচন করুন</option>
-                                        @foreach(App\Models\Author::get(['name','id']) as $author)
-                                         <option @isset($product->author_id)@if($product->author_id==$author->id)selected @endif @endisset value="{{$author->id}}">{{$author->name}}</option>
-                                         @endforeach
+                            <div class="form-group">
+                                <label for="short_description">Short Description</label>
+                                <textarea name="short_description" id="short_description" rows="3" class="form-control @error('short_description') is-invalid @enderror" placeholder="Brief product description">{{ $product->short_description ?? old('short_description') }}</textarea>
+                                @error('short_description')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+
+                            <div class="form-group">
+                                <label for="full_description">Full Description <span class="text-danger">*</span></label>
+                                <textarea name="full_description" id="full_description" class="form-control @error('full_description') is-invalid @enderror">{{ $product->full_description ?? old('full_description') }}</textarea>
+                                @error('full_description')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pricing & Inventory -->
+                    <div class="card card-primary card-outline">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-dollar-sign"></i> Pricing & Inventory</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label for="buying_price">Buying Price</label>
+                                    <input type="number" step="0.01" name="buying_price" id="buying_price" class="form-control @error('buying_price') is-invalid @enderror" value="{{ $product->buying_price ?? old('buying_price') }}" placeholder="0.00">
+                                    @error('buying_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label for="regular_price">Regular Price <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" name="regular_price" id="regular_price" class="form-control @error('regular_price') is-invalid @enderror" value="{{ $product->regular_price ?? old('regular_price') }}" required placeholder="0.00">
+                                    @error('regular_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label for="dis_type">Discount Type</label>
+                                    <select name="dis_type" id="dis_type" class="form-control @error('dis_type') is-invalid @enderror">
+                                        <option value="1" @isset($product) {{ $product->dis_type == '1' ? 'selected' : '' }} @endisset>Fixed Amount</option>
+                                        <option value="2" @isset($product) {{ $product->dis_type == '2' ? 'selected' : '' }} @endisset>Percentage %</option>
                                     </select>
+                                    @error('dis_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
 
-                                <div class="modern-form-group">
-                                    <label for="isbn" class="modern-label">📋 আইএসবিএন নম্বর</label>
-                                    <input type="text" name="isbn" id="isbn" placeholder="৯৭৮-০-১২৩৪৫৬-৭৮-৯" class="form-control modern-input @error('isbn') is-invalid @enderror" value="{{ $product->isbn ?? old('isbn') }}">
-                                    @error('isbn')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                @php
+                                    $discount_price_value = '';
+                                    if (isset($product)) {
+                                        if ($product->dis_type == '2') {
+                                            $discount_price_value = ($product->discount_price > 0) ? (($product->regular_price - $product->discount_price) / $product->regular_price) * 100 : '';
+                                        } else {
+                                            $discount_price_value = ($product->discount_price > 0) ? $product->regular_price - $product->discount_price : '';
+                                        }
+                                    }
+                                @endphp
+
+                                <div class="col-md-6 form-group">
+                                    <label for="discount_price">Discount Amount</label>
+                                    <input type="number" step="0.01" name="discount_price" id="discount_price" class="form-control @error('discount_price') is-invalid @enderror" value="{{ $discount_price_value ?? old('discount_price') }}" placeholder="0.00">
+                                    @error('discount_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label for="sku">SKU</label>
+                                    <input type="text" name="sku" id="sku" class="form-control @error('sku') is-invalid @enderror" value="{{ $product->sku ?? old('sku') }}" placeholder="Product SKU">
+                                    @error('sku')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label for="quantity">Stock Quantity <span class="text-danger">*</span></label>
+                                    <input type="number" name="quantity" id="quantity" class="form-control @error('quantity') is-invalid @enderror" value="{{ $product->quantity ?? old('quantity') }}" required min="0">
+                                    <small class="form-text text-muted">For simple products. Variable product stock is auto-calculated.</small>
+                                    @error('quantity')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                            <div class="modern-form-group">
-                                <label for="brand" class="modern-label">🏢 প্রকাশক/ব্র্যান্ড <span class="text-danger">*</span></label>
-                                <select name="brand" id="brand" data-placeholder="প্রকাশক নির্বাচন করুন" class="form-control select2 modern-select @error('brand') is-invalid @enderror" required>
-                                    <option value="">প্রকাশক নির্বাচন করুন</option>
-                                    @foreach ($brands as $brand)
-                                        <option value="{{$brand->id}}" @isset($product) {{$brand->id == $product->brand_id ? 'selected':''}} @endisset>{{$brand->name}}</option>
+                    <!-- Variations & Stock Management -->
+                    <div class="card card-primary card-outline">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-boxes"></i> Variations & Stock Management</h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Color Variations Section -->
+                            <div class="form-group">
+                                <label for="select_color"><i class="fas fa-palette"></i> Colors</label>
+                                <small class="form-text text-muted mb-2">Add color variations with individual stock quantities and prices</small>
+                                <select id="select_color" class="form-control">
+                                    <option value="">Select a color to add</option>
+                                    @foreach ($colors as $color)
+                                        <option value="{{ $color->name.','.$color->id.','.$color->code }}">{{ $color->name }}</option>
                                     @endforeach
                                 </select>
-                                @error('brand')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-row-modern">
-                                <div class="modern-form-group">
-                                    <label for="edition" class="modern-label">📑 সংস্করণ</label>
-                                    <input type="text" name="edition" id="edition" placeholder="১ম সংস্করণ, সংশোধিত সংস্করণ..." class="form-control modern-input @error('edition') is-invalid @enderror" value="{{ $product->edition ?? old('edition') }}">
-                                    @error('edition')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="modern-form-group">
-                                    <label for="pages" class="modern-label">📄 মোট পৃষ্ঠা</label>
-                                    <input type="number" name="pages" id="pages" placeholder="পৃষ্ঠার সংখ্যা" class="form-control modern-input @error('pages') is-invalid @enderror" value="{{ $product->pages ?? old('pages') }}">
-                                    @error('pages')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="form-row-modern">
-                                <div class="modern-form-group">
-                                    <label for="language" class="modern-label">🗣️ ভাষা</label>
-                                    <input type="text" name="language" id="language" placeholder="বাংলা, ইংরেজি, ইত্যাদি" class="form-control modern-input @error('language') is-invalid @enderror" value="{{ $product->language ?? old('language') }}">
-                                    @error('language')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="modern-form-group">
-                                    <label for="country" class="modern-label">🌍 প্রকাশনার দেশ</label>
-                                    <input type="text" name="country" id="country" placeholder="যে দেশে প্রকাশিত" class="form-control modern-input @error('country') is-invalid @enderror" value="{{ $product->country ?? old('country') }}">
-                                    @error('country')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="modern-form-group">
-                                <label for="short_description" class="modern-label">📝 বইয়ের সংক্ষিপ্ত বিবরণ</label>
-                                <textarea name="short_description" id="short_description" rows="3" placeholder="বইয়ের সংক্ষিপ্ত বিবরণ বা পিছনের কভারের সারাংশ" class="form-control modern-input modern-textarea @error('short_description') is-invalid @enderror">{{ $product->short_description ?? old('short_description') }}</textarea>
-                                @error('short_description')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="modern-form-group">
-                                <label for="full_description" class="modern-label">📖 বিস্তারিত বিবরণ <span class="text-danger">*</span></label>
-                                <textarea name="full_description" id="full_description" class="form-control" placeholder="বিস্তারিত বিবরণ, প্লটের সারাংশ, মূল বৈশিষ্ট্য, লক্ষ্য পাঠক...">{{$product->full_description??old('full_description')}}</textarea>
-                                @error('full_description')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="modern-form-group">
-                                <label for="pdf" class="modern-label">📄 পিডিএফ ফাইল (ডিজিটাল সংস্করণ)</label>
-                                <input type="file" name="pdf" class="form-control modern-input" accept=".pdf">
-                                <small class="text-muted">ডিজিটাল ডাউনলোডের জন্য পিডিএফ সংস্করণ আপলোড করুন</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ২. মৌলিক পণ্যের তথ্য -->
-                    <div class="modern-section">
-                        <div class="modern-section-header" data-toggle="collapse" data-target="#basicInfo" aria-expanded="true">
-                            <i class="fas fa-info-circle modern-section-icon"></i>
-                            <h4 class="modern-section-title">📋 মৌলিক পণ্যের তথ্য</h4>
-                            <i class="fas fa-chevron-down ml-auto"></i>
-                        </div>
-                        
-                        <div class="collapse show" id="basicInfo">
-                            <div class="form-row-modern">
-                                <div class="modern-form-group">
-                                    <label for="sku" class="modern-label">🏷️ পণ্য কোড</label>
-                                    <input type="text" name="sku" id="sku" placeholder="পণ্য কোড/এসকেইউ" class="form-control modern-input @error('sku') is-invalid @enderror" value="{{ $product->sku ?? old('sku') }}">
-                                    @error('sku')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="modern-form-group">
-                                    <label for="vendor" class="modern-label">🏪 বিক্রেতা</label>
-                                    <select class="form-control modern-select" name="vendor">
-                                        <option value="">বিক্রেতা নির্বাচন করুন (ঐচ্ছিক)</option>
-                                        @foreach(App\Models\ShopInfo::get(['name','user_id']) as $vend)
-                                        <option @isset($product->user_id)@if($product->user_id==$vend->user_id)selected @endif @endisset value="{{$vend->user_id}}">{{$vend->name}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="modern-form-group">
-                                <label for="prdct_extra_msg" class="modern-label">📢 বিশেষ বার্তা</label>
-                                <input type="text" name="prdct_extra_msg" id="prdct_extra_msg" placeholder="দ্রুত ডেলিভারি উপলব্ধ, সীমিত সংস্করণ, ইত্যাদি" class="form-control modern-input @error('prdct_extra_msg') is-invalid @enderror" value="{{ $product->prdct_extra_msg ?? '' }}">
-                                @error('prdct_extra_msg')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ৩. মূল্য ও ইনভেন্টরি বিভাগ -->
-                    <div class="modern-section">
-                        <div class="modern-section-header" data-toggle="collapse" data-target="#pricing" aria-expanded="true">
-                            <i class="fas fa-dollar-sign modern-section-icon"></i>
-                            <h4 class="modern-section-title">💰 মূল্য ও ইনভেন্টরি</h4>
-                            <i class="fas fa-chevron-down ml-auto"></i>
-                        </div>
-
-                        <div class="collapse show" id="pricing">
-                            <div class="price-grid">
-                                <div class="price-card">
-                                    <label for="buying_price" class="modern-label">💰 ক্রয় মূল্য</label>
-                                    <input step="0.01" type="number" name="buying_price" id="buying_price" placeholder="আপনার ক্রয় মূল্য" class="form-control modern-input @error('buying_price') is-invalid @enderror" value="{{ $product->buying_price ?? old('buying_price') }}">
-                                    @error('buying_price')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="price-card">
-                                    <label for="whole_price" class="modern-label">📦 পাইকারি মূল্য</label>
-                                    <input step="0.01" type="number" name="whole_price" id="whole_price" placeholder="বাল্ক বিক্রয় মূল্য" class="form-control modern-input @error('whole_price') is-invalid @enderror" value="{{ $product->whole_price ?? old('whole_price') }}">
-                                    @error('whole_price')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="price-card">
-                                    <label for="regular_price" class="modern-label">🏷️ নিয়মিত মূল্য <span class="text-danger">*</span></label>
-                                    <input step="0.01" type="number" name="regular_price" id="regular_price" placeholder="গ্রাহক মূল্য" class="form-control modern-input @error('regular_price') is-invalid @enderror" value="{{ $product->regular_price ?? old('regular_price') }}" required>
-                                    @error('regular_price')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="price-card">
-                                    <label for="quantity" class="modern-label">📚 স্টক পরিমাণ <span class="text-danger">*</span></label>
-                                    <input type="number" name="quantity" id="quantity" placeholder="উপলব্ধ কপি" class="form-control modern-input @error('quantity') is-invalid @enderror" value="{{ $product->quantity ?? old('quantity') }}" required>
-                                    @error('quantity')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="form-row-modern">
-                                <div class="modern-form-group">
-                                    <label for="dis_type" class="modern-label">🎫 ছাড়ের ধরন</label>
-                                    <select name="dis_type" id="dis_type" class="form-control modern-select @error('dis_type') is-invalid @enderror">
-                                        <option value="0" @isset($product) {{$product->dis_type == '0' ? 'selected':''}} @endisset>কোন ছাড় নেই</option>
-                                        <option value="1" @isset($product) {{$product->dis_type == '1' ? 'selected':''}} @endisset>নির্দিষ্ট পরিমাণ</option>
-                                        <option value="2" @isset($product) {{$product->dis_type == '2' ? 'selected':''}} @endisset>শতকরা %</option>
-                                    </select>
-                                    @error('dis_type')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                @isset($product) 
-                                    @if($product->dis_type == '2')
-                                        @php($discount_price=(($product->regular_price - $product->discount_price) / ($product->regular_price ))*100)
-                                    @else
-                                        @if($product->discount_price<1)
-                                            @php($discount_price='')
-                                        @else
-                                            @php($discount_price=$product->regular_price-$product->discount_price)
-                                        @endif
-                                    @endif
-                                @endisset
-
-                                <div class="modern-form-group">
-                                    <label for="discount_price" class="modern-label">💸 ছাড়ের পরিমাণ</label>
-                                    <input step="0.01" type="number" name="discount_price" id="discount_price" placeholder="ছাড়ের মান" class="form-control modern-input @error('discount_price') is-invalid @enderror" value="{{ $discount_price ?? old('discount_price') }}">
-                                    @error('discount_price')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="modern-form-group">
-                                    <label for="point" class="modern-label">⭐ লয়ালটি পয়েন্ট</label>
-                                    <input type="number" name="point" id="point" placeholder="অর্জিত পয়েন্ট" class="form-control modern-input @error('point') is-invalid @enderror" value="{{ $product->point ?? old('point') }}">
-                                    @error('point')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ৪. বইয়ের কভার ও মিডিয়া বিভাগ - ডিফল্টভাবে খোলা -->
-                    <div class="modern-section media-section">
-                        <div class="modern-section-header" data-toggle="collapse" data-target="#media" aria-expanded="true">
-                            <i class="fas fa-camera modern-section-icon"></i>
-                            <h4 class="modern-section-title">📸 বইয়ের কভার ও মিডিয়া</h4>
-                            <i class="fas fa-chevron-down ml-auto"></i>
-                        </div>
-
-                        <div class="collapse show" id="media">
-                            <!-- বইয়ের কভার আপলোড - হাইলাইটেড -->
-                            <div class="modern-form-group">
-                                <div class="book-cover-highlight">
-                                    <label for="image" class="modern-label">📖 মূল বইয়ের কভার <span class="text-danger">*</span></label>
-                                    <p class="text-muted mb-3">আপনার বইয়ের সামনের কভার আপলোড করুন। এটি গ্রাহকরা দেখতে পাবেন প্রধান ছবি হিসেবে।</p>
-                                    <input type="file" name="image" id="image" accept="image/*" class="form-control dropify modern-input @error('image') is-invalid @enderror" data-default-file="@isset($product) /uploads/product/{{$product->image}}@endisset">
-                                    @error('image')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <!-- অতিরিক্ত ছবি -->
-                            <div class="modern-form-group">
-                                <label class="modern-label">📸 অতিরিক্ত বইয়ের ছবি</label>
-                                <p class="text-muted mb-3">পিছনের কভার, ভিতরের পৃষ্ঠা, বা অন্যান্য প্রাসঙ্গিক ছবি আপলোড করুন</p>
-                                <div class="input-group" id="increment">
-                                    <input type="file" class="form-control modern-input" accept="image/*" id="images" name="images[]" @isset($product) @else required @endisset>
-                                    <select name="imagesc[]" id="imagesc" class="form-control modern-select">
-                                        <option value="">রঙের ভ্যারিয়েন্ট নির্বাচন করুন</option>
-                                        @foreach ($colors as $color)
-                                            <option style="color:white;background: {{$color->code}}" value="{{$color->slug}}">{{$color->name}}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="input-group-append" id="add" style="cursor:pointer">
-                                        <span class="input-group-text bg-success text-white">আরো যোগ করুন</span>
-                                    </div>
-                                </div>
-                                @error('images')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-
-                                @isset($product)
-                                    <div class="mt-3">
-                                        @foreach($product->images as $image)
-                                            <div class="d-flex align-items-center p-3 mb-2 border rounded" @foreach ($colors as $color) @if($color->slug==$image->color_attri) style="background: {{$color->code}}20; border-color: {{$color->code}};" @endif @endforeach>
-                                                <img src="{{asset('uploads/product/'.$image->name)}}" style="width: 100px;height: 70px;object-fit: cover;border-radius: 8px;">
-                                                <div class="flex-grow-1 text-right">
-                                                    <a class="modern-btn modern-btn-danger" href="{{route('admin.idelte',$image->id)}}">🗑️ মুছুন</a>
+                                <div id="increment_color" class="mt-3">
+                                    @isset($product)
+                                        @foreach($colors_product as $pro_color)
+                                            <div class="color-variation-item border rounded p-3 mb-3" data-color-id="{{$pro_color->id}}">
+                                                <div class="row align-items-center">
+                                                    <div class="col-md-3">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="color-swatch" style="background-color: {{$pro_color->code}};"></div>
+                                                            <strong>{{$pro_color->name}}</strong>
+                                                        </div>
+                                                        <input type="hidden" name="colors[]" value="{{$pro_color->id}}">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="small mb-1">Stock Quantity *</label>
+                                                        <input class="form-control form-control-sm color-qty-input" type="number" placeholder="Qty" name="color_quantits[]" value="{{$pro_color->qnty}}" required min="0">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="small mb-1">Price Adjustment</label>
+                                                        <input class="form-control form-control-sm" type="number" step="0.01" placeholder="+ Price" name="color_prices[]" value="{{$pro_color->price}}">
+                                                    </div>
+                                                    <div class="col-md-3 text-right">
+                                                        <button type="button" class="btn btn-sm btn-info upload-color-images" data-color-id="{{$pro_color->id}}">
+                                                            <i class="fas fa-images"></i> Images
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-danger remove_color_item">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Color-specific image upload area -->
+                                                <div class="color-images-area mt-3" style="display:none;">
+                                                    <label class="small"><i class="fas fa-camera"></i> Images for {{$pro_color->name}}</label>
+                                                    <div class="color-images-container">
+                                                        <input type="file" class="form-control-file" name="color_images[{{$pro_color->id}}][]" multiple accept="image/*">
+                                                    </div>
+                                                    @php
+                                                        $colorImages = $product->images->where('color_attri', $pro_color->id);
+                                                    @endphp
+                                                    @if($colorImages->count() > 0)
+                                                        <div class="mt-2">
+                                                            <small class="text-muted">Existing images:</small>
+                                                            <div class="d-flex flex-wrap mt-2">
+                                                                @foreach($colorImages as $img)
+                                                                    <div class="position-relative mr-2 mb-2">
+                                                                        <img src="{{ asset('uploads/product/'.$img->name) }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; border: 2px solid #ddd;">
+                                                                        <a href="{{ route('admin.idelte', $img->id) }}" class="btn btn-sm btn-danger position-absolute" style="top: -5px; right: -5px; padding: 2px 6px;" onclick="return confirm('Delete this image?')">
+                                                                            <i class="fas fa-times"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endforeach
-                                    </div>
-                                @endisset
+                                    @endisset
+                                </div>
+                                <small class="text-info"><i class="fas fa-info-circle"></i> Total stock = Sum of all color quantities + attribute quantities</small>
                             </div>
+                            
+                            <hr class="my-4"/>
+                            
+                            <!-- Attribute Variations Section -->
+                            <div id="attribute_section">
+                                <label><i class="fas fa-tags"></i> Attributes (Size, Material, etc.)</label>
+                                <small class="form-text text-muted mb-3">Add attribute variations with individual stock quantities and prices</small>
+                                @php
+                                    $product_attributes_map = [];
+                                    if (isset($product)) {
+                                        foreach($product->attributes_values as $val) {
+                                            $product_attributes_map[$val->id] = [
+                                                'qnty' => $val->pivot->qnty ?? '',
+                                                'price' => $val->pivot->price ?? ''
+                                            ];
+                                        }
+                                    }
+                                @endphp
 
-                            <!-- রঙ নির্বাচন - ডিফল্টভাবে খোলা -->
-                            <div class="modern-form-group">
-                                <div class="modern-section">
-                                    <label class="modern-label" for="color">
-                                        <button style="width: 100%;text-align:left;background:none;border:none;" type="button" data-toggle="collapse" data-target="#collapseExampleColor" aria-expanded="true" aria-controls="collapseExampleColor">
-                                            🎨 বইয়ের কভারের রঙ
-                                            <i style="float: right;top: 8px;position: relative;" class="fas fa-chevron-down"></i>
-                                        </button>
-                                    </label>
-                                    
-                                    <div class="collapse show" id="collapseExampleColor">
-                                        <div class="input-group">
-                                            <select id="select_color" data-placeholder="রঙ নির্বাচন করুন" class="form-control modern-select @error('colors') is-invalid @enderror">
-                                                <option value="">রঙ নির্বাচন করুন</option>
-                                                @foreach ($colors as $color)
-                                                    <option style="color:white;background: {{$color->code}}" value="{{$color->slug.','.$color->id}}">{{$color->name}}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('colors')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        
-                                        <div id="increment_color">
-                                            @isset($product)
-                                            @foreach($colors_product as $pro_color)
-                                                <div class="input-group mt-2">
-                                                    <input class="form-control modern-input" type="hidden" readonly="" name="colors[]" value="{{$pro_color->id}}">
-                                                    <input class="form-control modern-input" type="text" readonly="" value="{{$pro_color->name}}">
-                                                    <input class="form-control modern-input" type="number" placeholder="অতিরিক্ত মূল্য" name="color_prices[]" value="{{$pro_color->price}}">
-                                                    <input class="form-control modern-input" type="number" placeholder="অতিরিক্ত পরিমাণ" name="color_quantits[]" value="{{$pro_color->qnty}}">
-                                                    <div class="input-group-append" id="remove" style="cursor:pointer">
-                                                        <a href="{{route('admin.color.delete.n2',['cc'=>$pro_color->id,'pp'=>$product->id])}}">
-                                                            <span class="input-group-text bg-danger text-white">সরান</span>
-                                                        </a>
+                                @if(isset($attributes) && count($attributes) > 0)
+                                    @foreach($attributes as $attribute)
+                                    <div class="mb-4 p-3 border rounded bg-light">
+                                        <h6 class="font-weight-bold"><i class="fas fa-tag"></i> {{ $attribute->name }}</h6>
+                                        <hr class="mt-2 mb-3">
+                                        <div class="row">
+                                            @foreach($attribute->values as $key => $value)
+                                                @php
+                                                    $isChecked = isset($product_attributes_map[$value->id]);
+                                                    $qnty = $isChecked ? $product_attributes_map[$value->id]['qnty'] : '';
+                                                    $price = $isChecked ? $product_attributes_map[$value->id]['price'] : '';
+                                                @endphp
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="attribute-item p-2 border rounded bg-white">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input attribute-checkbox" type="checkbox" name="attributes[]" value="{{ $value->id }}" id="attr_{{ $value->id }}" {{ $isChecked ? 'checked' : '' }}>
+                                                            <label class="form-check-label font-weight-bold" for="attr_{{ $value->id }}">
+                                                                {{ $value->name }}
+                                                            </label>
+                                                        </div>
+                                                        <div class="attribute-details row mt-2" style="{{ $isChecked ? '' : 'display: none;' }}">
+                                                            <div class="col-6">
+                                                                <label class="small mb-1">Stock Qty *</label>
+                                                                <input type="number" name="attributes_quantits[]" class="form-control form-control-sm attr-qty-input" placeholder="Quantity" value="{{ $qnty }}" {{ $isChecked ? '' : 'disabled' }} min="0">
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <label class="small mb-1">Price Adj.</label>
+                                                                <input type="number" step="0.01" name="attribute_prices[]" class="form-control form-control-sm" placeholder="+ Price" value="{{ $price }}" {{ $isChecked ? '' : 'disabled' }}>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            @endforeach 
-                                            @endisset
+                                            @endforeach
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- ভিডিও আপলোড -->
-                            <div class="modern-form-group">
-                                @isset($product)
-                                    <div class="mb-3">
-                                        <a target="_blank" href="{{asset('uploads/product/video/'.$product->video)}}" class="modern-btn modern-btn-info">📹 বর্তমান ভিডিও দেখুন</a>
-                                        <a target="_blank" href="{{asset('uploads/product/video/'.$product->video_thumb)}}" class="modern-btn modern-btn-info">🖼️ ভিডিও থাম্বনেইল দেখুন</a>
+                                    @endforeach
+                                @else
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle"></i> No attributes defined. <a href="{{ route('admin.attribute.index') }}" target="_blank">Create attributes</a> to add variations like Size, Material, etc.
                                     </div>
-                                @endisset
-                                
-                                <label for="video" class="modern-label">🎬 বইয়ের ট্রেইলার/ভিডিও</label>
-                                <input type="file" name="video" class="form-control modern-input @error('video') is-invalid @enderror" accept="video/*">
-                                
-                                <label for="yvideo" class="modern-label mt-3">📺 অথবা ইউটিউব ভিডিও ইউআরএল</label>
-                                <input value="{{ $product->yvideo ?? old('yvideo') }}" type="text" name="yvideo" placeholder="https://youtube.com/watch?v=..." class="form-control modern-input @error('yvideo') is-invalid @enderror">
-                                
-                                <label for="video_thumb" class="modern-label mt-3">🖼️ ভিডিও থাম্বনেইল</label>
-                                <input type="file" name="video_thumb" class="form-control modern-input @error('video_thumb') is-invalid @enderror" accept="image/*">
-                                
-                                @error('video')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ৫. বিভাগ ও শ্রেণীবিভাগ -->
-                    <div class="modern-section">
-                        <div class="modern-section-header" data-toggle="collapse" data-target="#categories" aria-expanded="true">
-                            <i class="fas fa-tags modern-section-icon"></i>
-                            <h4 class="modern-section-title">🏷️ বিভাগ ও শ্রেণীবিভাগ</h4>
-                            <i class="fas fa-chevron-down ml-auto"></i>
-                        </div>
-
-                        <div class="collapse show" id="categories">
-                            <div class="form-row-modern">
-                                <div class="modern-form-group">
-                                    <label for="category" class="modern-label">📚 ধরন/বিভাগ <span class="text-danger">*</span></label>
-                                    <select name="categories[]" id="category" multiple data-placeholder="ধরন নির্বাচন করুন" class="category form-control select2 modern-select @error('categories') is-invalid @enderror" required>
-                                        <option value="">বিভাগ নির্বাচন করুন</option>
-                                        @foreach ($categories as $category)
-                                            <option value="{{$category->id}}" @isset($product) @foreach($product->categories as $pro_category) {{$category->id == $pro_category->id ? 'selected':''}} @endforeach @endisset>{{$category->name}}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('categories')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="form-row-modern">
-                                <div class="modern-form-group">
-                                    <label for="sub_category" class="modern-label">📖 উপ ধরন</label>
-                                    <select name="sub_categories[]" id="sub_category" data-placeholder="উপ বিভাগ নির্বাচন করুন" class="sub_category form-control {{isset($product) ? 'select2':''}} modern-select @error('sub_categories') is-invalid @enderror" {{isset($product) ? 'multiple':''}}>
-                                        @isset($product)
-                                            @foreach ($product->sub_categories as $sub_category)
-                                                <option value="{{$sub_category->id}}" selected>{{$sub_category->name}}</option>
-                                            @endforeach
-                                        @endisset
-                                    </select>
-                                    @error('sub_categories')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="modern-form-group">
-                                    <label for="mini_category" class="modern-label">📑 নির্দিষ্ট বিষয়</label>
-                                    <select name="mini_categories[]" id="mini_category" data-placeholder="বিষয় নির্বাচন করুন" class="mini_category form-control {{isset($product) ? 'select2':''}} modern-select @error('mini_categories') is-invalid @enderror" {{isset($product) ? 'multiple':''}}>
-                                        @isset($product)
-                                            @foreach ($product->mini_categories as $mini_category)
-                                                <option value="{{$mini_category->id}}" selected>{{$mini_category->name}}</option>
-                                            @endforeach
-                                        @endisset
-                                    </select>
-                                    @error('mini_categories')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="form-row-modern">
-                                <div class="modern-form-group">
-                                    <label for="extra_category" class="modern-label">🎯 অতিরিক্ত ট্যাগ</label>
-                                    <select name="extra_categories[]" id="extra_category" data-placeholder="অতিরিক্ত বিভাগ নির্বাচন করুন" class="extra_categories form-control {{isset($product) ? 'select2':''}} modern-select @error('extra_categories') is-invalid @enderror" {{isset($product) ? 'multiple':''}}>
-                                        @isset($product)
-                                            @foreach ($product->extra_categories as $extra_category)
-                                                <option value="{{$extra_category->id}}" selected>{{$extra_category->name}}</option>
-                                            @endforeach
-                                        @endisset
-                                    </select>
-                                    @error('extra_categories')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="modern-form-group">
-                                    <label for="tag" class="modern-label">🏷️ কীওয়ার্ড</label>
-                                    <select name="tags[]" id="tag" multiple data-placeholder="ট্যাগ নির্বাচন করুন" class="form-control select2 modern-select @error('tags') is-invalid @enderror">
-                                        <option value="">ট্যাগ নির্বাচন করুন</option>
-                                        @foreach ($tags as $tag)
-                                            <option value="{{$tag->id}}" @isset($product) @foreach($product->tags as $pro_tag) {{$tag->id == $pro_tag->id ? 'selected':''}} @endforeach @endisset>{{$tag->name}}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('tags')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="form-row-modern">
-                                <div class="modern-form-group">
-                                    <label for="campaign" class="modern-label">📢 মার্কেটিং ক্যাম্পেইন</label>
-                                    <select name="campaigns[]" id="campaign" multiple data-placeholder="ক্যাম্পেইন নির্বাচন করুন" class="category form-control select2 modern-select @error('campaigns') is-invalid @enderror">
-                                        <option value="">ক্যাম্পেইন নির্বাচন করুন</option>
-                                        @foreach ($campaigns as $campaign)
-                                            <option value="{{$campaign->id}}" @isset($product) {{$campaign->id == $product->brand_id ? 'selected':''}} @endisset>{{$campaign->name}}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('campaigns')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                @if(isset($sizes) && count($sizes) > 0)
-                                <div class="modern-form-group">
-                                    <label for="size" class="modern-label">📏 বইয়ের ফরম্যাট</label>
-                                    <select name="sizes[]" id="size" multiple data-placeholder="ফরম্যাট নির্বাচন করুন" class="form-control select2 modern-select @error('sizes') is-invalid @enderror">
-                                        <option value="">সাইজ নির্বাচন করুন</option>
-                                        @foreach ($sizes as $size)
-                                            <option value="{{$size->id}}" @isset($product) @foreach($product->sizes as $pro_size) {{$size->id == $pro_size->id ? 'selected':''}} @endforeach @endisset>{{$size->name}}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('sizes')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
                                 @endif
                             </div>
-                        </div>
-                    </div>
-
-                    <input type='hidden' name="shipping_charge" value="1">
-
-                    <!-- ৬. পণ্যের সেটিংস -->
-                    <div class="modern-section">
-                        <div class="modern-section-header">
-                            <i class="fas fa-cog modern-section-icon"></i>
-                            <h4 class="modern-section-title">⚙️ পণ্যের সেটিংস</h4>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="col-md-3">
-                                <div class="modern-form-group">
-                                    <label class="modern-switch">
-                                        <input type="checkbox" name="status" id="status" @isset ($product) {{ $product->status ? 'checked':'' }} @else checked @endisset>
-                                        <span class="modern-slider"></span>
-                                    </label>
-                                    <label for="status" class="modern-label">✅ সক্রিয় অবস্থা</label>
-                                </div>
-                            </div>
                             
-                            <div class="col-md-3">
-                                <div class="modern-form-group">
-                                    <label class="modern-switch">
-                                        <input type="checkbox" name="book" id="book" @isset ($product) {{ $product->book ? 'checked':'' }} @else checked @endisset>
-                                        <span class="modern-slider"></span>
-                                    </label>
-                                    <label for="book" class="modern-label">📚 বই পণ্য</label>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-3">
-                                <div class="modern-form-group">
-                                    <label class="modern-switch">
-                                        <input type="checkbox" name="sheba" id="sheba" @isset ($product) {{ $product->sheba ? 'checked':'' }} @endisset>
-                                        <span class="modern-slider"></span>
-                                    </label>
-                                    <label for="sheba" class="modern-label">🚚 শেবা ডেলিভারি</label>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-3">
-                                <div class="modern-form-group">
-                                    <label class="modern-switch">
-                                        <input type="checkbox" name="download_able" id="download_able" @isset($product){{ $product->download_able ? 'checked':''}} @endisset>
-                                        <span class="modern-slider"></span>
-                                    </label>
-                                    <label for="download_able" class="modern-label">💾 ডাউনলোডযোগ্য</label>
-                                </div>
+                            <div class="alert alert-warning mt-3 mb-0">
+                                <i class="fas fa-calculator"></i> <strong>Stock Calculation:</strong> 
+                                <span id="total-stock-display">Total stock will be calculated automatically</span>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- ডাউনলোড ফাইল মোডাল -->
-                    @isset($product)
-                        @if ($product->downloads->count() < 1)
-                        <div class="modal fade" id="modal-default">
-                            <div class="modal-dialog modal-xl">
-                                <div class="modal-content modern-card">
-                                    <div class="modal-header modern-card-header">
-                                        <h4 class="modal-title">📥 ডাউনলোডযোগ্য ফাইল যোগ করুন</h4>
-                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
+                <!-- Right Column -->
+                <div class="col-md-4">
+                    <!-- Publish Card -->
+                    <div class="card card-primary card-outline">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-cog"></i> Publish</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="status">Status</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="status" name="status" @isset($product) {{ $product->status ? 'checked' : '' }} @else checked @endisset>
+                                    <label class="custom-control-label" for="status">Publish Product</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="shipping_charge">Shipping</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="shipping_charge" name="shipping_charge" value="1" @isset($product) {{ $product->shipping_charge ? 'checked' : '' }} @else checked @endisset>
+                                    <label class="custom-control-label" for="shipping_charge">Enable Shipping Charge</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="prdct_extra_msg">Special Message</label>
+                                <input type="text" name="prdct_extra_msg" id="prdct_extra_msg" class="form-control @error('prdct_extra_msg') is-invalid @enderror" value="{{ $product->prdct_extra_msg ?? old('prdct_extra_msg') }}" placeholder="e.g., Limited Stock!">
+                                @error('prdct_extra_msg')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                             <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-save"></i>
+                                @isset($product)
+                                    Update Product
+                                @else
+                                    Save Product
+                                @endisset
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Categorization Card -->
+                    <div class="card card-primary card-outline">
+                        <div class="card-header"><h3 class="card-title"><i class="fas fa-folder"></i> Categorization</h3></div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="brand">Brand <span class="text-danger">*</span></label>
+                                <select name="brand" id="brand" class="form-control select2 @error('brand') is-invalid @enderror" required>
+                                    <option value="">Select Brand</option>
+                                    @foreach ($brands as $brand)
+                                        <option value="{{ $brand->id }}" @isset($product) {{ $brand->id == $product->brand_id ? 'selected' : '' }} @endisset>{{ $brand->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('brand')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="category">Categories <span class="text-danger">*</span></label>
+                                <select name="categories[]" id="category" multiple class="form-control select2 @error('categories') is-invalid @enderror" required>
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}" @isset($product) @foreach($product->categories as $pro_cat) {{ $category->id == $pro_cat->id ? 'selected' : '' }} @endforeach @endisset>{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('categories')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="sub_category">Sub Categories</label>
+                                <select name="sub_categories[]" id="sub_category" class="form-control select2" multiple></select>
+                            </div>
+                             <div class="form-group">
+                                <label for="tags">Tags</label>
+                                <select name="tags[]" id="tags" multiple class="form-control select2">
+                                      @foreach ($tags as $tag)
+                                        <option value="{{$tag->id}}" @isset($product) @foreach($product->tags as $pro_tag) {{$tag->id == $pro_tag->id ? 'selected':''}} @endforeach @endisset>{{$tag->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Media Card -->
+                    <div class="card card-primary card-outline">
+                        <div class="card-header"><h3 class="card-title"><i class="fas fa-images"></i> Media</h3></div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="image">Main Image <span class="text-danger">*</span></label>
+                                <input type="file" name="image" id="image" class="form-control dropify @error('image') is-invalid @enderror" data-default-file="@isset($product)/uploads/product/{{$product->image}}@endisset">
+                                @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <hr>
+                            <div class="form-group">
+                                <label for="images">General Gallery Images</label>
+                                <small class="form-text text-muted">Images not tied to any specific color</small>
+                                <div class="input-group mt-2" id="gallery_increment">
+                                     <input type="file" class="form-control" name="images[]" accept="image/*">
+                                     <div class="input-group-append" id="add_gallery_item" style="cursor:pointer">
+                                        <span class="input-group-text bg-success"><i class="fas fa-plus"></i> Add More</span>
                                     </div>
-                                    <div class="modal-body">
-                                        <div class="form-horizontal">
-                                            <div class="card-body">
-                                                <div class="form-group row">
-                                                    <label for="inputEmail3" class="col-sm-2 col-form-label modern-label">📁 ডাউনলোডযোগ্য ফাইল</label>
-                                                    <div class="col-sm-10">
-                                                        <div class="card border modern-section">
-                                                            <div class="card-header">
-                                                                <div class="row">
-                                                                    <div class="col-md-4">
-                                                                        <strong>📝 নাম:</strong>
-                                                                    </div>
-                                                                    <div class="col-md-4"><strong>🔗 ফাইল ইউআরএল:</strong></div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="card-body px-1 py-2">
-                                                                <div class="row">
-                                                                    <div class="col-12" id="increment-file">
-                                                                        
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="card-footer">
-                                                                <span id="add-file" class="modern-btn modern-btn-success">➕ ফাইল যোগ করুন</span>
-                                                            </div>
-                                                        </div>
+                                </div>
+                                 @isset($product)
+                                    @php
+                                        $generalImages = $product->images->whereNull('color_attri');
+                                    @endphp
+                                    @if($generalImages->count() > 0)
+                                        <div class="mt-3">
+                                            <small class="text-muted">Existing general images:</small>
+                                            <div class="d-flex flex-wrap mt-2">
+                                                @foreach($generalImages as $image)
+                                                    <div class="position-relative mr-2 mb-2">
+                                                        <img src="{{ asset('uploads/product/'.$image->name) }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; border: 2px solid #ddd;">
+                                                        <a href="{{ route('admin.idelte', $image->id) }}" class="btn btn-sm btn-danger position-absolute" style="top: -5px; right: -5px; padding: 2px 6px;" onclick="return confirm('Delete this image?')">
+                                                            <i class="fas fa-times"></i>
+                                                        </a>
                                                     </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label for="download_limit" class="col-sm-2 col-form-label modern-label">📊 ডাউনলোড সীমা</label>
-                                                    <div class="col-sm-4">
-                                                        <input type="number" class="form-control modern-input" id="download_limit" name="download_limit" value="{{$product->download_limit ?? old('download_limit')}}">
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <span class="text-muted">সীমাহীন ডাউনলোডের জন্য খালি রাখুন</span>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label for="download_expire" class="col-sm-2 col-form-label modern-label">⏰ ডাউনলোড মেয়াদ</label>
-                                                    <div class="col-sm-4">
-                                                        <input type="date" class="form-control modern-input" id="download_expire" name="download_expire" value="{{$product->download_expire ?? old('download_expire')}}">
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <span class="text-muted">মেয়াদ উত্তীর্ণের তারিখ সেট করুন বা খালি রাখুন</span>
-                                                    </div>
-                                                </div>
+                                                @endforeach
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="modern-btn modern-btn-danger" data-dismiss="modal">❌ বন্ধ করুন</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @endif
-                    @else
-                    <div class="modal fade" id="modal-default">
-                        <div class="modal-dialog modal-xl">
-                            <div class="modal-content modern-card">
-                                <div class="modal-header modern-card-header">
-                                    <h4 class="modal-title">📥 ডাউনলোডযোগ্য ফাইল যোগ করুন</h4>
-                                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="form-horizontal">
-                                        <div class="card-body">
-                                            <div class="form-group row">
-                                                <label for="inputEmail3" class="col-sm-2 col-form-label modern-label">📁 ডাউনলোডযোগ্য ফাইল</label>
-                                                <div class="col-sm-10">
-                                                    <div class="card border modern-section">
-                                                        <div class="card-header">
-                                                            <div class="row">
-                                                                <div class="col-md-4">
-                                                                    <strong>📝 নাম:</strong>
-                                                                </div>
-                                                                <div class="col-md-4"><strong>🔗 ফাইল ইউআরএল:</strong></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="card-body px-1 py-2">
-                                                            <div class="row">
-                                                                <div class="col-12" id="increment-file">
-                                                                    
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="card-footer">
-                                                            <span id="add-file" class="modern-btn modern-btn-success">➕ ফাইল যোগ করুন</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group row">
-                                                <label for="download_limit" class="col-sm-2 col-form-label modern-label">📊 ডাউনলোড সীমা</label>
-                                                <div class="col-sm-4">
-                                                    <input type="number" class="form-control modern-input" id="download_limit" name="download_limit" value="{{$product->download_limit ?? old('download_limit')}}">
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <span class="text-muted">সীমাহীন ডাউনলোডের জন্য খালি রাখুন</span>
-                                                </div>
-                                            </div>
-                                            <div class="form-group row">
-                                                <label for="download_expire" class="col-sm-2 col-form-label modern-label">⏰ ডাউনলোড মেয়াদ</label>
-                                                <div class="col-sm-4">
-                                                    <input type="date" class="form-control modern-input" id="download_expire" name="download_expire" value="{{$product->download_expire ?? old('download_expire')}}">
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <span class="text-muted">মেয়াদ উত্তীর্ণের তারিখ সেট করুন বা খালি রাখুন</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="modern-btn modern-btn-danger" data-dismiss="modal">❌ বন্ধ করুন</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endisset
-                </div>
-
-                <div class="card-footer p-4" style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);">
-                    <button type="submit" class="modern-btn modern-btn-primary">
-                        @isset($product)
-                            <i class="fas fa-save"></i>
-                            বই আপডেট করুন
-                        @else
-                            <i class="fas fa-plus-circle"></i>
-                            ক্যাটালগে বই যোগ করুন
-                        @endisset
-                    </button>
-                </div>
-            </form>
-
-            <div class="col-lg-4">
-                @include('components.product-sidebar')
-            </div>
-        </div>
-    </div>
-
-    <!-- ডাউনলোড ফাইল আপডেট বিভাগ -->
-    @if(isset($product->downloads) && $product->downloads->count() > 0)
-    <div class="modern-card mt-4">
-        <div class="modern-card-header">
-            <h3 class="mb-0">📥 ডাউনলোড ফাইল আপডেট করুন</h3>
-        </div>
-        
-        <form action="{{routeHelper('update/product/download')}}" class="form-horizontal" method="POST" enctype="multipart/form-data">
-            @csrf
-            <input type="hidden" name="product_id" value="{{$product->id}}">
-            <div class="card-body p-4">
-                <div class="form-group row">
-                    <label for="inputEmail3" class="col-sm-2 col-form-label modern-label">📁 ডাউনলোডযোগ্য ফাইল</label>
-                    <div class="col-sm-10">
-                        <div class="card border modern-section">
-                            <div class="card-header">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <strong>📝 নাম:</strong>
-                                    </div>
-                                    <div class="col-md-4"><strong>🔗 ফাইল ইউআরএল:</strong></div>
-                                </div>
-                            </div>
-                            <div class="card-body px-1 py-2">
-                                <div class="row">
-                                    <div class="col-12" id="increment-file">
-                                        @isset($product->downloads)
-                                            @foreach ($product->downloads as $download)
-                                                <div class="row mt-2">
-                                                    <div class="col-md-4">
-                                                        <input type="text" name="file_name[]" class="form-control modern-input" placeholder="ফাইলের নাম লিখুন" value="{{$download->name}}">
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <input type="text" name="file_url[]" class="form-control modern-input" placeholder="ফাইল ইউআরএল লিখুন" value="{{$download->url}}">
-                                                    </div>
-                                                    <div class="col-md-2">
-                                                        <input type="file" name="files[]" class="form-control modern-input">
-                                                    </div>
-                                                    <div class="col-md-2">
-                                                        <input type="hidden" name="ids[]" value="{{$download->id}}">
-                                                        <a href="#" id="remove-file" data-id="{{$download->id}}" class="modern-btn modern-btn-danger"><i class="fa fa-trash-alt"></i></a>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        @endisset
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <span id="add-file" class="modern-btn modern-btn-success">➕ ফাইল যোগ করুন</span>
+                                    @endif
+                                @endisset
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="form-group row">
-                    <label for="download_limit" class="col-sm-2 col-form-label modern-label">📊 ডাউনলোড সীমা</label>
-                    <div class="col-sm-4">
-                        <input type="number" class="form-control modern-input" id="download_limit" name="download_limit" value="{{$product->download_limit ?? old('download_limit')}}">
-                    </div>
-                    <div class="col-sm-6">
-                        <span class="text-muted">সীমাহীন ডাউনলোডের জন্য খালি রাখুন</span>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label for="download_expire" class="col-sm-2 col-form-label modern-label">⏰ ডাউনলোড মেয়াদ</label>
-                    <div class="col-sm-4">
-                        <input type="date" class="form-control modern-input" id="download_expire" name="download_expire" value="{{$product->download_expire ?? old('download_expire')}}">
-                    </div>
-                    <div class="col-sm-6">
-                        <span class="text-muted">মেয়াদ উত্তীর্ণের তারিখ সেট করুন বা খালি রাখুন</span>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer p-4">
-                <button type="submit" class="modern-btn modern-btn-primary">💾 ফাইল আপডেট করুন</button>
             </div>
         </form>
     </div>
-    @endif
 </section>
-
 @endsection
 
 @push('js')
-    <!-- Select2 -->
     <script src="/assets/plugins/select2/js/select2.full.min.js"></script>
-    <script src="{{ asset('/assets/plugins/dropify/dropify.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
     <script src="/assets/plugins/summernote/summernote-bs4.min.js"></script>
-    <script src="/assets/dist/extra.js"></script>
-    <script type="text/javascript" src="/assets/plugins/file-uploader/image-uploader.min.js"></script>
-    
-    @isset($product)
-        @if ($product->downloads->count() < 1)
-        <script>
-            $(document).on('click', '#download_able', function(e) {
-                if (this.checked) {
-                    $('#modal-default').modal('show')
-                } else {
-                    $('#modal-default').modal('hide')
-                }
-            })
-        </script>
-        @endif
-    @else
-    <script>
-        $(document).on('click', '#download_able', function(e) {
-            if (this.checked) {
-                $('#modal-default').modal('show')
-            } else {
-                $('#modal-default').modal('hide')
-            }
-        })
-    </script>
-    @endisset
     
     <script>
         $(document).ready(function () {
-            $('.select2').select2({
-                theme: 'bootstrap4'
-            });
+            // Initialize plugins
+            $('.select2').select2({ theme: 'bootstrap4' });
             $('.dropify').dropify();
-            $('#full_description').summernote({
-                height: 200,
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'underline', 'clear']],
-                    ['fontname', ['fontname']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['table', ['table']],
-                    ['insert', ['link', 'picture', 'video']],
-                    ['view', ['fullscreen', 'codeview', 'help']]
-                ]
-            });
+            $('#full_description, #short_description').summernote({ height: 150 });
 
-            $('#short_description').summernote({
-                height: 150,
-                toolbar: [
-                    ['font', ['bold', 'underline', 'clear']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['insert', ['link']]
-                ]
-            });
-
-            // ছবি বৃদ্ধি
-            $(document).on('click', '#add', function (e) { 
-                let htmlData = '<div class="input-group mt-2">';
-                htmlData += '<input type="file" class="form-control modern-input" accept="image/*" name="images[]" required>';
-                htmlData += '<select name="imagesc[]" class="form-control modern-select">';
-                htmlData += $('#imagesc').html();
-                htmlData += '</select>';
-                htmlData += '<div class="input-group-append" id="remove" style="cursor:pointer">';
-                htmlData += '<span class="input-group-text bg-danger text-white">সরান</span>';
-                htmlData += '</div>';
-                htmlData += '</div>';
-                $('#increment').append(htmlData);
-            });
-
-            // রঙ বৃদ্ধি
-            $(document).on('change', '#select_color', function (e) { 
-               let colors = $(this).val();
-                var color = colors.split(',');
-
-                let htmlData = '<div class="input-group mt-2">';
-                htmlData += ' <input class="form-control modern-input" type="hidden" name="colors[]" readonly value="'+color[1]+'">';
-                htmlData += ' <input class="form-control modern-input" type="text" readonly value="'+color[0]+'">';
-                htmlData += ' <input class="form-control modern-input" type="number" placeholder="অতিরিক্ত মূল্য" name="color_prices[]" value="">';
-                htmlData += ' <input class="form-control modern-input" type="number" placeholder="অতিরিক্ত পরিমাণ" name="color_quantits[]" value="">';
-                htmlData += '<div class="input-group-append" id="remove" style="cursor:pointer">';
-                htmlData += '<span class="input-group-text bg-danger text-white">সরান</span>';
-                htmlData += '</div>';
-                htmlData += '</div>';
-                $('#increment_color').append(htmlData);
-            });
-
-            // উপাদান সরান
-            $(document).on('click', '#remove', function(e) {
-                $(this).parent().remove();
-            });
-
-            // ফাইল বৃদ্ধি
-            $(document).on('click', '#add-file', function (e) {
-                let htmlData = '<div class="row mt-2">';
-                htmlData += '<div class="col-md-4"><input type="text" name="file_name[]" class="form-control modern-input" placeholder="ফাইলের নাম লিখুন"></div>';
-                htmlData += '<div class="col-md-4"><input type="text" name="file_url[]" class="form-control modern-input" placeholder="ফাইল ইউআরএল লিখুন"></div>';
-                htmlData += '<div class="col-md-2"><input type="file" name="files[]" class="form-control modern-input"></div>';
-                htmlData += '<div class="col-md-2">';
-                htmlData += '<input type="hidden" name="ids[]" value="0">';
-                htmlData += '<button type="button" data-id="0" id="remove-file" class="modern-btn modern-btn-danger"><i class="fa fa-trash-alt"></i></button></div>';
-                htmlData += '</div>';
-
-                $('#increment-file').append(htmlData);
-            });
-
-            // ফাইল সরান
-            $(document).on('click', '#remove-file', function(e) {
-                e.preventDefault();
-                let btn = $(this);
-                let id = $(this).data('id');
-
-                if (id == 0) {
-                    $(this).parent().parent().remove();
+            // Calculate and display total stock
+            function calculateTotalStock() {
+                let total = 0;
+                let hasVariations = false;
+                
+                // Sum color quantities
+                $('input[name="color_quantits[]"]').each(function() {
+                    let val = parseInt($(this).val()) || 0;
+                    if(val > 0) {
+                        total += val;
+                        hasVariations = true;
+                    }
+                });
+                
+                // Sum attribute quantities
+                $('input[name="attributes_quantits[]"]:not(:disabled)').each(function() {
+                    let val = parseInt($(this).val()) || 0;
+                    if(val > 0) {
+                        total += val;
+                        hasVariations = true;
+                    }
+                });
+                
+                // Update display
+                if(hasVariations && total > 0) {
+                    $('#total-stock-display').html(`<strong>Total Stock: ${total} units</strong> (from all variations)`);
+                    $('#quantity').val(total).prop('readonly', true);
                 } else {
-                    $.ajax({
-                        type: 'GET',
-                        url: '/admin/delete/product/download/'+id,
-                        dataType: "JSON",
-                        beforeSend: function() {
-                            $(btn).addClass('disabled');
-                        },
-                        success: function (response) {
-                            $(btn).parent().parent().remove();
-                        },
-                        complete: function() {
-                            $(btn).removeClass('disabled');
-                        }
+                    $('#total-stock-display').html('Add color or attribute variations to calculate total stock automatically');
+                    $('#quantity').prop('readonly', false);
+                }
+            }
+
+            // Dynamic color fields with enhanced functionality
+            $('#select_color').on('change', function() {
+                if (!$(this).val()) return;
+                let colorData = $(this).val().split(',');
+                let colorName = colorData[0];
+                let colorId = colorData[1];
+                let colorCode = colorData[2];
+
+                let colorHtml = `
+                <div class="color-variation-item border rounded p-3 mb-3" data-color-id="${colorId}">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center">
+                                <div class="color-swatch" style="background-color: ${colorCode};"></div>
+                                <strong>${colorName}</strong>
+                            </div>
+                            <input type="hidden" name="colors[]" value="${colorId}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small mb-1">Stock Quantity *</label>
+                            <input class="form-control form-control-sm color-qty-input" type="number" placeholder="Qty" name="color_quantits[]" value="" required min="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small mb-1">Price Adjustment</label>
+                            <input class="form-control form-control-sm" type="number" step="0.01" placeholder="+ Price" name="color_prices[]" value="">
+                        </div>
+                        <div class="col-md-3 text-right">
+                            <button type="button" class="btn btn-sm btn-info upload-color-images" data-color-id="${colorId}">
+                                <i class="fas fa-images"></i> Images
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger remove_color_item">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="color-images-area mt-3" style="display:none;">
+                        <label class="small"><i class="fas fa-camera"></i> Images for ${colorName}</label>
+                        <div class="color-images-container">
+                            <input type="file" class="form-control-file" name="color_images[${colorId}][]" multiple accept="image/*">
+                        </div>
+                    </div>
+                </div>`;
+                
+                $('#increment_color').append(colorHtml);
+                $(this).val(''); // Reset select
+                calculateTotalStock();
+            });
+
+            // Remove color variation
+            $(document).on('click', '.remove_color_item', function() {
+                if(confirm('Remove this color variation?')) {
+                    $(this).closest('.color-variation-item').fadeOut(300, function() {
+                        $(this).remove();
+                        calculateTotalStock();
                     });
                 }
             });
 
-            // বিভাগ পরিবর্তন হ্যান্ডলার
-            $(document).on('change', '#category', function() {
-                var options = document.getElementById('category').selectedOptions;
-                var values = Array.from(options).map(({ value }) => value);
-                
-                $.ajax({
-                    type: 'POST',
-                    url: '/admin/get/sub-categories',
-                    data: {
-                        'ids': values,
-                        '_token': $('meta[name="csrf-token"]').attr('content'),
-                    },
-                    dataType: "JSON",
-                    success: function (response) {
-                        let data = '<option value="">উপ বিভাগ নির্বাচন করুন</option>';
-                        $.each(response, function (key, val) { 
-                            data += '<option value="'+val.id+'">'+val.name+'</option>';
-                        });
-                        $('#sub_category').html(data).attr('multiple', true).select2();
-                    }
-                });
-            });
-        
-            $(document).on('change', '#sub_category', function() {
-                var options = document.getElementById('sub_category').selectedOptions;
-                var values = Array.from(options).map(({ value }) => value);
-                
-                $.ajax({
-                    type: 'POST',
-                    url: '/admin/get/mini-categories',
-                    data: {
-                        'ids': values,
-                        '_token': $('meta[name="csrf-token"]').attr('content'),
-                    },
-                    dataType: "JSON",
-                    success: function (response) {
-                        let data = '<option value="">ছোট বিভাগ নির্বাচন করুন</option>';
-                        $.each(response, function (key, val) { 
-                            data += '<option value="'+val.id+'">'+val.name+'</option>';
-                        });
-                        $('#mini_category').html(data).attr('multiple', true).select2();
-                    }
-                });
+            // Toggle color image upload area
+            $(document).on('click', '.upload-color-images', function() {
+                $(this).closest('.color-variation-item').find('.color-images-area').slideToggle();
             });
 
-            $(document).on('change', '#mini_category', function() {
-                var options = document.getElementById('mini_category').selectedOptions;
-                var values = Array.from(options).map(({ value }) => value);
-                
-                $.ajax({
-                    type: 'POST',
-                    url: '/admin/get/extra-categories',
-                    data: {
-                        'ids': values,
-                        '_token': $('meta[name="csrf-token"]').attr('content'),
-                    },
-                    dataType: "JSON",
-                    success: function (response) {
-                        let data = '<option value="">অতিরিক্ত বিভাগ নির্বাচন করুন</option>';
-                        $.each(response, function (key, val) { 
-                            data += '<option value="'+val.id+'">'+val.name+'</option>';
-                        });
-                        $('#extra_category').html(data).attr('multiple', true).select2();
-                    }
-                });
+            // Update stock calculation on quantity change
+            $(document).on('input', '.color-qty-input, .attr-qty-input', function() {
+                calculateTotalStock();
             });
 
-            // ছাড়ের ধরন পরিবর্তন
-            $(document).on('change', '#dis_type', function(e) {
-                if ($(this).val() != "0") {
-                    $('#discount_price').prop('required', true);
+            // Attribute checkbox logic
+            $(document).on('change', '.attribute-checkbox', function() {
+                const detailsDiv = $(this).closest('.attribute-item').find('.attribute-details');
+                const detailInputs = detailsDiv.find('input');
+
+                if ($(this).is(':checked')) {
+                    detailsDiv.slideDown(200);
+                    detailInputs.prop('disabled', false).prop('required', true);
                 } else {
-                    $('#discount_price').prop('required', false);
+                    detailsDiv.slideUp(200);
+                    detailInputs.prop('disabled', true).prop('required', false);
+                    detailInputs.val('');
+                }
+                calculateTotalStock();
+            });
+
+            // Gallery images
+            $('#add_gallery_item').on('click', function() {
+                let galleryHtml = `
+                <div class="input-group mt-2">
+                    <input type="file" class="form-control" name="images[]" accept="image/*">
+                    <div class="input-group-append remove_gallery_item" style="cursor:pointer">
+                        <span class="input-group-text bg-danger"><i class="fas fa-minus"></i> Remove</span>
+                    </div>
+                </div>`;
+                $('#gallery_increment').append(galleryHtml);
+            });
+            
+            $(document).on('click', '.remove_gallery_item', function() {
+                $(this).parent().fadeOut(300, function() {
+                    $(this).remove();
+                });
+            });
+
+            // Fetch SubCategories on Category change
+            function fetchSubCategories(categoryIds) {
+                if (!categoryIds || categoryIds.length === 0) {
+                    $('#sub_category').html('').select2({theme: 'bootstrap4'});
+                    return;
+                }
+                
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ url("/admin/get/sub-categories") }}',
+                    data: {
+                        'ids': categoryIds,
+                        '_token': '{{ csrf_token() }}',
+                    },
+                    dataType: "JSON",
+                    success: function (response) {
+                        let options = '';
+                        let selectedSubCategories = [];
+                        @if(isset($product))
+                            selectedSubCategories = @json($product->sub_categories->pluck('id'));
+                        @endif
+
+                        $.each(response, function (key, val) {
+                            let isSelected = selectedSubCategories.includes(val.id) ? 'selected' : '';
+                            options += `<option value="${val.id}" ${isSelected}>${val.name}</option>`;
+                        });
+                        $('#sub_category').html(options).select2({theme: 'bootstrap4'});
+                    }
+                });
+            }
+
+            $('#category').on('change', function() {
+                fetchSubCategories($(this).val());
+            });
+
+            // Initial calculations and setup
+            @if(isset($product))
+                fetchSubCategories($('#category').val());
+                calculateTotalStock();
+            @endif
+
+            // Form validation before submit
+            $('form').on('submit', function(e) {
+                let hasColors = $('input[name="colors[]"]').length > 0;
+                let hasAttributes = $('input[name="attributes[]"]:checked').length > 0;
+                
+                if(hasColors || hasAttributes) {
+                    let totalStock = 0;
+                    
+                    $('input[name="color_quantits[]"]').each(function() {
+                        totalStock += parseInt($(this).val()) || 0;
+                    });
+                    
+                    $('input[name="attributes_quantits[]"]:not(:disabled)').each(function() {
+                        totalStock += parseInt($(this).val()) || 0;
+                    });
+                    
+                    if(totalStock === 0) {
+                        e.preventDefault();
+                        alert('Please add stock quantities for your variations!');
+                        return false;
+                    }
                 }
             });
         });
-    </script>
-
-    @isset($product)
-        <script>
-            function productImages() {
-                let id = '{!! $product->id !!}';
-                console.log(id);
-                $.ajax({
-                    type: 'GET',
-                    url: '/admin/get/product/image/'+id,
-                    dataType: 'JSON',
-                    success: function (response) {
-                        let preloaded = [];
-                        $.each(response, function (key, val) { 
-                            preloaded.push({
-                                id: val.id,
-                                src: '/uploads/product/'+val.name
-                            });
-                        });
-
-                        $('.input-images-1').imageUploader({
-                            preloaded: preloaded,
-                            imagesInputName: 'photos',
-                            preloadedInputName: 'old'
-                        });
-                    }
-                });
-            }
-            productImages();
-
-            function attributes(){
-                var options = document.getElementById('category').selectedOptions;
-                var values = Array.from(options).map(({ value }) => value);
-                var product_id = $('#id').val();
-                
-                $.ajax({
-                    type: 'POST',
-                    url: '/admin/get/attributes',
-                    data: {
-                        'ids': values,
-                        'product_id': product_id,
-                        '_token': $('meta[name="csrf-token"]').attr('content'),
-                    },
-                    dataType: "JSON",
-                    success: function (response) {
-                        $('#sho_attributes').html(response);
-                    }
-                });
-            }
-            attributes();
-
-            $(document).on('change', '#category', function() {
-                var options = document.getElementById('category').selectedOptions;
-                var values = Array.from(options).map(({ value }) => value);
-                var product_id = $('#id').val();
-                $.ajax({
-                    type: 'POST',
-                    url: '/admin/get/attributes',
-                    data: {
-                        'ids': values,
-                        'product_id': product_id,
-                        '_token': $('meta[name="csrf-token"]').attr('content'),
-                    },
-                    dataType: "JSON",
-                    success: function (response) {
-                        $('#sho_attributes').html(response);
-                    }
-                });
-            });
-        </script>
-    @else
-        <script>
-            $(document).on('change', '#category', function() {
-                var options = document.getElementById('category').selectedOptions;
-                var values = Array.from(options).map(({ value }) => value);
-                
-                $.ajax({
-                    type: 'POST',
-                    url: '/admin/get/attributes',
-                    data: {
-                        'ids': values,
-                        '_token': $('meta[name="csrf-token"]').attr('content'),
-                    },
-                    dataType: "JSON",
-                    success: function (response) {
-                        $('#sho_attributes').html(response);
-                    }
-                });
-            });
-        </script>
-    @endisset
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.min.js"></script>
-    <script>
-        $('#ncolor').colorpicker();
     </script>
 @endpush

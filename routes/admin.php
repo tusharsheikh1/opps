@@ -12,7 +12,6 @@ use App\Http\Controllers\subscriptionController;
 use App\Http\Controllers\Admin\attributeController;
 use App\Http\Controllers\Admin\CustomOrderController;
 use App\Http\Controllers\Admin\Ecommerce\TagController;
-use App\Http\Controllers\Admin\Ecommerce\AuthController;
 use App\Http\Controllers\Admin\Ecommerce\SizeController;
 use App\Http\Controllers\Admin\Ecommerce\StafController;
 use App\Http\Controllers\Admin\Ecommerce\BrandController;
@@ -38,16 +37,10 @@ use App\Http\Controllers\Admin\Ecommerce\DeliveryTrackingController;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
 */
 
 Route::middleware(['auth', 'admin'])->group(function () {
 
-    // System Update
     Route::get('/update', [SystemController::class, 'updateIndex'])->name('updateIndex');
     Route::post('/update', [SystemController::class, 'update'])->name('update');
     Route::get('/php_info', [SystemController::class, 'php_info'])->name('info');
@@ -80,10 +73,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('min-category/product/{id}', [ProductController::class, 'minCatProduct'])->name('min-category.product');
     Route::get('ex-category/product/{id}', [ProductController::class, 'exCatProduct'])->name('ex-category.product');
     
-    // Low Stock Products Route
     Route::get('low-stock-products', [ProductController::class, 'lowStock'])->name('low.product');
 
-    Route::resource('author', AuthController::class);
     Route::resource('customer', CustomerController::class);
     Route::resource('vendor', VendorController::class);
     Route::get('vendor/change-pass/{id}', [VendorController::class, 'change_passIndex'])->name('vendor.change_pass_index');
@@ -133,10 +124,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('get/sub-categories', [ProductController::class, 'subCategory']);
     Route::post('get/mini-categories', [ProductController::class, 'miniCategory']);
     Route::post('get/extra-categories', [ProductController::class, 'extraCategory']);
-    Route::get('delete/product/download/{id}', [ProductController::class, 'deleteDownloadFile']);
-    Route::post('update/product/download', [ProductController::class, 'updateDownloadFile']);
-    Route::get('product/type', [ProductController::class, 'type'])->name('product.type');
-    Route::get('product/inhouse/create', [ProductController::class, 'inhouseCreate'])->name('product.inhouse.create');
 
     Route::get('admin/product/color/{cc}/{pp}', [ProductController::class, 'nColorDelete'])->name('color.delete.n2');
     Route::get('admin/product/attr/{cc}', [ProductController::class, 'nattrDelete'])->name('attr.delete.n2');
@@ -185,20 +172,15 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::Post('campaing/store', [campaingController::class, 'store'])->name('campaing.store');
     Route::Post('campaing/update', [campaingController::class, 'update'])->name('campaing.update');
 
-    // Enhanced Order Controller Routes with BD Courier Integration
     Route::group(['as' => 'order.', 'prefix' => 'order'], function () {
-        // Main order listing (AJAX-enabled with search)
         Route::get('/', [OrderController::class, 'index'])->name('index');
         
-        // Analytics and Data Routes
         Route::get('/analytics', [OrderController::class, 'getAnalytics'])->name('analytics');
         Route::get('/search', [OrderController::class, 'searchOrders'])->name('search');
         
-        // Enhanced Phone History Route with BD Courier Integration
         Route::get('/phone-history', [OrderController::class, 'getPhoneHistory'])->name('phone-history');
         Route::post('/phone-history', [OrderController::class, 'getPhoneHistory'])->name('phone-history.post');
         
-        // BD Courier API Test Routes (for admin debugging)
         Route::get('/courier/test', function() {
             $service = new \App\Services\BdCourierService();
             
@@ -218,7 +200,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
             return response()->json($service->getRiskAssessment($phone));
         })->name('courier.risk');
         
-        // Specialized order status lists (BEFORE {id} routes)
         Route::get('pending', [OrderController::class, 'pending'])->name('pending');
         Route::get('pre', [OrderController::class, 'pre'])->name('pre');
         Route::get('processing', [OrderController::class, 'processing'])->name('processing');
@@ -227,12 +208,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('partials', [OrderController::class, 'partials'])->name('partials');
         Route::get('partials/status/{id}/{st}', [OrderController::class, 'partialStatus'])->name('partials.status');
         
-        // Order actions (BEFORE {id} routes)
         Route::get('print/{id}', [OrderController::class, 'print'])->name('print');
         Route::get('invoice/{id}', [OrderController::class, 'invoice'])->name('invoice');
         Route::get('delete/{did}', [OrderController::class, 'delete'])->name('delete');
 
-        // Status change routes (BEFORE {id} routes)
         Route::get('status/pending/{id}', [OrderController::class, 'statusPending'])->name('status.pending');
         Route::get('status/processing/{id}', [OrderController::class, 'statusProcessing'])->name('status.processing');
         Route::get('status/cancel/{id}', [OrderController::class, 'statusCancel'])->name('status.cancel');
@@ -242,20 +221,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('status/return-complete/{id}', [OrderController::class, 'returnComplete'])->name('status.return-complete');
         Route::get('status/sub/{id}/{status}/{vendor}', [OrderController::class, 'sub_status'])->name('subStatus');
         
-        // Order CRUD operations (AFTER specific routes)
         Route::get('{id}', [OrderController::class, 'show'])->name('show');
         Route::put('{id}', [OrderController::class, 'update'])->name('update');
         Route::post('{id}/update', [OrderController::class, 'update'])->name('update.post');
         
-        // POST routes for bulk operations and SMS
         Route::post('bulk-status-update', [OrderController::class, 'bulkStatusUpdate'])->name('bulk-status-update');
         Route::post('send-sms', [OrderController::class, 'sendCustomSms'])->name('send.sms');
         
-        // Courier integration routes
         Route::post('bulk-send-to-courier', [CourierController::class, 'bulkSendToCourier'])->name('bulk-send-to-courier');
     });
 
-    // Delivery Tracking Routes (Enhanced)
     Route::group(['as' => 'delivery.', 'prefix' => 'delivery'], function () {
         Route::get('/', [DeliveryTrackingController::class, 'index'])->name('index');
         Route::get('/show/{id}', [DeliveryTrackingController::class, 'show'])->name('show');
@@ -265,7 +240,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/balance', [DeliveryTrackingController::class, 'getBalance'])->name('balance');
         Route::get('/export', [DeliveryTrackingController::class, 'exportReport'])->name('export');
         
-        // BD Courier specific routes
         Route::post('/courier/check-history', function(\Illuminate\Http\Request $request) {
             $service = new \App\Services\BdCourierService();
             $phone = $request->input('phone');
@@ -291,7 +265,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/blog-edit/{id}', [ablogController::class, 'blog_edit_form'])->name('blog_edit');
     Route::post('/blog-update', [ablogController::class, 'update_exit_blog'])->name('update_exit_blog');
 
-    // Auth User Profile Define Here....
     Route::group(['as' => 'profile.', 'prefix' => 'profile'], function () {
         Route::get('/', [ProfileController::class, 'index'])->name('index');
         Route::get('update', [ProfileController::class, 'showUpdateProfileForm'])->name('update');
@@ -329,7 +302,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('shop', [SettingController::class, 'showShop'])->name('shop');
     Route::put('shop/update', [SettingController::class, 'shopUpdate'])->name('shop.update');
 
-    // Application Setting Route Define Here....
     Route::get('setting', [SettingController::class, 'index'])->name('setting');
     Route::put('setting', [SettingController::class, 'update'])->name('setting.update');
     Route::put('setting/logo', [SettingController::class, 'updateLogo'])->name('update.logo');
@@ -345,7 +317,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('setting/courier', [SettingController::class, 'courierIndex'])->name('setting.courier');
     Route::post('setting/courier/sendsteedfast', [CourierController::class, 'sendsteedfast'])->name('setting.courier.sendsteedfast');
 
-    // BD Courier Settings & Testing Routes
     Route::group(['as' => 'setting.courier.', 'prefix' => 'setting/courier'], function () {
         Route::get('/bd-courier', function() {
             $service = new \App\Services\BdCourierService();
@@ -374,7 +345,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('setting/docs', [SettingController::class, 'docs'])->name('setting.docs');
     Route::get('setting/home', [SettingController::class, 'home'])->name('setting.home');
 
-    // Enhanced SMS Management Routes
     Route::group(['as' => 'sms.', 'prefix' => 'sms'], function () {
         Route::get('logs', [App\Http\Controllers\Admin\Ecommerce\SmsLogController::class, 'index'])->name('logs.index');
         Route::get('logs/{id}', [App\Http\Controllers\Admin\Ecommerce\SmsLogController::class, 'show'])->name('logs.show');
@@ -385,13 +355,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('test', [App\Http\Controllers\Admin\Ecommerce\SmsLogController::class, 'testForm'])->name('test');
         Route::post('test', [App\Http\Controllers\Admin\Ecommerce\SmsLogController::class, 'sendTest'])->name('test.send');
         
-        // SMS Templates for Orders
         Route::get('templates', function() {
             return view('admin.sms.templates');
         })->name('templates');
     });
 
-    // Debug and Testing Routes (Remove in production)
     Route::group(['as' => 'debug.', 'prefix' => 'debug'], function () {
         Route::get('/courier-test', function() {
             $service = new \App\Services\BdCourierService();

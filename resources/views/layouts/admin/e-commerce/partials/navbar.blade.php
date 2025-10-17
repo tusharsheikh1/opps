@@ -738,94 +738,37 @@
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-label="Notifications">
                 <i class="fas fa-bell"></i>
-                <span class="notification-badge">3</span>
+                @php
+                    $low_stock_count = \App\Models\Product::where('quantity', '<', 6)->count();
+                @endphp
+                @if($low_stock_count > 0)
+                    <span class="notification-badge">{{ $low_stock_count }}</span>
+                @endif
             </a>
             <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-header">
                     Notifications
                 </div>
                 <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item notification-item">
-                    <div class="notification-content">
-                        <div class="notification-icon" style="background: #e3f2fd; color: #1976d2;">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                        <div class="notification-text">
-                            <strong>New order received</strong>
-                            <small class="text-muted">Order #12345</small>
-                        </div>
-                        <div class="notification-time">3m</div>
-                    </div>
-                </a>
-                <a href="#" class="dropdown-item notification-item">
-                    <div class="notification-content">
-                        <div class="notification-icon" style="background: #e8f5e8; color: #2e7d32;">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="notification-text">
-                            <strong>New customer registered</strong>
-                            <small class="text-muted">John Doe</small>
-                        </div>
-                        <div class="notification-time">5m</div>
-                    </div>
-                </a>
-                <a href="#" class="dropdown-item notification-item">
+                
+                @if($low_stock_count > 0)
+                <a href="{{ route('admin.low.product') }}" class="dropdown-item notification-item">
                     <div class="notification-content">
                         <div class="notification-icon" style="background: #fff3e0; color: #f57c00;">
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
                         <div class="notification-text">
                             <strong>Low stock alert</strong>
-                            <small class="text-muted">5 products</small>
+                            <small class="text-muted">{{ $low_stock_count }} products</small>
                         </div>
-                        <div class="notification-time">10m</div>
+                        <div class="notification-time">Now</div>
                     </div>
                 </a>
                 <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item text-center">
+                @endif
+                
+                <a href="{{ route('admin.order.pending') }}" class="dropdown-item text-center">
                     <small>View All Notifications</small>
-                </a>
-            </div>
-        </li>
-
-        <!-- Messages -->
-        <li class="nav-item dropdown">
-            <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-label="Messages">
-                <i class="fas fa-comments"></i>
-                <span class="notification-badge">2</span>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right">
-                <div class="dropdown-header">
-                    Messages
-                </div>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item notification-item">
-                    <div class="notification-content">
-                        <div class="user-avatar" style="width: 32px; height: 32px; font-size: 11px; margin-right: 0;">
-                            JD
-                        </div>
-                        <div class="notification-text">
-                            <strong>John Doe</strong>
-                            <small class="text-muted">Order inquiry about product...</small>
-                        </div>
-                        <div class="notification-time">2m</div>
-                    </div>
-                </a>
-                <a href="#" class="dropdown-item notification-item">
-                    <div class="notification-content">
-                        <div class="user-avatar" style="width: 32px; height: 32px; font-size: 11px; margin-right: 0; background: #28a745;">
-                            SM
-                        </div>
-                        <div class="notification-text">
-                            <strong>Sarah Miller</strong>
-                            <small class="text-muted">Question about shipping...</small>
-                        </div>
-                        <div class="notification-time">15m</div>
-                    </div>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item text-center">
-                    <small>View All Messages</small>
                 </a>
             </div>
         </li>
@@ -840,22 +783,26 @@
                     Quick Actions
                 </div>
                 <div class="dropdown-divider"></div>
-                <a href="{{route('admin.product.type')}}" class="dropdown-item">
+                <a href="{{ route('admin.product.create') }}" class="dropdown-item">
                     <i class="fas fa-box"></i>
                     Add Product
                 </a>
                 @if(auth()->user()->desig == 1 || auth()->user()->desig == 2)
-                <a href="{{routeHelper('category/create')}}" class="dropdown-item">
+                <a href="{{ route('admin.category.create') }}" class="dropdown-item">
                     <i class="fas fa-sitemap"></i>
                     Add Category
                 </a>
-                <a href="{{routeHelper('customer/create')}}" class="dropdown-item">
+                <a href="{{ route('admin.customer.create') }}" class="dropdown-item">
                     <i class="fas fa-user-plus"></i>
                     Add Customer
                 </a>
+                <a href="{{ route('admin.brand.create') }}" class="dropdown-item">
+                    <i class="fas fa-tag"></i>
+                    Add Brand
+                </a>
                 @endif
                 @if(auth()->user()->desig == 1)
-                <a href="{{route('admin.staff.create')}}" class="dropdown-item">
+                <a href="{{ route('admin.staff.create') }}" class="dropdown-item">
                     <i class="fas fa-user-nurse"></i>
                     Add Staff
                 </a>
@@ -896,11 +843,11 @@
                     </small>
                 </div>
                 <div class="dropdown-divider"></div>
-                <a href="{{routeHelper('dashboard')}}" class="dropdown-item">
+                <a href="{{ route('admin.dashboard') }}" class="dropdown-item">
                     <i class="fas fa-tachometer-alt"></i>
                     Dashboard
                 </a>
-                <a href="{{routeHelper('profile/change-password')}}" class="dropdown-item">
+                <a href="{{ route('admin.profile.change.password') }}" class="dropdown-item">
                     <i class="fas fa-key"></i>
                     Change Password
                 </a>
@@ -942,16 +889,16 @@
                 Account Settings
             </div>
             <div class="dropdown-divider"></div>
-            <a href="{{routeHelper('dashboard')}}" class="dropdown-item">
+            <a href="{{ route('admin.dashboard') }}" class="dropdown-item">
                 <i class="fas fa-tachometer-alt"></i>
                 Dashboard
             </a>
-            <a href="{{routeHelper('profile/change-password')}}" class="dropdown-item">
+            <a href="{{ route('admin.profile.change.password') }}" class="dropdown-item">
                 <i class="fas fa-key"></i>
                 Change Password
             </a>
             @if(auth()->user()->desig == 1)
-            <a href="{{routeHelper('setting')}}" class="dropdown-item">
+            <a href="{{ route('admin.setting') }}" class="dropdown-item">
                 <i class="fas fa-cogs"></i>
                 Settings
             </a>
@@ -1026,38 +973,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Mobile swipe gesture support
-    let startX = null;
-    let startY = null;
-
-    document.addEventListener('touchstart', function(e) {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-    });
-
-    document.addEventListener('touchmove', function(e) {
-        if (!startX || !startY) return;
-
-        const currentX = e.touches[0].clientX;
-        const currentY = e.touches[0].clientY;
-        const diffX = startX - currentX;
-        const diffY = startY - currentY;
-
-        // Only handle horizontal swipes
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-            if (diffX > 0) {
-                // Swipe left - could trigger sidebar close
-                console.log('Swiped left');
-            } else {
-                // Swipe right - could trigger sidebar open
-                console.log('Swiped right');
-            }
-        }
-
-        startX = null;
-        startY = null;
-    });
-
     // Fullscreen toggle functionality
     const fullscreenBtn = document.querySelector('[data-widget="fullscreen"]');
     if (fullscreenBtn) {
@@ -1081,25 +996,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // Enhanced loading states
-    const actionButtons = document.querySelectorAll('.visit-site-btn, .dropdown-item');
-    actionButtons.forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            if (this.getAttribute('href') === '#') {
-                e.preventDefault();
-                
-                this.classList.add('loading');
-                this.style.pointerEvents = 'none';
-                
-                // Simulate loading
-                setTimeout(() => {
-                    this.classList.remove('loading');
-                    this.style.pointerEvents = '';
-                }, 2000);
-            }
-        });
-    });
 
     // Auto-hide dropdowns when clicking outside
     document.addEventListener('click', function(e) {

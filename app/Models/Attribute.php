@@ -8,12 +8,21 @@ use Illuminate\Database\Eloquent\Model;
 class Attribute extends Model
 {
     use HasFactory;
+    
     protected $guarded = ['id'];
+    
+    /**
+     * Get the values for the attribute.
+     */
     public function values()
     {
-        return $this->hasMany(AttributeValue::class,'attributes_id');
+        return $this->hasMany(AttributeValue::class, 'attributes_id');
     }
-      public function category()
+    
+    /**
+     * Get the category that owns the attribute.
+     */
+    public function category()
     {
         return $this->belongsTo(Category::class);
     }

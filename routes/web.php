@@ -28,11 +28,6 @@ use App\Http\Controllers\blogControler as ablogController;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
 */
 
 Route::get('/cancel', [OrderController::class, 'fail'])->name('uddoktapay.cancel');
@@ -55,7 +50,6 @@ Route::Post('zt_admin.zishan/login/confirm', [LoginController::class, 'superLogi
 Route::get('vendors', [VendorController::class, 'showAllVendors'])->name('vendors');
 Route::get('vendor/{slug}', [VendorController::class, 'index'])->name('vendor');
 Route::get('brand/{slug}', [ProductController::class, 'showProductByBrand'])->name('brand.product');
-Route::get('author/product/{slug}', [ProductController::class, 'showProductByAuthor'])->name('author.product');
 Route::get('brands/list', [ProductController::class, 'allBrand'])->name('brand.list');
 
 Route::get('category/{slug}', [ProductController::class, 'showProductByCategory'])->name('category.product');
@@ -131,9 +125,6 @@ Route::middleware(['account', 'auth'])->group(function () {
     Route::get('order/cacnel/{id}', [OrderController::class, 'cancel'])->name('order.cacnel');
     Route::get('order/return_req/{id}', [OrderController::class, 'return_req'])->name('order.return_req');
 
-    Route::get('download', [OrderController::class, 'download'])->name('download');
-    Route::get('download/product/{pro_id}/{id}', [OrderController::class, 'downloadProductFile'])->name('download.product');
-
     Route::get('review/{order_id}', [OrderController::class, 'review'])->name('review');
     Route::post('review/{id}', [OrderController::class, 'storeReview'])->name('review.store');
     Route::get('wishlist/', [wishlistController::class, 'index'])->name('wishlist');
@@ -188,52 +179,42 @@ Route::post('contact/create', [ContactController::class, 'store'])->name('contac
 
 Route::post('subscription', [subscriptionController::class, 'store'])->name('subscription');
 
-// Guest Order Routes
 Route::post('order_guest', [OrderController::class, 'orderStore_guest'])->name('order.store_guest');
 Route::post('order_minimal', [OrderController::class, 'orderStore_minimal'])->name('order.store_minimal');
 
-// Direct Buy Routes
 Route::get('buy/product', [OrderController::class, 'buyProduct'])->name('buy.product');
 Route::post('order/buy-now_guest', [OrderController::class, 'orderBuyNowStore_guest'])->name('order.buy.store_guest');
 Route::post('order/buy-now_minimal', [OrderController::class, 'orderBuyNowStore_minimal'])->name('order.buy.store_minimal');
 
-// Enhanced Order Interval Check Routes (Public - No Auth Required)
 Route::post('/check-order-interval', [OrderController::class, 'checkOrderInterval'])->name('check.order.interval');
 Route::post('/check-spam-risk', [OrderController::class, 'checkSpamRisk'])->name('check.spam.risk');
 
-/** OAuth Social Login Routes */
 Route::get('/auth/google/redirect', [socialController::class, 'handleGoogleRedirect']);
 Route::get('/auth/google/callback', [socialController::class, 'handleGoogleCallback']);
 Route::get('/auth/facebook/redirect', [socialController::class, 'handleFacebookRedirect']);
 Route::get('/auth/facebook/callback', [socialController::class, 'handleFacebookCallback']);
 
-// Notification and SMS Routes
 Route::post('/save-token', [App\Http\Controllers\HomeController::class, 'saveToken'])->name('save-token');
 Route::post('/send-notification', [App\Http\Controllers\HomeController::class, 'sendNotification'])->name('send.notification');
 Route::post('register/send-otp', [RegisterController::class, 'sendotp'])->name('sendotp');
 
-// Payment Gateway Routes
 Route::post('/success', [OrderController::class, 'success'])->name('success');
 Route::post('/fail', [OrderController::class, 'fail'])->name('fail');
 
-// Admin Routes (Protected)
 Route::middleware(['auth', 'admin'])->group(function () {
-    // Order Restriction Management
     Route::get('/admin/order-restriction-stats', [OrderController::class, 'getOrderRestrictionStats'])->name('admin.order.restriction.stats');
     Route::post('/admin/remove-order-restriction', [OrderController::class, 'removeOrderRestriction'])->name('admin.order.restriction.remove');
     
-    // System Maintenance Routes
     Route::get('/admin/system-health', function() {
         return response()->json([
             'cache_status' => Cache::store()->getStore() ? 'active' : 'inactive',
             'db_status' => DB::connection()->getPdo() ? 'active' : 'inactive',
-            'queue_status' => 'active', // You can check queue status here
+            'queue_status' => 'active',
             'order_interval_service' => class_exists('App\Services\OrderIntervalService') ? 'available' : 'missing'
         ]);
     })->name('admin.system.health');
 });
 
-// Development and Testing Routes
 Route::get('/test-sms/{phone}', function($phone) {
     if (!app()->environment('local', 'staging')) {
         abort(404);
@@ -251,13 +232,12 @@ Route::get('/test-sms/{phone}', function($phone) {
     }
 })->name('test.sms');
 
-// System Cache Management Route
 Route::get('/cache', function () {
     try {
         Artisan::call('cache:clear');
         Artisan::call('config:clear');
         Artisan::call('view:clear');
-        Artisan::call('route:clear'); // ✅ Fixed from Route::call
+        Artisan::call('route:clear');
         Artisan::call('storage:link');
         
         return response()->json([
@@ -274,5 +254,4 @@ Route::get('/cache', function () {
     }
 })->name('system.cache.clear');
 
-// Catch-all route for pages (MUST BE LAST)
 Route::get('/{slug}', [pageController::class, 'pageshow'])->name('page');

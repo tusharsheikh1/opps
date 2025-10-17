@@ -11,17 +11,12 @@ class Product extends Model
 
     protected $guarded = ['id'];
 
-    
     /**
      * Get the user that owns the product.
      */
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-     public function author()
-    {
-        return $this->belongsTo(Author::class);
     }
     
     /**
@@ -30,14 +25,6 @@ class Product extends Model
     public function images()
     {
         return $this->hasMany(ProductImage::class);
-    }
-
-    /**
-     * Get the download product for the product.
-     */
-    public function downloads()
-    {
-        return $this->hasMany(DownloadProduct::class);
     }
 
     /**
@@ -63,8 +50,9 @@ class Product extends Model
     {
         return $this->belongsToMany(Category::class);
     }
-      /**
-     * Get all of the categories for the product.
+    
+    /**
+     * Get all of the active categories for the product.
      */
     public function categories2()
     {
@@ -78,24 +66,37 @@ class Product extends Model
     {
         return $this->belongsToMany(SubCategory::class);
     }
+    
+    /**
+     * Get all of the mini_categories for the product.
+     */
     public function mini_categories()
     {
         return $this->belongsToMany(miniCategory::class);
     }
+    
+    /**
+     * Get all of the extra_categories for the product.
+     */
     public function extra_categories()
     {
         return $this->belongsToMany(ExtraMiniCategory::class);
     }
-     public function campaigns()
+    
+    /**
+     * The campaigns that belong to the product.
+     */
+    public function campaigns()
     {
         return $this->belongsToMany(Campaign::class,'campaing_products');
     }
+    
     /**
      * Get all of the sizes for the product.
      */
     public function sizes()
     {
-        return $this->belongsToMany(Size::class);
+        return $this->belongsToMany(Size::class)->withPivot('qnty', 'price');
     }
 
     /**
@@ -103,14 +104,17 @@ class Product extends Model
      */
     public function colors()
     {
-        return $this->belongsToMany(Color::class);
+        return $this->belongsToMany(Color::class)->withPivot('qnty', 'price');
     }
-     /**
-     * Get all of the colors for the product.
+    
+    /**
+     * Get all of the attribute values for the product.
      */
     public function attributes_values()
     {
-        return $this->belongsToMany(AttributeValue::class,'attribute_product');
+        return $this->belongsToMany(AttributeValue::class, 'attribute_product')
+                    ->withPivot('qnty', 'price')
+                    ->with('attribute'); // Eager load the parent attribute
     }
 
     /**
@@ -120,6 +124,10 @@ class Product extends Model
     {
         return $this->hasMany(OrderDetails::class);
     }
+    
+    /**
+     * Get the campaign product entries for the product.
+     */
     public function campaingProduct()
     {
         return $this->hasMany(CampaingProduct::class);
@@ -141,9 +149,91 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
 
-
-    public function userDownloadProducts()
+    /**
+     * Get total available stock across all variations
+     */
+    public function getTotalStockAttribute()
     {
-        return $this->belongsToMany(User::class);
+        $colorStock = $this->colors()->sum('qnty');
+        $attributeStock = $this->attributes_values()->sum('qnty');
+        
+        return $colorStock + $attributeStock;
+    }
+
+    /**
+     * Get stock for a specific color
+     */
+    public function getColorStock($colorId)
+    {
+        $color = $this->colors()->where('color_id', $colorId)->first();
+        return $color ? $color->pivot->qnty : 0;
+    }
+
+    /**
+     * Get stock for a specific attribute value
+     */
+    public function getAttributeStock($attributeValueId)
+    {
+        $attribute = $this->attributes_values()->where('attribute_value_id', $attributeValueId)->first();
+        return $attribute ? $attribute->pivot->qnty : 0;
+    }
+
+    /**
+     * Get images for a specific color
+     */
+    public function getColorImages($colorId)
+    {
+        return $this->images()->where('color_attri', $colorId)->get();
+    }
+
+    /**
+     * Get all general images (not tied to any color)
+     */
+    public function getGeneralImages()
+    {
+        return $this->images()->whereNull('color_attri')->get();
+    }
+
+    /**
+     * Check if product has variations
+     */
+    public function hasVariations()
+    {
+        return $this->colors()->count() > 0 || $this->attributes_values()->count() > 0;
+    }
+
+    /**
+     * Get all variations with stock info
+     */
+    public function getVariationsWithStock()
+    {
+        $variations = [];
+
+        // Add color variations
+        foreach($this->colors as $color) {
+            $variations[] = [
+                'type' => 'color',
+                'id' => $color->id,
+                'name' => $color->name,
+                'code' => $color->code,
+                'stock' => $color->pivot->qnty,
+                'price' => $color->pivot->price,
+                'images' => $this->getColorImages($color->id)
+            ];
+        }
+
+        // Add attribute variations
+        foreach($this->attributes_values as $attr) {
+            $variations[] = [
+                'type' => 'attribute',
+                'id' => $attr->id,
+                'name' => $attr->name,
+                'attribute_name' => $attr->attribute->name ?? 'N/A',
+                'stock' => $attr->pivot->qnty,
+                'price' => $attr->pivot->price,
+            ];
+        }
+
+        return $variations;
     }
 }

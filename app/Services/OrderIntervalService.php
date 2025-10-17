@@ -11,8 +11,8 @@ use Jenssegers\Agent\Agent;
 
 class OrderIntervalService
 {
-    const INTERVAL_MINUTES = 5;
-    const PRODUCT_RESTRICTION_DAYS = 10; // New constant for product restriction
+    const INTERVAL_MINUTES = 0;
+    const PRODUCT_RESTRICTION_DAYS = 0; // New constant for product restriction
     const CACHE_PREFIX = 'order_interval_';
     const CACHE_DURATION = 300; // 5 minutes in seconds
 
