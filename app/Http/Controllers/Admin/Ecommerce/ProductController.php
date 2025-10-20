@@ -228,8 +228,6 @@ class ProductController extends Controller
             'extra_categories.*' => 'integer',
             'mini_categories.*'  => 'integer',
             'brand'             => 'required|integer',
-            'sizes'             => 'array',
-            'sizes.*'           => 'integer',
             'tags'              => 'array',
             'tags.*'            => 'integer',
             'colors'            => 'array',
@@ -240,6 +238,19 @@ class ProductController extends Controller
             'color_images'      => 'nullable|array',
             'prdct_extra_msg'   => 'nullable|string',
         ]);
+
+        // === START: CUSTOM VALIDATION FOR VARIATIONS / STOCK ===
+        $hasVariations = !empty($request->color_size_stock) || !empty($request->size_only_stock) || !empty($request->attributes);
+        $hasSimpleStock = $request->quantity > 0;
+
+        // If there are no variations, the simple stock must be > 0
+        // If there are variations, the simple stock will be auto-calculated, so we don't need to check $request->quantity
+        if (!$hasVariations && !$hasSimpleStock) {
+            return back()
+                ->withErrors(['quantity' => 'You must either add stock to a variation (Color-Size, Size-Only, or Attribute) OR set a "Stock Quantity" for a simple product.'])
+                ->withInput();
+        }
+        // === END: CUSTOM VALIDATION FOR VARIATIONS / STOCK ===
 
         $image = $request->file('image');
         if ($image) {
@@ -276,14 +287,33 @@ class ProductController extends Controller
         $totalQuantity = 0;
         $isVariableProduct = false;
 
-        if ($request->has('color_quantits') && is_array($request->color_quantits)) {
-            $colorQuantities = array_filter($request->color_quantits, fn($q) => $q !== null && $q > 0);
-            if(!empty($colorQuantities)){
-                 $totalQuantity += array_sum($colorQuantities);
-                 $isVariableProduct = true;
+        // Calculate total stock from color-size combinations
+        if ($request->has('color_size_stock') && is_array($request->color_size_stock)) {
+            foreach ($request->color_size_stock as $colorId => $sizes) {
+                if (is_array($sizes)) {
+                    foreach ($sizes as $sizeId => $stockData) {
+                        $qty = intval($stockData['quantity'] ?? 0);
+                        if ($qty > 0) {
+                            $totalQuantity += $qty;
+                            $isVariableProduct = true;
+                        }
+                    }
+                }
             }
         }
 
+        // Calculate total stock from size-only variations (no color)
+        if ($request->has('size_only_stock') && is_array($request->size_only_stock)) {
+            foreach ($request->size_only_stock as $sizeId => $stockData) {
+                $qty = intval($stockData['quantity'] ?? 0);
+                if ($qty > 0) {
+                    $totalQuantity += $qty;
+                    $isVariableProduct = true;
+                }
+            }
+        }
+
+        // Calculate stock from attributes (can be combined with color-size)
         if ($request->has('attributes_quantits') && is_array($request->attributes_quantits)) {
             $attrQuantities = array_filter($request->attributes_quantits, fn($q) => $q !== null && $q > 0);
             if (!empty($attrQuantities)) {
@@ -292,6 +322,7 @@ class ProductController extends Controller
             }
         }
         
+        // Use the calculated total quantity if variable, otherwise use the (now editable) request quantity
         $finalQuantity = $isVariableProduct ? $totalQuantity : $request->quantity;
         // === END: STOCK MANAGEMENT LOGIC ===
 
@@ -307,7 +338,7 @@ class ProductController extends Controller
             'regular_price'     => $request->regular_price,
             'discount_price'    => $discount_price,
             'dis_type'          => $request->dis_type,
-            'quantity'          => $finalQuantity,
+            'quantity'          => $finalQuantity, // Use the calculated final quantity
             'image'             => $imageName,
             'status'            => $request->filled('status'),
             'is_aproved'        => $request->filled('status'),
@@ -355,19 +386,52 @@ class ProductController extends Controller
         }
         
         $product->tags()->sync($request->tags, []);
-        $product->sizes()->sync($request->sizes, []);
         
-        if(!empty($request->input('colors'))) {
-            foreach($request->input('colors') as $key => $colorId) {
-                DB::table('color_product')->insert([
-                    'color_id'   => $colorId,
-                    'product_id' => $product->id,
-                    'qnty'       => $request->color_quantits[$key] ?? 0,
-                    'price'      => $request->color_prices[$key] ?? 0,
-                ]);
+        // Store color-size-stock combinations in pivot table
+        if ($request->has('color_size_stock') && is_array($request->color_size_stock)) {
+            foreach ($request->color_size_stock as $colorId => $sizes) {
+                if (is_array($sizes)) {
+                    foreach ($sizes as $sizeId => $stockData) {
+                        $qty = intval($stockData['quantity'] ?? 0);
+                        $price = floatval($stockData['price'] ?? 0);
+                        
+                        if ($qty > 0) {
+                            DB::table('color_size_product')->insert([
+                                'product_id' => $product->id,
+                                'color_id'   => $colorId,
+                                'size_id'    => $sizeId,
+                                'quantity'   => $qty,
+                                'price'      => $price,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Store size-only variations (no color) in pivot table with color_id as null
+        if ($request->has('size_only_stock') && is_array($request->size_only_stock)) {
+            foreach ($request->size_only_stock as $sizeId => $stockData) {
+                $qty = intval($stockData['quantity'] ?? 0);
+                $price = floatval($stockData['price'] ?? 0);
+                
+                if ($qty > 0) {
+                    DB::table('color_size_product')->insert([
+                        'product_id' => $product->id,
+                        'color_id'   => null, // No color for size-only variations
+                        'size_id'    => $sizeId,
+                        'quantity'   => $qty,
+                        'price'      => $price,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             }
         }
         
+        // Store attributes (can be combined with size/color variations)
         if(!empty($request->input('attributes'))) {
             foreach($request->input('attributes') as $key => $attributeValueId) {
                 if (isset($request->attributes_quantits[$key]) && isset($request->attribute_prices[$key])) {
@@ -436,13 +500,15 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $colors_product = DB::table('color_product')
-            ->select('*')
-            ->join('colors', 'colors.id', '=', 'color_product.color_id')
-            ->where('color_product.product_id', $product->id)
+        $colorSizeStock = DB::table('color_size_product')
+            ->select('color_size_product.*', 'colors.name as color_name', 'colors.code as color_code', 'sizes.name as size_name')
+            ->leftJoin('colors', 'colors.id', '=', 'color_size_product.color_id')
+            ->join('sizes', 'sizes.id', '=', 'color_size_product.size_id')
+            ->where('color_size_product.product_id', $product->id)
             ->get();
+            
         $attributes = Attribute::all();
-        return view('admin.e-commerce.product.show', compact('product', 'colors_product', 'attributes'));
+        return view('admin.e-commerce.product.show', compact('product', 'colorSizeStock', 'attributes'));
     }
 
     /**
@@ -459,15 +525,19 @@ class ProductController extends Controller
         $tags       = DB::table('tags')->latest('id')->get(['id', 'name']);
         $campaigns  = Campaign::where('status', 1)->get();
         $attributes = Attribute::all();
-        $colors_product = DB::table('color_product')
-            ->select('*')
-            ->join('colors', 'colors.id', '=', 'color_product.color_id')
-            ->where('color_product.product_id', $product->id)
+        
+        // Get color-size stock matrix (includes size-only variations where color_id is null)
+        $colorSizeStock = DB::table('color_size_product')
+            ->select('color_size_product.*', 'colors.name as color_name', 'colors.code as color_code', 'sizes.name as size_name')
+            ->leftJoin('colors', 'colors.id', '=', 'color_size_product.color_id')
+            ->join('sizes', 'sizes.id', '=', 'color_size_product.size_id')
+            ->where('color_size_product.product_id', $product->id)
             ->get();
+            
         $brands = DB::table('brands')->latest('id')->get(['id', 'name']);
         
         return view('admin.e-commerce.product.form', compact(
-            'colors_product',
+            'colorSizeStock',
             'categories',
             'attributes',
             'colors',
@@ -481,7 +551,7 @@ class ProductController extends Controller
     
     public function nColorDelete($cc, $pp)
     {
-        DB::table('color_product')->where('color_id', $cc)->where('product_id', $pp)->delete();
+        DB::table('color_size_product')->where('color_id', $cc)->where('product_id', $pp)->delete();
         notify()->success("successfully deleted", "Delete");
         return back();
     }
@@ -524,8 +594,6 @@ class ProductController extends Controller
             'categories.*'      => 'required|integer',
             'extra_categories.*' => 'integer',
             'brand'             => 'integer',
-            'sizes'             => 'array',
-            'sizes.*'           => 'integer',
             'tags'              => 'array',
             'tags.*'            => 'integer',
             'colors'            => 'array',
@@ -535,6 +603,19 @@ class ProductController extends Controller
             'color_images'      => 'nullable|array',
             'prdct_extra_msg'   => 'nullable|string',
         ]);
+
+        // === START: CUSTOM VALIDATION FOR VARIATIONS / STOCK ===
+        $hasVariations = !empty($request->color_size_stock) || !empty($request->size_only_stock) || !empty($request->attributes);
+        $hasSimpleStock = $request->quantity > 0;
+
+        // If there are no variations, the simple stock must be > 0
+        // If there are variations, the simple stock will be auto-calculated, so we don't need to check $request->quantity
+        if (!$hasVariations && !$hasSimpleStock) {
+            return back()
+                ->withErrors(['quantity' => 'You must either add stock to a variation (Color-Size, Size-Only, or Attribute) OR set a "Stock Quantity" for a simple product.'])
+                ->withInput();
+        }
+        // === END: CUSTOM VALIDATION FOR VARIATIONS / STOCK ===
 
         $image = $request->file('image');
         if ($image) {
@@ -574,14 +655,33 @@ class ProductController extends Controller
         $totalQuantity = 0;
         $isVariableProduct = false;
 
-        if ($request->has('color_quantits') && is_array($request->color_quantits)) {
-             $colorQuantities = array_filter($request->color_quantits, fn($q) => $q !== null && $q > 0);
-            if(!empty($colorQuantities)){
-                 $totalQuantity += array_sum($colorQuantities);
-                 $isVariableProduct = true;
+        // Calculate total stock from color-size combinations
+        if ($request->has('color_size_stock') && is_array($request->color_size_stock)) {
+            foreach ($request->color_size_stock as $colorId => $sizes) {
+                if (is_array($sizes)) {
+                    foreach ($sizes as $sizeId => $stockData) {
+                        $qty = intval($stockData['quantity'] ?? 0);
+                        if ($qty > 0) {
+                            $totalQuantity += $qty;
+                            $isVariableProduct = true;
+                        }
+                    }
+                }
             }
         }
 
+        // Calculate total stock from size-only variations
+        if ($request->has('size_only_stock') && is_array($request->size_only_stock)) {
+            foreach ($request->size_only_stock as $sizeId => $stockData) {
+                $qty = intval($stockData['quantity'] ?? 0);
+                if ($qty > 0) {
+                    $totalQuantity += $qty;
+                    $isVariableProduct = true;
+                }
+            }
+        }
+
+        // Calculate stock from attributes
         if ($request->has('attributes_quantits') && is_array($request->attributes_quantits)) {
              $attrQuantities = array_filter($request->attributes_quantits, fn($q) => $q !== null && $q > 0);
              if (!empty($attrQuantities)) {
@@ -590,6 +690,7 @@ class ProductController extends Controller
             }
         }
         
+        // Use the calculated total quantity if variable, otherwise use the (now editable) request quantity
         $finalQuantity = $isVariableProduct ? $totalQuantity : $request->quantity;
         // === END: STOCK MANAGEMENT LOGIC (UPDATE) ===
 
@@ -604,7 +705,7 @@ class ProductController extends Controller
             'regular_price'     => $request->regular_price,
             'discount_price'    => $discount_price,
             'dis_type'          => $request->dis_type,
-            'quantity'          => $finalQuantity,
+            'quantity'          => $finalQuantity, // Use the calculated final quantity
             'image'             => $imageName,
             'status'            => $request->filled('status'),
             'is_aproved'        => $request->filled('status'),
@@ -667,22 +768,55 @@ class ProductController extends Controller
         }
         
         $product->tags()->sync($request->tags);
-        $product->sizes()->sync($request->sizes);
         
-        // Use delete and re-insert for simplicity and robustness
-        DB::table('color_product')->where('product_id', $product->id)->delete();
-        if(!empty($request->input('colors'))) {
-            foreach($request->input('colors') as $key => $colorId) {
-                DB::table('color_product')->insert([
-                    'color_id'   => $colorId,
-                    'product_id' => $product->id,
-                    'qnty'       => $request->color_quantits[$key] ?? 0,
-                    'price'      => $request->color_prices[$key] ?? 0,
-                ]);
+        // Delete old color-size combinations and insert new ones
+        DB::table('color_size_product')->where('product_id', $product->id)->delete();
+        
+        // Store color-size combinations
+        if ($request->has('color_size_stock') && is_array($request->color_size_stock)) {
+            foreach ($request->color_size_stock as $colorId => $sizes) {
+                if (is_array($sizes)) {
+                    foreach ($sizes as $sizeId => $stockData) {
+                        $qty = intval($stockData['quantity'] ?? 0);
+                        $price = floatval($stockData['price'] ?? 0);
+                        
+                        if ($qty > 0) {
+                            DB::table('color_size_product')->insert([
+                                'product_id' => $product->id,
+                                'color_id'   => $colorId,
+                                'size_id'    => $sizeId,
+                                'quantity'   => $qty,
+                                'price'      => $price,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Store size-only variations
+        if ($request->has('size_only_stock') && is_array($request->size_only_stock)) {
+            foreach ($request->size_only_stock as $sizeId => $stockData) {
+                $qty = intval($stockData['quantity'] ?? 0);
+                $price = floatval($stockData['price'] ?? 0);
+                
+                if ($qty > 0) {
+                    DB::table('color_size_product')->insert([
+                        'product_id' => $product->id,
+                        'color_id'   => null,
+                        'size_id'    => $sizeId,
+                        'quantity'   => $qty,
+                        'price'      => $price,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             }
         }
         
-        // Use delete and re-insert for simplicity and robustness
+        // Update attributes
         DB::table('attribute_product')->where('product_id', $product->id)->delete();
         if(!empty($request->input('attributes'))) {
             foreach($request->input('attributes') as $key => $attributeValueId) {
@@ -804,7 +938,7 @@ class ProductController extends Controller
     public function reachedProduct()
     {
         $products = Product::with('brand')->where('status', true)->where('reach', '>', '0')->orderBy('reach', 'DESC')->take('25')->get();
-        return view('admin.e-commerce.product.active', compact('products'));
+        return view('admin.e-Lcommerce.product.active', compact('products'));
     }
     
     // get disable product

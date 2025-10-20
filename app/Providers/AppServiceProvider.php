@@ -4,13 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\Page;
-use App\Models\Category;
-use App\Models\SubCategory;
-use App\Models\miniCategory;
 use App\Models\Order;
 use App\Observers\OrderObserver;
-use View;
+use App\Models\Collection; // Added this line
+use Illuminate\Support\Facades\View; // Added this line
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,6 +30,15 @@ class AppServiceProvider extends ServiceProvider
     {
         // Register Order Observer for SMS functionality
         Order::observe(OrderObserver::class);
+
+        // --- ADDED THIS BLOCK ---
+        // Share active collections with the header
+        // IMPORTANT: This path must match where your header file is located.
+        View::composer('layouts.frontend.partials.header_1', function ($view) {
+            $view->with('collections', Collection::where('status', true)->latest('id')->get());
+        });
+        // --- END OF ADDED BLOCK ---
+
 
         Builder::macro('filter', function($key, $column = null, $compareWith = null, $filterIf = true) {
             if(($value = request($key, null)) !== null && $filterIf) {
@@ -71,19 +77,5 @@ class AppServiceProvider extends ServiceProvider
         
             return $this;
         });
-
-        $footerPages=page::where('status','1')->where('position','1')->get();
-        $categories_f     = Category::where('status', true)->orderBy('updated_at','desc')->where('is_feature', '1')->take(10)->get();
-        $sub_f     = subCategory::where('status', true)->orderBy('updated_at','desc')->where('is_feature', '1')->take(10)->get();
-        $mini_f     = miniCategory::where('status', true)->orderBy('updated_at','desc')->where('is_feature', '1')->take(10)->get();
-
-        View::share(
-            [
-                'footerPages'=>$footerPages,
-                'categories_f'=>$categories_f,
-                'sub_f'=>$sub_f,
-                'mini_f'=>$mini_f,
-            ]
-        );
     }
 }

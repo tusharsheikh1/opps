@@ -30,17 +30,14 @@
 
 .hero-slider {
     width: 100%;
-    max-width: 1130px;
-    margin: 0 auto;
     position: relative;
 }
 
 .slideshow {
     position: relative;
-    border-radius: 12px;
+    border-radius: 0;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    min-height: 400px; /* Prevent layout shift */
 }
 
 /* FOUC Prevention - Hide slides initially */
@@ -67,16 +64,14 @@
 .slider .item {
     position: relative;
     overflow: hidden;
-    border-radius: 12px;
+    border-radius: 0;
 }
 
 .slider .item img {
     width: 100%;
-    height: auto;
-    min-height: 400px;
-    object-fit: cover;
+    height: auto; /* <-- ENSURED height is auto */
     transition: transform 0.6s ease;
-    border-radius: 12px;
+    border-radius: 0;
 }
 
 .slider .item:hover img {
@@ -87,11 +82,11 @@
     display: block;
     position: relative;
     overflow: hidden;
-    border-radius: 12px;
+    border-radius: 0;
 }
 
-/* Slick Slider Custom Styling */
-.slick-dots {
+/* Slick Slider Custom Styling - REMOVED .slick-dots styles */
+/* .slick-dots {
     bottom: 20px;
     z-index: 10;
 }
@@ -105,7 +100,7 @@
 .slick-dots li.slick-active button:before {
     opacity: 1;
     color: #007bff;
-}
+} */
 
 /* Glassmorphic Hidden Arrows */
 .slick-prev,
@@ -197,14 +192,6 @@
 
 /* Responsive Design */
 @media (max-width: 1199px) {
-    .slider .item img {
-        min-height: 350px;
-    }
-    
-    .slideshow {
-        min-height: 350px;
-    }
-    
     .slick-prev,
     .slick-next {
         width: 50px;
@@ -221,14 +208,6 @@
 }
 
 @media (max-width: 768px) {
-    .slider .item img {
-        min-height: 250px;
-    }
-    
-    .slideshow {
-        min-height: 250px;
-    }
-    
     .slick-prev,
     .slick-next {
         width: 45px;
@@ -236,7 +215,6 @@
         display: none !important; /* Hide arrows on mobile for better UX */
     }
     
-    /* MODIFICATION: Set border-radius to 0 for full-width */
     .slideshow {
         border-radius: 0;
     }
@@ -246,6 +224,8 @@
     .slider .item img {
         border-radius: 0;
     }
+    
+    /* REMOVED: .slick-dots { bottom: 10px; } */
 }
 
 @media (max-width: 576px) {
@@ -253,26 +233,14 @@
         margin-top: 1px;
     }
     
-    .slider .item img {
-        min-height: 200px;
-    }
-    
     .slideshow {
-        min-height: 200px;
-    }
-    
-    .slick-dots {
-        bottom: 10px;
-    }
-    
-    .slideshow {
-        border-radius: 0; /* Keep it 0 for smaller screens too */
+        border-radius: 0;
     }
     
     .slider .item,
     .slider .item a,
     .slider .item img {
-        border-radius: 0; /* Keep it 0 for smaller screens too */
+        border-radius: 0;
     }
 }
 
@@ -288,7 +256,7 @@
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
-    border-radius: 12px;
+    border-radius: 0;
 }
 
 .slider .item:hover::after {
@@ -349,24 +317,23 @@
 </style>
 
 <section class="hero-area">
-    <div class="container-fluid px-0 px-md-3">
+    <div class="container-fluid px-0">
         <div class="row">
             <div class="hero-slider col-12">
                 <div class="slideshow">
                     <div class="slider slick-slides" data-slick='{
                         "autoplay": true,
                         "autoplaySpeed": 4000,
-                        "dots": true,
                         "arrows": true,
                         "fade": false,
                         "speed": 800,
                         "pauseOnHover": true,
+                        "adaptiveHeight": true,
                         "responsive": [
                             {
                                 "breakpoint": 768,
                                 "settings": {
-                                    "arrows": false,
-                                    "dots": true
+                                    "arrows": false
                                 }
                             }
                         ]
@@ -395,17 +362,18 @@ $(document).ready(function() {
         $('.slick-slides').slick({
             autoplay: true,
             autoplaySpeed: 4000,
-            dots: true,
+            dots: false, // <-- CHANGED: Removed dots
             arrows: true,
             fade: false,
             speed: 800,
             pauseOnHover: true,
+            adaptiveHeight: true,
             responsive: [
                 {
                     breakpoint: 768,
                     settings: {
                         arrows: false,
-                        dots: true
+                        // dots: true <-- REMOVED from responsive settings too if you want them gone entirely on mobile
                     }
                 }
             ]

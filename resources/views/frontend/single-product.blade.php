@@ -3,7 +3,8 @@
 @push('meta')
     <meta name='description' content="{{ $product->title }}" />
     <meta property="og:image" content="{{ asset('uploads/product/' . $product->image) }}" />
-    <meta name='keywords' content="@foreach ($product->tags as $tag){{ $tag->name . ', ' }} @endforeach" />
+    {{-- Using pluck and implode is safer for keywords output --}}
+    <meta name='keywords' content="{{ $product->tags->pluck('name')->implode(', ') }}" />
 @endpush
 
 @section('title', $product->title)
@@ -47,7 +48,7 @@
         .stock-status.in-stock { background: #d1fae5; color: #065f46; }
         .stock-status.low-stock { background: #fef3c7; color: #92400e; }
         .stock-status.out-of-stock { background: #fee2e2; color: #991b1b; }
-        .color-selection, .attribute-selection { margin-bottom: 25px; }
+        .color-selection, .size-selection, .attribute-selection { margin-bottom: 25px; }
         .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--dark-color); }
         .color-options { display: flex; flex-wrap: wrap; gap: 12px; }
         .color-option { position: relative; cursor: pointer; border: 3px solid transparent; border-radius: 8px; overflow: hidden; transition: all 0.3s ease; }
@@ -56,14 +57,20 @@
         .color-option.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
         .color-option input { display: none; }
         .color-preview { width: 90px; height: 90px; object-fit: cover; display: block; }
-        .color-swatch { width: 50px; height: 50px; border-radius: 6px; display: block; }
+        .color-swatch { width: 90px; height: 90px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
         .color-name { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.7); color: white; padding: 4px 8px; font-size: 11px; text-align: center; }
         .attribute-options { display: flex; flex-wrap: wrap; gap: 10px; }
         .attribute-option { position: relative; }
         .attribute-option input { display: none; }
         .attribute-option label { display: block; padding: 10px 20px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-weight: 500; background: white; }
         .attribute-option input:checked + label { background: var(--primary-color); color: white; border-color: var(--primary-color); }
-        .attribute-option input:disabled + label { opacity: 0.5; cursor: not-allowed; background: #f3f4f6; }
+        .attribute-option input:disabled + label {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background: #f9fafb;
+            color: #9ca3af;
+            text-decoration: line-through;
+        }
         .attribute-option label:hover:not(.disabled) { border-color: var(--primary-color); transform: translateY(-2px); }
         .attribute-stock-info { font-size: 11px; color: #6b7280; margin-top: 4px; }
         .quantity-selector { margin-bottom: 25px; }
@@ -97,7 +104,7 @@
         .review-date { font-size: 13px; color: #6b7280; }
         .notification { position: fixed; top: 20px; right: 20px; background: white; padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); z-index: 9999; min-width: 300px; display: none; }
         .notification.show { display: block; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideIn { from { transform: translateX(400px); opacity: 0); } to { transform: translateX(0); opacity: 1); } }
         .notification.success { border-left: 4px solid var(--secondary-color); }
         .notification.error { border-left: 4px solid var(--danger-color); }
         @media (max-width: 768px) {
@@ -117,7 +124,6 @@
 
         <div class="product-main-card">
             <div class="row g-0">
-                <!-- Image Gallery -->
                 <div class="col-md-5">
                     <div class="product-gallery">
                         <div class="main-image-container">
@@ -147,7 +153,6 @@
                     </div>
                 </div>
 
-                <!-- Product Information -->
                 <div class="col-md-7">
                     <div class="product-info">
                         <h1 class="product-title">{{ $product->title }}</h1>
@@ -171,7 +176,6 @@
                             </div>
                         </div>
 
-                        <!-- Price -->
                         <div class="price-section">
                             <div class="price-display">
                                 @php
@@ -191,32 +195,17 @@
                             </div>
                         </div>
 
-                        <!-- Stock Status -->
-                        @php
-                            $totalStock = 0;
-                            $isVariableProduct = $product->hasVariations();
-                            
-                            if($isVariableProduct) {
-                                foreach($product->colors as $color) {
-                                    $totalStock += $color->pivot->qnty;
-                                }
-                                foreach($product->attributes_values as $attr) {
-                                    $totalStock += $attr->pivot->qnty;
-                                }
-                            } else {
-                                $totalStock = $product->quantity;
-                            }
-                        @endphp
+                        @php $totalStock = $product->getTotalStockAttribute(); @endphp
 
                         @if($totalStock > 10)
                             <div class="stock-status in-stock" id="stockStatus">
                                 <i class="fas fa-check-circle"></i>
-                                <span id="stockText">In Stock ({{ $totalStock }} available)</span>
+                                <span id="stockText">In Stock</span>
                             </div>
                         @elseif($totalStock > 0)
                             <div class="stock-status low-stock" id="stockStatus">
                                 <i class="fas fa-exclamation-circle"></i>
-                                <span id="stockText">Low Stock (Only {{ $totalStock }} left)</span>
+                                <span id="stockText">Low Stock</span>
                             </div>
                         @else
                             <div class="stock-status out-of-stock" id="stockStatus">
@@ -238,126 +227,130 @@
                             <input type="hidden" name="color" id="selectedColor" value="">
                             <input type="hidden" name="size" id="selectedSize" value="">
                             <input type="hidden" name="dynamic_price" id="hiddenDynamicPrice" value="{{ $basePrice }}">
-                            <input type="hidden" name="max_stock" id="maxStock" value="{{ $totalStock }}">
-                            <input type="hidden" name="is_variable" id="isVariable" value="{{ $isVariableProduct ? '1' : '0' }}">
 
-                            @foreach($attributes as $attribute)
-                                <input type="hidden" name="attribute_{{ $attribute->id }}" id="attribute_{{ $attribute->id }}" value="">
-                            @endforeach
-
-                            <!-- Color Selection -->
-                            @if($product->colors->count() > 0)
+                            {{-- 1. Color and Size Selection --}}
+                            @if(!empty($variations['color_size']))
                                 <div class="color-selection">
                                     <div class="section-title">
-                                        <i class="fas fa-palette"></i> Select Color: <span id="selectedColorName"></span>
+                                        <i class="fas fa-palette"></i> Select Color: <span id="selectedColorName" class="font-weight-bold"></span>
                                     </div>
                                     <div class="color-options">
-                                        @foreach($product->colors as $index => $color)
+                                        @foreach(collect($variations['color_size'])->values() as $colorData)
                                             @php
-                                                $colorStock = $color->pivot->qnty;
-                                                $isOutOfStock = $colorStock <= 0;
+                                                $isOutOfStock = $colorData['total_stock'] <= 0;
+                                                $firstImage = $colorData['images']->first();
                                             @endphp
-                                            
-                                            <div class="color-option {{ $index === 0 && !$isOutOfStock ? 'active' : '' }} {{ $isOutOfStock ? 'disabled' : '' }}" 
-                                                 data-color-id="{{ $color->id }}"
-                                                 data-color-slug="{{ $color->slug }}"
-                                                 data-color-name="{{ $color->name }}"
-                                                 data-color-price="{{ $color->pivot->price }}"
-                                                 data-color-stock="{{ $colorStock }}"
-                                                 data-color-images='@json($product->getColorImages($color->id)->pluck("name"))'>
-                                                <input type="radio" name="color_radio" id="color_{{ $color->id }}" value="{{ $color->slug }}" {{ $index === 0 && !$isOutOfStock ? 'checked' : '' }} {{ $isOutOfStock ? 'disabled' : '' }}>
+                                            <div class="color-option {{ $isOutOfStock ? 'disabled' : '' }}" 
+                                                data-color-id="{{ $colorData['color_id'] }}"
+                                                data-color-name="{{ $colorData['color_name'] }}"
+                                                data-color-images="{{ json_encode($colorData['images']->pluck('name')) }}">
+                                                <input type="radio" name="color_radio" id="color_{{ $colorData['color_id'] }}" value="{{ $colorData['color_id'] }}" {{ $isOutOfStock ? 'disabled' : '' }}>
                                                 
-                                                @php
-                                                    $firstColorImage = $product->getColorImages($color->id)->first();
-                                                @endphp
-                                                
-                                                @if($firstColorImage)
-                                                    <img src="{{ asset('uploads/product/' . $firstColorImage->name) }}" alt="{{ $color->name }}" class="color-preview">
+                                                @if($firstImage)
+                                                    <img src="{{ asset('uploads/product/' . $firstImage->name) }}" alt="{{ $colorData['color_name'] }}" class="color-preview">
                                                 @else
-                                                    <div class="color-swatch" style="background-color: {{ $color->code }}"></div>
+                                                    <div class="color-swatch" style="background-color: {{ $colorData['color_code'] }}"></div>
                                                 @endif
-                                                
-                                                <span class="color-name">{{ $color->name }} {{ $isOutOfStock ? '(Out)' : '(' . $colorStock . ')' }}</span>
+                                                <span class="color-name">{{ $colorData['color_name'] }}</span>
                                             </div>
                                         @endforeach
                                     </div>
                                 </div>
-                            @endif
 
-                            <!-- Attributes -->
-                            @foreach($attributes as $attribute)
+                                {{-- The size selection is hidden initially and populated by JS after color selection --}}
+                                <div class="size-selection" style="display:none;">
+                                    <div class="section-title">
+                                        <i class="fas fa-ruler-horizontal"></i> Select Size: <span id="selectedSizeName" class="font-weight-bold"></span>
+                                    </div>
+                                    <div class="attribute-options" id="sizeOptionsContainer">
+                                        {{-- Size options populated by JS --}}
+                                    </div>
+                                </div>
+
+                            {{-- 2. Size-Only Selection --}}
+                            @elseif(!empty($variations['size_only']))
+                                <div class="size-selection">
+                                    <div class="section-title">
+                                        <i class="fas fa-ruler-horizontal"></i> Select Size: <span id="selectedSizeName" class="font-weight-bold"></span>
+                                    </div>
+                                    <div class="attribute-options" id="sizeOnlyOptionsContainer">
+                                        @foreach($variations['size_only'] as $sizeValue)
+                                            @php $isSizeOutOfStock = $sizeValue['stock'] <= 0; @endphp
+                                            <div class="attribute-option">
+                                                <input type="radio" 
+                                                    name="size_radio" {{-- Reusing 'size_radio' name for unified JS handling --}}
+                                                    id="size_only_{{ $sizeValue['id'] }}" 
+                                                    value="{{ $sizeValue['id'] }}" 
+                                                    data-size-name="{{ $sizeValue['name'] }}"
+                                                    data-stock="{{ $sizeValue['stock'] }}" 
+                                                    data-price="{{ $sizeValue['price'] }}" 
+                                                    {{ $isSizeOutOfStock ? 'disabled' : '' }}>
+                                                <label for="size_only_{{ $sizeValue['id'] }}" class="{{ $isSizeOutOfStock ? 'disabled' : '' }}">
+                                                    {{ $sizeValue['name'] }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                            {{-- 3. Generic Attribute Selection --}}
+                            @elseif(!empty($variations['attributes']))
                                 @php
-                                    // Get attribute values for this specific attribute that belong to this product
-                                    $productAttributes = $product->attributes_values->filter(function($attrValue) use ($attribute) {
-                                        return $attrValue->attribute && $attrValue->attribute->id == $attribute->id;
-                                    });
+                                    $groupedAttributes = collect($variations['attributes'])->groupBy('attribute_name');
                                 @endphp
-                                
-                                @if($productAttributes->count() > 0)
+                                @foreach($groupedAttributes as $attributeName => $attributeValues)
                                     <div class="attribute-selection">
                                         <div class="section-title">
-                                            <i class="fas fa-list"></i> Select {{ $attribute->name }}: 
-                                            <span id="selected{{ $attribute->slug }}Name"></span>
+                                            <i class="fas fa-list"></i> Select {{ $attributeName }}: <span id="selectedAttrName" class="font-weight-bold"></span>
                                         </div>
                                         <div class="attribute-options">
-                                            @foreach($productAttributes as $index => $attrValue)
-                                                @php
-                                                    $attrStock = $attrValue->pivot->qnty;
-                                                    $isAttrOutOfStock = $attrStock <= 0;
-                                                @endphp
-                                                
+                                            @foreach($attributeValues as $attrValue)
+                                                @php $isAttrOutOfStock = $attrValue['stock'] <= 0; @endphp
                                                 <div class="attribute-option">
                                                     <input type="radio" 
-                                                           name="attribute_{{ $attribute->id }}_radio" 
-                                                           id="attr_{{ $attrValue->id }}" 
-                                                           value="{{ $attrValue->id }}" 
-                                                           data-attr-name="{{ $attrValue->name }}" 
-                                                           data-attr-slug="{{ $attribute->slug }}" 
-                                                           data-attr-price="{{ $attrValue->pivot->price }}" 
-                                                           data-attr-stock="{{ $attrStock }}" 
-                                                           {{ $index === 0 && !$isAttrOutOfStock ? 'checked' : '' }} 
-                                                           {{ $isAttrOutOfStock ? 'disabled' : '' }}>
-                                                    <label for="attr_{{ $attrValue->id }}" class="{{ $isAttrOutOfStock ? 'disabled' : '' }}">
-                                                        {{ $attrValue->name }}
-                                                        <div class="attribute-stock-info">
-                                                            {{ $isAttrOutOfStock ? 'Out of Stock' : 'Stock: ' . $attrStock }}
-                                                        </div>
+                                                        name="attribute_radio" 
+                                                        id="attr_{{ $attrValue['id'] }}" 
+                                                        value="{{ $attrValue['id'] }}" 
+                                                        data-attr-name="{{ $attrValue['name'] }}"
+                                                        data-attr-price="{{ $attrValue['price'] }}" 
+                                                        data-attr-stock="{{ $attrValue['stock'] }}" 
+                                                        {{ $isAttrOutOfStock ? 'disabled' : '' }}>
+                                                    <label for="attr_{{ $attrValue['id'] }}" class="{{ $isAttrOutOfStock ? 'disabled' : '' }}">
+                                                        {{ $attrValue['name'] }}
                                                     </label>
                                                 </div>
                                             @endforeach
                                         </div>
                                     </div>
-                                @endif
-                            @endforeach
+                                @endforeach
+                            @endif
 
-                            <!-- Quantity -->
                             @if($totalStock > 0)
                                 <div class="quantity-selector">
                                     <div class="section-title">Quantity:</div>
                                     <div class="quantity-controls">
                                         <button type="button" class="qty-btn" id="decreaseQty">−</button>
-                                        <input type="number" class="qty-input" id="qtyInput" value="1" min="1" max="{{ $totalStock }}" readonly>
+                                        <input type="number" class="qty-input" id="qtyInput" value="1" min="1" readonly>
                                         <button type="button" class="qty-btn" id="increaseQty">+</button>
                                     </div>
                                     <small class="text-muted ms-2">Available: <span id="availableStock">{{ $totalStock }}</span></small>
                                 </div>
 
                                 <div class="action-buttons">
-                                    <button type="button" class="btn-primary" id="addToCartBtn">
+                                    <button type="button" class="btn-primary" id="addToCartBtn" disabled>
                                         <i class="fas fa-shopping-cart"></i> Add to Cart
                                     </button>
-                                    <button type="button" class="btn-secondary" id="buyNowBtn">
+                                    <button type="button" class="btn-secondary" id="buyNowBtn" disabled>
                                         <i class="fas fa-bolt"></i> Buy Now
                                     </button>
                                 </div>
                             @else
-                                <div class="alert alert-danger">
+                                <div class="alert alert-danger mt-4">
                                     <i class="fas fa-exclamation-triangle"></i> This product is currently out of stock
                                 </div>
                             @endif
                         </form>
 
-                        <!-- Secondary Actions -->
                         <div class="secondary-actions">
                             @auth
                                 @if(App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists())
@@ -389,7 +382,6 @@
             </div>
         </div>
 
-        <!-- Product Details Tabs -->
         <div class="product-details-section">
             <div class="tabs-navigation">
                 <button class="tab-btn active" data-tab="description">Description</button>
@@ -410,8 +402,8 @@
                             @if($product->brand)<tr><th>Brand</th><td>{{ $product->brand->name }}</td></tr>@endif
                             @if($product->sku)<tr><th>SKU</th><td>{{ $product->sku }}</td></tr>@endif
                             <tr><th>Categories</th><td>@foreach($product->categories as $category)<span class="badge bg-secondary">{{ $category->name }}</span> @endforeach</td></tr>
-                            @if($product->colors->count() > 0)<tr><th>Available Colors</th><td>@foreach($product->colors as $color)<span class="badge" style="background-color: {{ $color->code }}; color: white;">{{ $color->name }}</span> @endforeach</td></tr>@endif
-                            @if($isVariableProduct)<tr><th>Product Type</th><td>Variable Product</td></tr>@endif
+                            @if(!empty($variations['color_size']))<tr><th>Available Colors</th><td>@foreach(collect($variations['color_size'])->values() as $c)<span class="badge" style="background-color: {{ $c['color_code'] }}; color: white; margin-right: 5px;">{{ $c['color_name'] }}</span> @endforeach</td></tr>@endif
+                            @if($product->hasVariations())<tr><th>Product Type</th><td>Variable Product</td></tr>@endif
                         </tbody>
                     </table>
                 </div>
@@ -480,135 +472,134 @@
 @push('js')
 <script>
 $(document).ready(function() {
+    // --- CONFIGURATION & STATE ---
     const config = {
-        productId: {{ $product->id }},
-        basePrice: parseFloat($('#dynamicPrice').text().replace(/,/g, '')),
-        isVariable: $('#isVariable').val() === '1',
-        maxStock: parseInt($('#maxStock').val())
+        basePrice: parseFloat('{{ $product->discount_price > 0 ? $product->discount_price : $product->regular_price }}'),
+        variations: @json($variations ?? ['color_size' => [], 'size_only' => [], 'attributes' => []]),
+        allSizes: @json($allSizes ?? []),
+        hasColorSize: {{ !empty($variations['color_size']) ? 'true' : 'false' }},
+        hasAttributes: {{ !empty($variations['attributes']) && empty($variations['color_size']) ? 'true' : 'false' }},
+        // NEW: Check for size-only variations (assuming they don't coexist with color/attribute variations)
+        hasSizeOnly: {{ !empty($variations['size_only']) && empty($variations['color_size']) && empty($variations['attributes']) ? 'true' : 'false' }},
+        totalInitialStock: {{ $totalStock }}
     };
 
-    let selectedVariations = { color: null, attributes: {} };
+    let selection = {
+        color: null,
+        size: null, // Used for both color-size and size-only selections
+        attribute: null
+    };
 
-    // Initialize
-    $('.color-option:not(.disabled):first').trigger('click');
-    $('[name^="attribute_"][type="radio"]:not(:disabled):checked').each(function() {
-        const attrSlug = $(this).data('attr-slug');
-        const attrName = $(this).data('attr-name');
-        selectedVariations.attributes[attrSlug] = {
-            id: $(this).val(),
-            name: attrName,
-            price: parseFloat($(this).data('attr-price')) || 0,
-            stock: parseInt($(this).data('attr-stock')) || 0
-        };
-        $(`#selected${attrSlug}Name`).text(attrName);
-    });
-    updatePrice();
+    // --- INITIALIZATION ---
+    function initialize() {
+        if (config.hasColorSize) {
+            // Priority 1: Color-Size
+            $('.color-option:not(.disabled):first').trigger('click');
+        } else if (config.hasSizeOnly) {
+            // Priority 2: Size-Only
+            $('#sizeOnlyOptionsContainer input[type="radio"]:not(:disabled):first').prop('checked', true).trigger('change');
+        } else if (config.hasAttributes) {
+            // Priority 3: Generic Attributes
+            $('.attribute-option input[type="radio"]:not(:disabled):first').prop('checked', true).trigger('change');
+        } else {
+            // Simple product
+            updateUI();
+        }
+    }
 
-    // Thumbnail clicks
+    // --- EVENT HANDLERS ---
     $(document).on('click', '.thumbnail-item', function() {
         $('.thumbnail-item').removeClass('active');
         $(this).addClass('active');
         $('#mainImage').attr('src', $(this).data('image'));
     });
 
-    // Color Selection
     $('.color-option').on('click', function() {
         if ($(this).hasClass('disabled')) return;
+        
+        const colorId = $(this).data('color-id');
+        let colorImages;
+        try {
+            // Ensure JSON parsing for the images data attribute
+            colorImages = JSON.parse($(this).attr('data-color-images'));
+        } catch (e) {
+            console.error("Failed to parse color images JSON:", e);
+            colorImages = [];
+        }
+
+        if (selection.color?.id === colorId) {
+            selection.size = null; 
+            $('#selectedSize').val('');
+            $('#selectedSizeName').text('');
+            populateSizeOptions(colorId);
+            updateUI(); 
+            return; 
+        }
+
+        selection.color = {
+            id: colorId,
+            name: $(this).data('color-name'),
+            images: colorImages
+        };
+        selection.size = null;
+
         $('.color-option').removeClass('active');
         $(this).addClass('active');
+        $('#selectedColor').val(selection.color.id);
+        $('#selectedSize').val('');
+        $('#selectedColorName').text(selection.color.name);
+        $('#selectedSizeName').text('');
 
-        const colorId = $(this).data('color-id');
-        const colorSlug = $(this).data('color-slug');
-        const colorName = $(this).data('color-name');
-        const colorPrice = parseFloat($(this).data('color-price')) || 0;
-        const colorStock = parseInt($(this).data('color-stock')) || 0;
-        const colorImages = $(this).data('color-images');
-
-        selectedVariations.color = { id: colorId, slug: colorSlug, name: colorName, price: colorPrice, stock: colorStock };
-        $('#selectedColor').val(colorSlug);
-        $('#selectedColorName').text(colorName);
-
-        // Update images
-        if (colorImages && colorImages.length > 0) {
-            let thumbnailsHtml = '';
-            colorImages.forEach((img, i) => {
-                const imgUrl = '{{ asset("uploads/product") }}/' + img;
-                thumbnailsHtml += `<div class="thumbnail-item ${i === 0 ? 'active' : ''}" data-image="${imgUrl}"><img src="${imgUrl}" alt="Color"></div>`;
-            });
-            $('#thumbnailsContainer').html(thumbnailsHtml);
-            $('#mainImage').attr('src', '{{ asset("uploads/product") }}/' + colorImages[0]);
-        }
-
-        updatePrice();
-        updateStockDisplay();
+        updateImageGallery(selection.color.images);
+        populateSizeOptions(selection.color.id);
+        updateUI();
     });
 
-    // Attribute Selection
-    $('input[type="radio"][name^="attribute_"]').on('change', function() {
+    // Handles both Color-Size and Size-Only radio buttons, as both use name="size_radio"
+    $(document).on('change', 'input[name="size_radio"]', function() {
         if ($(this).is(':disabled')) return;
-        const attrSlug = $(this).data('attr-slug');
-        const attrName = $(this).data('attr-name');
-        selectedVariations.attributes[attrSlug] = {
+
+        selection.size = {
             id: $(this).val(),
-            name: attrName,
-            price: parseFloat($(this).data('attr-price')) || 0,
-            stock: parseInt($(this).data('attr-stock')) || 0
+            name: $(this).data('size-name'),
+            stock: parseInt($(this).data('stock')),
+            price: parseFloat($(this).data('price'))
         };
-        const attributeId = $(this).attr('name').match(/\d+/)[0];
-        $(`#attribute_${attributeId}`).val($(this).val());
-        $(`#selected${attrSlug}Name`).text(attrName);
-        updatePrice();
-        updateStockDisplay();
+        
+        $('#selectedSize').val(selection.size.id);
+        $('#selectedSizeName').text(selection.size.name);
+        
+        // If it's a size-only product, clear color and attribute selections just in case
+        if (config.hasSizeOnly) {
+            selection.color = null;
+            selection.attribute = null;
+        }
+        
+        updateUI();
+    });
+    
+    $('input[name="attribute_radio"]').on('change', function() {
+        if ($(this).is(':disabled')) return;
+
+        selection.attribute = {
+            id: $(this).val(),
+            name: $(this).data('attr-name'),
+            stock: parseInt($(this).data('attr-stock')),
+            price: parseFloat($(this).data('attr-price'))
+        };
+
+        $('#selectedAttrName').text(selection.attribute.name);
+        $('#selectedSize').val(selection.attribute.id); // Storing attribute ID in size field for form submission consistency
+        updateUI();
     });
 
-    function updatePrice() {
-        let totalPrice = config.basePrice;
-        const quantity = parseInt($('#qtyInput').val()) || 1;
-        if (selectedVariations.color) totalPrice += selectedVariations.color.price;
-        Object.values(selectedVariations.attributes).forEach(attr => { totalPrice += attr.price; });
-        $('#dynamicPrice').text((totalPrice * quantity).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-        $('#hiddenDynamicPrice').val(totalPrice);
-    }
-
-    function updateStockDisplay() {
-        let availableStock = config.maxStock;
-        if (config.isVariable) {
-            if (selectedVariations.color) availableStock = selectedVariations.color.stock;
-            const attrStocks = Object.values(selectedVariations.attributes).map(a => a.stock);
-            if (attrStocks.length > 0) {
-                const totalAttrStock = attrStocks.reduce((sum, stock) => sum + stock, 0);
-                if (totalAttrStock > 0) availableStock = Math.min(availableStock, totalAttrStock);
-            }
-        }
-        $('#availableStock').text(availableStock);
-        $('#maxStock').val(availableStock);
-        $('#qtyInput').attr('max', availableStock);
-        
-        const stockStatus = $('#stockStatus');
-        const stockText = $('#stockText');
-        stockStatus.removeClass('in-stock low-stock out-of-stock');
-        if (availableStock > 10) {
-            stockStatus.addClass('in-stock');
-            stockText.html('<i class="fas fa-check-circle"></i> In Stock (' + availableStock + ' available)');
-        } else if (availableStock > 0) {
-            stockStatus.addClass('low-stock');
-            stockText.html('<i class="fas fa-exclamation-circle"></i> Low Stock (Only ' + availableStock + ' left)');
-        } else {
-            stockStatus.addClass('out-of-stock');
-            stockText.html('<i class="fas fa-times-circle"></i> Out of Stock');
-            $('#addToCartBtn, #buyNowBtn').prop('disabled', true);
-        }
-    }
-
-    // Quantity
+    // Quantity Handlers
     $('#increaseQty').on('click', function() {
         const input = $('#qtyInput');
         const max = parseInt(input.attr('max'));
         const current = parseInt(input.val());
         if (current < max) {
-            input.val(current + 1);
-            $('#quantity').val(current + 1);
-            updatePrice();
+            input.val(current + 1).trigger('change');
         }
     });
 
@@ -616,49 +607,218 @@ $(document).ready(function() {
         const input = $('#qtyInput');
         const current = parseInt(input.val());
         if (current > 1) {
-            input.val(current - 1);
-            $('#quantity').val(current - 1);
-            updatePrice();
+            input.val(current - 1).trigger('change');
+        }
+    });
+    
+    $('#qtyInput').on('change', function() {
+        $('#quantity').val($(this).val());
+    });
+    
+    // Action Buttons
+    $('#addToCartBtn, #buyNowBtn').on('click', function() {
+        let isValid = false;
+        
+        if (config.hasColorSize) {
+            if (selection.color && selection.size) isValid = true;
+            else showNotification('Error', 'Please select a color and size.', 'error');
+        } else if (config.hasSizeOnly) {
+            if (selection.size) isValid = true;
+            else showNotification('Error', 'Please select a size.', 'error');
+        } else if (config.hasAttributes) {
+            if (selection.attribute) isValid = true;
+            else showNotification('Error', 'Please select an option.', 'error');
+        } else {
+            isValid = true; // Simple product
+        }
+
+        if(isValid) {
+            const isBuyNow = $(this).is('#buyNowBtn');
+            handleAction(isBuyNow);
         }
     });
 
-    // Add to Cart
-    $('#addToCartBtn').on('click', function() {
-        if (config.isVariable && $('.color-option').length > 0 && !selectedVariations.color) {
-            showNotification('Error', 'Please select a color', 'error');
-            return;
-        }
+    // --- UI & LOGIC FUNCTIONS ---
+    function populateSizeOptions(colorId) {
+        // Function only runs for Color-Size variations
+        const productVariationSizes = config.variations.color_size[colorId]?.sizes || [];
+        const sizeMap = new Map(productVariationSizes.map(s => [s.size_id, s]));
 
-        const btn = $(this);
-        const originalText = btn.html();
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Adding...');
+        const container = $('#sizeOptionsContainer');
+        container.empty();
+        
+        if (config.allSizes && config.allSizes.length > 0) {
+            let html = '';
+            config.allSizes.forEach(size => {
+                const variationData = sizeMap.get(size.id);
+                const stock = variationData ? variationData.stock : 0;
+                const price = variationData ? variationData.price : 0;
+                const isOutOfStock = stock <= 0;
 
-        $.ajax({
-            url: '{{ route("add.cart") }}',
-            method: 'POST',
-            data: $('#productForm').serialize(),
-            success: function(response) {
-                showNotification('Success!', 'Product added to cart', 'success');
-                btn.prop('disabled', false).html(originalText);
-            },
-            error: function(xhr) {
-                showNotification('Error!', xhr.responseJSON?.message || 'Failed to add to cart', 'error');
-                btn.prop('disabled', false).html(originalText);
+                html += `
+                    <div class="attribute-option">
+                        <input type="radio" name="size_radio" id="size_${size.id}" value="${size.id}" 
+                            data-size-name="${size.name}" data-stock="${stock}" data-price="${price}" 
+                            ${isOutOfStock ? 'disabled' : ''}>
+                        <label for="size_${size.id}" class="${isOutOfStock ? 'disabled' : ''}">${size.name}</label>
+                    </div>`;
+            });
+            container.html(html);
+            $('.size-selection').slideDown();
+
+            // Auto-select logic for color-size
+            const previouslySelected = container.find(`input[value="${selection.size?.id}"]`);
+            const firstAvailable = container.find('input[type="radio"]:not(:disabled):first');
+            
+            if (previouslySelected.length && !previouslySelected.is(':disabled')) {
+                previouslySelected.prop('checked', true).trigger('change');
+            } else if (firstAvailable.length) {
+                firstAvailable.prop('checked', true).trigger('change');
+            } else {
+                selection.size = null; 
+                $('#selectedSize').val('');
+                $('#selectedSizeName').text('');
+                updateUI();
             }
-        });
-    });
-
-    // Buy Now
-    $('#buyNowBtn').on('click', function() {
-        if (config.isVariable && $('.color-option').length > 0 && !selectedVariations.color) {
-            showNotification('Error', 'Please select a color', 'error');
-            return;
+        } else {
+            $('.size-selection').slideUp();
         }
-        const params = new URLSearchParams($('#productForm').serializeArray().reduce((obj, item) => ({...obj, [item.name]: item.value}), {}));
-        window.location.href = '{{ route("buy.product") }}?' + params.toString();
-    });
+    }
+    
+    function updateImageGallery(images) {
+        let thumbnailsHtml = '';
+        const defaultImage = {
+            name: '{{ $product->image }}',
+            url: '{{ asset("uploads/product/" . $product->image) }}'
+        };
+        
+        thumbnailsHtml += `<div class="thumbnail-item active" data-image="${defaultImage.url}"><img src="${defaultImage.url}" alt="Main"></div>`;
+        $('#mainImage').attr('src', defaultImage.url);
 
-    // Tabs
+        if (images && images.length > 0) {
+            images.forEach((img, i) => {
+                const imgUrl = '{{ asset("uploads/product") }}/' + img;
+                thumbnailsHtml += `<div class="thumbnail-item" data-image="${imgUrl}"><img src="${imgUrl}" alt="Color Variant"></div>`;
+            });
+            $('#mainImage').attr('src', '{{ asset("uploads/product") }}/' + images[0]);
+        } 
+        
+        @foreach($product->getGeneralImages() as $image)
+            const generalImgUrl = '{{ asset("uploads/product/" . $image->name) }}';
+            thumbnailsHtml += `<div class="thumbnail-item" data-image="${generalImgUrl}"><img src="${generalImgUrl}" alt="Gallery"></div>`;
+        @endforeach
+        
+        $('#thumbnailsContainer').html(thumbnailsHtml);
+        $('#thumbnailsContainer .thumbnail-item:first').addClass('active');
+    }
+
+    function updateUI() {
+        let price = config.basePrice;
+        let stock = config.totalInitialStock;
+        let selectionComplete = false;
+        
+        if (config.hasColorSize) {
+            if (selection.color && selection.size) {
+                price = config.basePrice + (selection.size.price || 0);
+                stock = selection.size.stock;
+                selectionComplete = true;
+            } else if (selection.color) {
+                // Show total stock for the selected color
+                stock = config.variations.color_size[selection.color.id]?.total_stock || 0;
+            }
+        } else if (config.hasSizeOnly) {
+            if (selection.size) {
+                price = config.basePrice + (selection.size.price || 0);
+                stock = selection.size.stock;
+                selectionComplete = true;
+            }
+        } else if (config.hasAttributes) {
+            if (selection.attribute) {
+                price = config.basePrice + (selection.attribute.price || 0);
+                stock = selection.attribute.stock;
+                selectionComplete = true;
+            }
+        } else {
+             // Simple product
+            selectionComplete = true;
+        }
+
+        const formattedPrice = price.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        $('#dynamicPrice').text(formattedPrice);
+        $('#hiddenDynamicPrice').val(price);
+
+        $('#availableStock').text(stock);
+        
+        const newMax = stock > 0 ? stock : 1;
+        $('#qtyInput').attr('max', newMax);
+        
+        const currentQty = parseInt($('#qtyInput').val());
+        if (currentQty > newMax) {
+            $('#qtyInput').val(newMax).trigger('change');
+        } else if (currentQty < 1 && newMax >= 1) {
+             $('#qtyInput').val(1).trigger('change');
+        }
+
+        const stockStatus = $('#stockStatus');
+        const stockText = $('#stockText');
+        stockStatus.removeClass('in-stock low-stock out-of-stock');
+        
+        let iconHtml;
+        let text;
+
+        if (stock > 10) {
+            stockStatus.addClass('in-stock');
+            iconHtml = '<i class="fas fa-check-circle"></i> ';
+            text = `In Stock ${selectionComplete && (config.hasColorSize || config.hasSizeOnly || config.hasAttributes) ? `(${stock} available)` : ''}`;
+        } else if (stock > 0) {
+            stockStatus.addClass('low-stock');
+            iconHtml = '<i class="fas fa-exclamation-circle"></i> ';
+            text = `Low Stock ${selectionComplete && (config.hasColorSize || config.hasSizeOnly || config.hasAttributes) ? `(Only ${stock} left)` : ''}`;
+        } else {
+            stockStatus.addClass('out-of-stock');
+            iconHtml = '<i class="fas fa-times-circle"></i> ';
+            text = 'Out of Stock';
+        }
+        
+        stockText.html(iconHtml + text);
+
+        const canAddToCart = selectionComplete && stock > 0;
+        $('#addToCartBtn, #buyNowBtn').prop('disabled', !canAddToCart);
+    }
+
+    function handleAction(isBuyNow) {
+        const btn = isBuyNow ? $('#buyNowBtn') : $('#addToCartBtn');
+        const originalText = btn.html();
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+
+        if (isBuyNow) {
+            const params = new URLSearchParams($('#productForm').serialize()).toString();
+            window.location.href = '{{ route("buy.product") }}?' + params;
+        } else {
+            $.ajax({
+                url: '{{ route("add.cart") }}',
+                method: 'POST',
+                data: $('#productForm').serialize(),
+                success: function(response) {
+                    showNotification('Success!', 'Product added to cart', 'success');
+                    
+                    // --- THIS IS THE CORRECTED LINE ---
+                    if (response && typeof response.count !== 'undefined') {
+                        $('.cart-count-badge').text(response.count);
+                    }
+                    // --- END OF CORRECTION ---
+                    
+                },
+                error: function(xhr) {
+                    showNotification('Error!', xhr.responseJSON?.message || 'Failed to add to cart', 'error');
+                }
+            }).always(function() {
+                btn.prop('disabled', false).html(originalText);
+                updateUI();
+            });
+        }
+    }
+    
     $('.tab-btn').on('click', function() {
         $('.tab-btn').removeClass('active');
         $(this).addClass('active');
@@ -671,6 +831,9 @@ $(document).ready(function() {
         notification.removeClass('success error').addClass(type).html(`<strong>${title}</strong><br>${message}`).addClass('show');
         setTimeout(() => notification.removeClass('show'), 3000);
     }
+
+    // --- RUN ---
+    initialize();
 });
 </script>
 @endpush

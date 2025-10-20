@@ -12,7 +12,7 @@ header {
     top: 0;
     z-index: 1000;
     background: #ffffff;
-    border-bottom: 1px solid #e5e7eb;
+    /* border-bottom: 1px solid #e5e7eb; */ /* <-- REMOVED BORDER */
     transition: all 0.3s ease;
     margin: 0;
     padding: 0;
@@ -32,7 +32,7 @@ header .main-menu {
 .top-header {
     background: #ffffff;
     padding: 16px 0;
-    border-bottom: 1px solid #f3f4f6;
+    /* border-bottom: 1px solid #f3f4f6; */ /* <-- REMOVED BORDER */
     margin: 0;
 }
 
@@ -41,6 +41,12 @@ header .main-menu {
     align-items: center;
     gap: 32px;
     position: relative;
+    
+    /* ADDED FOR FLUID LAYOUT */
+    width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
+    box-sizing: border-box;
 }
 
 /* Logo */
@@ -53,76 +59,108 @@ header .main-menu {
     width: auto;
 }
 
-/* Search Box */
-.search-container {
-    flex: 1;
-    max-width: 600px;
-    position: relative;
+/* --- Main Navigation Styles --- */
+.main-nav {
+    margin: 0;
+    padding: 0;
+    flex: 1 1 auto; /* <-- ADDED THIS to make nav fill space */
 }
-
-.search-box {
-    position: relative;
-    width: 100%;
-}
-
-.search-input-group {
-    display: flex;
-    background: #f9fafb;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.search-input-group:focus-within {
-    border-color: #f97316;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
-    background: #ffffff;
-}
-
-.search-input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    padding: 12px 16px;
-    font-size: 14px;
-    outline: none;
-    color: #374151;
-    font-weight: 400;
-}
-
-.search-input::placeholder {
-    color: #9ca3af;
-    font-weight: 400;
-}
-
-.search-btn {
-    background: #374151;
-    border: none;
-    padding: 12px 20px;
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
+.main-nav ul {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center; /* <-- ADDED THIS to center the links */
+    gap: 28px; /* Spacing between nav items */
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.main-nav ul li {
+    padding: 0;
+    margin: 0;
+}
+.main-nav ul a {
+    font-family: 'Muli', sans-serif;
+    font-size: 14px;
+    font-weight: 700; /* Bolder like target image */
+    color: #374151;
+    text-transform: uppercase; /* Uppercase like target image */
+    text-decoration: none;
+    padding: 8px 0;
+    transition: all 0.2s ease;
+}
+.main-nav ul a:hover {
+    color: #f97316; /* Use your site's accent color */
+}
+/* Add this class to your "Summer Collection" link */
+.main-nav ul a.highlight {
+    color: #ef4444; /* Red color like target image */
+}
+/* --- END: Main Navigation Styles --- */
+
+
+/* --- Dropdown Menu Styles --- */
+.main-nav ul li.has-dropdown {
+    position: relative;
 }
 
-.search-btn:hover {
-    background: #1f2937;
+.main-nav ul .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    min-width: 220px;
+    padding: 8px 0;
+    z-index: 1001;
+    
+    /* Hide by default */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
 }
 
-.search-btn:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
+.main-nav ul li.has-dropdown:hover .dropdown-menu {
+    /* Show on hover */
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }
+
+.main-nav ul .dropdown-menu li {
+    padding: 0;
+    margin: 0;
+    display: block; /* Make list items stack vertically */
+}
+
+.main-nav ul .dropdown-menu a {
+    display: block;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500; /* Lighter than main nav */
+    color: #374151;
+    text-transform: none; /* No uppercase */
+    white-space: nowrap;
+}
+
+.main-nav ul .dropdown-menu a:hover {
+    background: #f9fafb;
+    color: #f97316; /* Your accent color */
+}
+/* --- END: Dropdown Menu Styles --- */
+
+
+/* --- REMOVED: All .search-container, .search-box, .search-input-group, etc. styles --- */
+/* (These are no longer in the desktop header) */
+
 
 /* Header Actions */
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 16px; /* Adjusted gap for icon-only layout */
     flex-shrink: 0;
 }
 
@@ -131,23 +169,28 @@ header .main-menu {
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: #6b7280;
+    color: #374151; /* Darker icon color */
     font-weight: 500;
     transition: all 0.2s ease;
-    padding: 8px 12px;
+    padding: 8px; /* Uniform padding for icons */
     border-radius: 6px;
     font-size: 14px;
 }
 
 .action-item:hover {
     color: #f97316;
-    background: #fef3c7;
+    background: #f9fafb; /* Lighter hover */
     text-decoration: none;
 }
 
 .action-item i {
-    font-size: 20px;
-    margin-right: 8px;
+    font-size: 22px; /* Slightly larger icons */
+    margin-right: 0; /* REMOVED margin, as text is hidden */
+}
+
+/* MOVED FROM MEDIA QUERY: This now applies to all screen sizes */
+.action-item span:not(.badge) {
+    display: none;
 }
 
 .badge {
@@ -166,64 +209,9 @@ header .main-menu {
     box-shadow: 0 1px 3px rgba(239, 68, 68, 0.5);
 }
 
-/* Auth Buttons */
-.auth-buttons {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
+/* --- REMOVED: .auth-buttons, .auth-btn, .signin-btn, .signup-btn, .logout-btn styles --- */
+/* (These are replaced by .action-item styles on desktop) */
 
-.auth-btn {
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
-}
-
-.signin-btn {
-    color: #6b7280;
-    background: transparent;
-    border-color: #d1d5db;
-}
-
-.signin-btn:hover {
-    color: #374151;
-    background: #f9fafb;
-    text-decoration: none;
-}
-
-.signup-btn {
-    color: white;
-    background: #f97316;
-    border-color: #f97316;
-}
-
-.signup-btn:hover {
-    background: #ea580c;
-    border-color: #ea580c;
-    color: white;
-    text-decoration: none;
-}
-
-.logout-btn {
-    background: #ef4444;
-    color: white !important;
-    padding: 8px 16px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    font-weight: 500;
-    font-size: 14px;
-    text-decoration: none;
-}
-
-.logout-btn:hover {
-    background: #dc2626;
-    color: white !important;
-    text-decoration: none;
-}
 
 /* Mobile Menu Toggle */
 .mobile-menu-toggle {
@@ -286,7 +274,7 @@ header .main-menu {
 .mobile-menu-item i { font-size: 18px; margin-right: 12px; width: 20px; text-align: center; }
 .mobile-menu-item .badge { position: static; margin-left: auto; }
 
-/* NEW: Mobile Search Bar Container */
+/* Mobile Search Bar Container (Unchanged) */
 .mobile-search-bar-container {
     display: none;
     position: absolute;
@@ -294,14 +282,56 @@ header .main-menu {
     left: 0;
     width: 100%;
     background: #fff;
-    padding: 16px;
+    padding: 16px; /* Default padding */
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     z-index: 999;
     transform: translateY(-10px);
     opacity: 0;
     visibility: hidden;
     transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+    
+    /* ADDED FOR FLUID LAYOUT */
+    padding-left: 16px;
+    padding-right: 16px;
+    box-sizing: border-box;
 }
+/* Re-adding mobile search bar styles, as it's still used */
+.mobile-search-bar-container .search-input-group {
+    display: flex;
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.mobile-search-bar-container .search-input-group:focus-within {
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+    background: #ffffff;
+}
+.mobile-search-bar-container .search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 12px 16px;
+    font-size: 14px;
+    outline: none;
+    color: #374151;
+    font-weight: 400;
+}
+.mobile-search-bar-container .search-btn {
+    background: #374151;
+    border: none;
+    padding: 12px 20px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 
 .mobile-search-bar-container.active {
     display: block;
@@ -311,19 +341,14 @@ header .main-menu {
 }
 
 /* Responsive Design */
-@media (max-width: 991px) { /* Changed breakpoint for better layout */
-    .header-actions .d-none.d-lg-flex {
-        display: none !important;
-    }
-    .action-item span {
-        display: none;
-    }
-    .action-item i {
-        margin-right: 0;
-    }
-    .search-container {
-        display: none;
-    }
+@media (max-width: 991px) {
+    /* (d-lg-none) handles hiding the .auth-buttons, so this is not needed */
+    /* .header-actions .d-none.d-lg-flex { ... } */
+    
+    /* --- REMOVED rules for span and i, as they are global now --- */
+
+    /* --- REMOVED .search-container rule --- */
+
     .mobile-menu-toggle {
         display: flex;
         order: 1;
@@ -342,14 +367,12 @@ header .main-menu {
     .action-item {
         padding: 10px;
     }
-    .logout-btn {
-        padding: 10px;
-    }
-    .logout-btn span {
-        display: none !important;
-    }
-    .logout-btn i {
-        margin-right: 0;
+    
+    /* --- REMOVED .logout-btn rules --- */
+
+    /* ADDED: Center nav in mobile too */
+    .main-nav {
+        flex: 0 0 auto; /* Don't grow in mobile */
     }
 }
 
@@ -359,6 +382,10 @@ header .main-menu {
     }
     .header-content {
         gap: 8px;
+        
+        /* ADDED: Adjust padding for small screens */
+        padding-left: 12px;
+        padding-right: 12px;
     }
     .logo-area img {
         max-height: 36px;
@@ -366,76 +393,96 @@ header .main-menu {
     .header-actions {
         gap: 8px;
     }
+
+    /* ADDED: Adjust padding for small screens */
+    .mobile-search-bar-container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
 }
 </style>
 
 <header class="not-home">
     <div class="top-header">
-        <div class="container">
-            <div class="header-content">
-                <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle mobile menu">
-                    <span></span><span></span><span></span>
-                </button>
+        <div class="header-content">
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span></span><span></span><span></span>
+            </button>
 
-                <div class="logo-area">
-                    <a href="{{route('home')}}">
-                        <img src="{{asset('uploads/setting/'.setting('logo'))}}" alt="Application Logo">
-                    </a>
-                </div>
+            <div class="logo-area">
+                <a href="{{route('home')}}">
+                    <img src="{{asset('uploads/setting/'.setting('logo'))}}" alt="Application Logo">
+                </a>
+            </div>
 
-                <div class="search-container">
-                    <form action="{{route('product.search')}}" method="GET">
-                        <div class="search-input-group">
-                            <input type="search" name="keyword" class="search-input" placeholder="Search For Products, Brands And More..." id="searchbox">
-                            <button type="submit" class="search-btn" name="go"><i class="fal fa-search"></i></button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="header-actions">
-                    <a href="#" id="mobile-search-trigger" class="action-item d-lg-none" title="Search">
-                        <i class="fal fa-search"></i>
-                    </a>
+            <nav class="main-nav d-none d-lg-block">
+                <ul>
+                    <li><a href="#">Men</a></li>
+                    <li><a href="#">Women</a></li>
+                    <li><a href="#">Kids</a></li>
                     
-                    <a href="{{route('cart')}}" class="action-item" title="Shopping Cart">
-                        <i class="fal fa-shopping-bag"></i>
-                        <span class="d-none d-lg-inline">Cart</span>
-                        <span class="badge">{{Cart::count()}}</span>
-                    </a>
+                    <li class="has-dropdown">
+                        <a href="#" class="highlight">Collections</a>
+                        <ul class="dropdown-menu">
+                            @foreach($collections as $collection)
+                                <li><a href="{{ route('collection.product', $collection->slug) }}">{{ $collection->name }}</a></li>
+                            @endforeach
+                        </ul>
+                    </li>
+                    
+                    <li><a href="{{ route('product') }}">All Products</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <a href="#" id="mobile-search-trigger" class="action-item d-lg-flex" title="Search">
+                    <i class="fal fa-search"></i>
+                </a>
+                
+                <a href="{{route('cart')}}" class="action-item" title="Shopping Cart">
+                    <i class="fal fa-shopping-bag"></i>
+                    <span>Cart</span> <span class="badge cart-count-badge">{{Cart::count()}}</span>
+                </a>
 
-                    @guest
-                    <div class="auth-buttons d-none d-lg-flex">
-                        <a href="{{route('login')}}" class="auth-btn signin-btn"><i class="fal fa-sign-in-alt"></i> Sign In</a>
-                        <a href="{{route('register')}}" class="auth-btn signup-btn"><i class="fal fa-user-plus"></i> Sign Up</a>
-                    </div>
-                    @else
-                    <div class="auth-buttons d-none d-lg-flex">
-                        @if(auth()->user()->role_id != 1)
-                        <a href="{{route('dashboard')}}" class="auth-btn signin-btn"><i class="fal fa-user-circle"></i> My Account</a>
-                        @endif
-                        @if(auth()->user()->role_id == 2)
-                        <a href="{{routeHelper('dashboard')}}" class="auth-btn signin-btn"><i class="fal fa-tachometer-alt"></i> Dashboard</a>
-                        @endif
-                    </div>
-                    <a href="{{route('logout')}}" class="logout-btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        <i class="fal fa-sign-out-alt"></i><span class="d-none d-sm-inline">Logout</span>
-                    </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
-                    @endauth
+                @guest
+                <a href="{{route('login')}}" class="action-item d-none d-lg-flex" title="Sign In">
+                    <i class="fal fa-user"></i>
+                </a>
+                <div class="auth-buttons d-none">
+                    <a href="{{route('login')}}" class="auth-btn signin-btn"><i class="fal fa-sign-in-alt"></i> Sign In</a>
+                    <a href="{{route('register')}}" class="auth-btn signup-btn"><i class="fal fa-user-plus"></i> Sign Up</a>
                 </div>
+                @else
+                <a href="{{route('dashboard')}}" class="action-item d-none d-lg-flex" title="My Account">
+                    <i class="fal fa-user-circle"></i>
+                </a>
+                <a href="{{route('logout')}}" class="action-item d-none d-lg-flex" title="Logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="fal fa-sign-out-alt"></i>
+                </a>
+
+                <div class="auth-buttons d-none">
+                    @if(auth()->user()->role_id != 1)
+                    <a href="{{route('dashboard')}}" class="auth-btn signin-btn"><i class="fal fa-user-circle"></i> My Account</a>
+                    @endif
+                    @if(auth()->user()->role_id == 2)
+                    <a href="{{routeHelper('dashboard')}}" class="auth-btn signin-btn"><i class="fal fa-tachometer-alt"></i> Dashboard</a>
+                    @endif
+                </div>
+                <a href="{{route('logout')}}" class="logout-btn d-none" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="fal fa-sign-out-alt"></i><span>Logout</span>
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
+                @endauth
             </div>
         </div>
-    </div>
+        </div>
 
     <div class="mobile-search-bar-container" id="mobile-search-container">
-        <div class="container">
-            <form action="{{route('product.search')}}" method="GET">
-                <div class="search-input-group">
-                    <input type="search" name="keyword" class="search-input" placeholder="Search For Products..." id="mobile-searchbox">
-                    <button type="submit" class="search-btn" name="go"><i class="fal fa-search"></i></button>
-                </div>
-            </form>
-        </div>
+        <form action="{{route('product.search')}}" method="GET">
+            <div class="search-input-group">
+                <input type="search" name="keyword" class="search-input" placeholder="Search For Products..." id="mobile-searchbox">
+                <button type="submit" class="search-btn" name="go"><i class="fal fa-search"></i></button>
+            </div>
+        </form>
     </div>
 
     <div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
@@ -463,7 +510,8 @@ header .main-menu {
             @endguest
             <div class="mobile-menu-section">
                 <a href="{{route('cart')}}" class="mobile-menu-item">
-                    <i class="fal fa-shopping-bag"></i>Shopping Cart<span class="badge">{{Cart::count()}}</span>
+                    <i class="fal fa-shopping-bag"></i>Shopping Cart
+                    <span class="badge cart-count-badge">{{Cart::count()}}</span>
                 </a>
             </div>
             @auth
@@ -478,12 +526,7 @@ header .main-menu {
     </div>
 
     {{-- Main Menu --}}
-    @if (!empty(setting('MAIN_MENU_STYLE')))
-    @include('layouts.frontend.partials.partial-part.header_main_menu_' . setting('MAIN_MENU_STYLE'))
-    @else
-    @include('layouts.frontend.partials.partial-part.header_main_menu_1')
-    @endif
-</header>
+    </header>
 
 {{-- Header Advance Search --}}
 @include('layouts.frontend.partials.partial-part.header_advance_search')
@@ -561,6 +604,7 @@ $(document).ready(function() {
             closeMobileMenu();
         }
         // Close search if click is outside search container and trigger
+        // MODIFIED: Also check if click is on the search container *itself*
         if ($mobileSearchContainer.hasClass('active') && !$(e.target).closest('.mobile-search-bar-container, #mobile-search-trigger').length) {
             closeMobileSearch();
         }
@@ -574,10 +618,22 @@ $(document).ready(function() {
         }
     });
 
-    // Sync search inputs
-    $('#searchbox, #mobile-searchbox').on('input', function() {
-        let value = $(this).val();
-        $('#searchbox, #mobile-searchbox').not(this).val(value);
+    // Sync search inputs (Only mobile searchbox exists now)
+    $('#mobile-searchbox').on('input', function() {
+        // let value = $(this).val();
+        // No other box to sync with
+    });
+
+    // --- 3. ADDED THIS GLOBAL AJAX LISTENER ---
+    // This listens for any successful AJAX call that returns a JSON response
+    // (like from CartController.php)
+    $(document).ajaxSuccess(function(event, xhr, settings) {
+        // Check if the response has a 'count' property
+        if (xhr.responseJSON && typeof xhr.responseJSON.count !== 'undefined') {
+            let cartCount = xhr.responseJSON.count;
+            // Update all elements with the 'cart-count-badge' class
+            $('.cart-count-badge').text(cartCount);
+        }
     });
 
 });

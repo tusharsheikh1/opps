@@ -14,6 +14,7 @@ use App\Models\Product;
 use App\Models\CampaingProduct;
 use App\Models\Attribute;
 use App\Models\AttributeValue;
+use App\Models\Size;
 use App\Models\SubCategory;
 use App\Models\miniCategory;
 use Illuminate\Http\Request;
@@ -327,8 +328,9 @@ class ProductController extends Controller
     {
         $product = Product::with([
             'comments', 
-            'reviews', 
-            'colors', 
+            'reviews',
+            'brand',
+            'categories', 
             'attributes_values.attribute', // Eager load attribute relationship
             'images'
         ])
@@ -339,17 +341,17 @@ class ProductController extends Controller
         $product->reach += 1;
         $product->update();
         
-        $colors_product = DB::table('color_product')
-            ->select('*')
-            ->join('colors', 'colors.id', '=', 'color_product.color_id')
-            ->where('color_product.product_id', $product->id)
-            ->get();
+        // Get structured variations data from the Product model
+        $variations = $product->getVariationsWithStock();
         
-        // Get only attributes that are actually assigned to this product
-        $productAttributeIds = $product->attributes_values->pluck('attributes_id')->unique();
+        // Get only attribute definitions that are actually assigned to this product
+        $productAttributeIds = $product->attributes_values->pluck('attribute.id')->unique()->filter();
         $attributes = Attribute::whereIn('id', $productAttributeIds)->get();
 
-        return view('frontend.single-product', compact('product', 'colors_product', 'attributes'));
+        // Get all active sizes to display all options
+        $allSizes = Size::where('status', true)->orderBy('id')->get();
+
+        return view('frontend.single-product', compact('product', 'attributes', 'variations', 'allSizes'));
     }
     
     // show product details for campaign
@@ -359,7 +361,8 @@ class ProductController extends Controller
         $product = Product::with([
             'comments', 
             'reviews', 
-            'colors', 
+            'brand',
+            'categories',
             'attributes_values.attribute', // Eager load attribute relationship
             'images'
         ])
@@ -370,17 +373,17 @@ class ProductController extends Controller
         $product->reach += 1;
         $product->update();
         
-        $colors_product = DB::table('color_product')
-            ->select('*')
-            ->join('colors', 'colors.id', '=', 'color_product.color_id')
-            ->where('color_product.product_id', $product->id)
-            ->get();
-        
-        // Get only attributes that are actually assigned to this product
-        $productAttributeIds = $product->attributes_values->pluck('attributes_id')->unique();
-        $attributes = Attribute::whereIn('id', $productAttributeIds)->get();
+        // Get structured variations data from the Product model
+        $variations = $product->getVariationsWithStock();
 
-        return view('frontend.single-product', compact('product', 'colors_product', 'attributes', 'campaigns_product'));
+        // Get only attribute definitions that are actually assigned to this product
+        $productAttributeIds = $product->attributes_values->pluck('attribute.id')->unique()->filter();
+        $attributes = Attribute::whereIn('id', $productAttributeIds)->get();
+        
+        // Get all active sizes to display all options
+        $allSizes = Size::where('status', true)->orderBy('id')->get();
+
+        return view('frontend.single-product', compact('product', 'attributes', 'variations', 'campaigns_product', 'allSizes'));
     }
 
     // add to cart product
@@ -535,16 +538,12 @@ class ProductController extends Controller
             }
         }
         
-        // Filter out products with zero stock if they have variations
-        $products = $products->where(function($query) {
-            $query->where('quantity', '>', 0)
-                  ->orWhereHas('colors', function($q) {
-                      $q->where('qnty', '>', 0);
-                  })
-                  ->orWhereHas('attributes_values', function($q) {
-                      $q->where('qnty', '>', 0);
-                  });
-        });
+        // === MODIFIED START ===
+        // Filter out products with zero stock.
+        // Since the main 'quantity' field now always holds the correct total stock
+        // (whether simple or variable), we only need to check this one field.
+        $products = $products->where('quantity', '>', 0);
+        // === MODIFIED END ===
 
         // sorting
         $sort = new Sorting();
@@ -619,7 +618,7 @@ class ProductController extends Controller
                     $attrs .= '<div class="form-check col-2 col-sm-2"><input id="' . $attr->vName . '" class="form-check-input get_attri_price pp' . $attribute->slug . '" type="radio" name="' . $attribute->slug . '" value="' . $attr->vid . '"' . $disabled . $stockInfo . $priceInfo . '><label class="form-check-label" for="' . $attr->vName . '">' . $attr->vName . $stockStatus . '</label></div>';
                     $attrs .= "<script>
                         $(document).on('click', '.pp" . $attribute->slug . "', function(e) {
-                            $('input#" . $attribute->slug . "').val(this.value);
+                            $('input#" . $attribute->slug . "').val(this->value);
                         })
                     </script>";
                 }
@@ -708,7 +707,7 @@ class ProductController extends Controller
                     $attrs .= '<div class="form-check col-2 col-sm-2"><input id="'.$attr->vName.'" class="form-check-input get_attri_price pp'.$attribute->slug.'" type="radio" name="'.$attribute->slug.'" value="'.$attr->vid.'"'.$disabled.$stockInfo.$priceInfo.'><label class="form-check-label" for="'.$attr->vName.'">'.$attr->vName.$stockStatus.'</label></div>';
                     $attrs .= "<script>
                         $(document).on('click', '.pp".$attribute->slug."', function(e) {
-                            $('input#".$attribute->slug."').val(this.value);
+                            $('input#".$attribute->slug."').val(this->value);
                         })
                     </script>";
                 }
@@ -810,8 +809,11 @@ class ProductController extends Controller
         return view('frontend.brands', compact('brands'));
     }
     
+    // === MODIFIED START ===
     /**
      * Check stock availability for a specific variation
+     * Modified to check for color-size, size-only, attributes, 
+     * and finally simple product stock.
      */
     public function checkStock(Request $request)
     {
@@ -821,40 +823,50 @@ class ProductController extends Controller
             return response()->json(['available' => false, 'message' => 'Product not found']);
         }
         
-        // Check if product has variations
-        if ($product->hasVariations()) {
-            $availableStock = 0;
-            
-            // Check color stock if color is selected
-            if ($request->has('color_id') && $request->color_id) {
-                $availableStock = $product->getColorStock($request->color_id);
-            }
-            
-            // Check attribute stock if attribute is selected
-            if ($request->has('attribute_value_id') && $request->attribute_value_id) {
-                $availableStock = $product->getAttributeStock($request->attribute_value_id);
-            }
-            
-            $requestedQty = $request->quantity ?? 1;
-            
+        $requestedQty = $request->quantity ?? 1;
+        $availableStock = 0;
+
+        // Check for Color-Size Variation
+        if ($request->filled('color_id') && $request->filled('size_id')) {
+            $availableStock = $product->getColorSizeStock($request->color_id, $request->size_id);
+        }
+        // Check for Size-Only Variation
+        else if ($request->filled('size_id') && !$request->filled('color_id')) {
+            // Need to query the pivot table directly for size-only stock
+            $result = DB::table('color_size_product')
+                        ->where('product_id', $product->id)
+                        ->where('size_id', $request->size_id)
+                        ->whereNull('color_id')
+                        ->first();
+            $availableStock = $result ? $result->quantity : 0;
+        }
+        // Check for Attribute Variation
+        else if ($request->filled('attribute_value_id')) {
+            $availableStock = $product->getAttributeStock($request->attribute_value_id);
+        }
+        // Check for Simple Product Stock (no variations selected)
+        else if (!$request->filled('color_id') && !$request->filled('size_id') && !$request->filled('attribute_value_id')) {
+            // This is a simple product, check the main quantity field
+            $availableStock = $product->quantity;
+        }
+        // Fallback: This condition might happen if only a color is selected but not a size.
+        // In this case, we can't determine specific stock, so we'll report 0.
+        else {
+            $availableStock = 0; 
             return response()->json([
-                'available' => $availableStock >= $requestedQty,
-                'stock' => $availableStock,
-                'message' => $availableStock >= $requestedQty 
-                    ? 'In stock' 
-                    : ($availableStock > 0 ? "Only $availableStock available" : 'Out of stock')
-            ]);
-        } else {
-            // Simple product without variations
-            $requestedQty = $request->quantity ?? 1;
-            
-            return response()->json([
-                'available' => $product->quantity >= $requestedQty,
-                'stock' => $product->quantity,
-                'message' => $product->quantity >= $requestedQty 
-                    ? 'In stock' 
-                    : ($product->quantity > 0 ? "Only {$product->quantity} available" : 'Out of stock')
+                'available' => false,
+                'stock' => 0,
+                'message' => 'Please select all product options.'
             ]);
         }
+        
+        return response()->json([
+            'available' => $availableStock >= $requestedQty,
+            'stock' => $availableStock,
+            'message' => $availableStock >= $requestedQty 
+                ? 'In stock' 
+                : ($availableStock > 0 ? "Only $availableStock available" : 'Out of stock')
+        ]);
     }
+    // === MODIFIED END ===
 }

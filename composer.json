@@ -21,6 +21,7 @@
         "laravel/socialite": "^5.5",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.2",
+        "livewire/livewire": "^2.12",
         "maatwebsite/excel": "^3.1",
         "mckenziearts/laravel-notify": "^2.1",
         "ourcodeworld/name-that-color": "dev-master",

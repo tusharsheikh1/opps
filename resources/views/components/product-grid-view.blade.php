@@ -42,22 +42,6 @@
                 transform: scale(1.05);
             }
 
-            .hot-selling-badge {
-                position: absolute;
-                bottom: 10px;
-                left: 50%;
-                transform: translateX(-50%);
-                background-color: #ff9f43;
-                color: white;
-                padding: 5px 15px;
-                border-radius: 20px;
-                font-size: 0.8rem;
-                font-weight: 600;
-                z-index: 2;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-                white-space: nowrap;
-            }
-
             .product-content {
                 padding: 12px;
                 display: flex;
@@ -131,25 +115,29 @@
                 color: #111827;
             }
             
-            .choose-options-btn {
-                display: block;
+            .add-to-cart-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
                 width: 100%;
-                text-align: center;
-                padding: 10px 5px; /* Reduced horizontal padding */
-                border: 1px solid #374151;
-                border-radius: 6px;
+                padding: 12px 8px;
+                border: none;
+                border-radius: 8px;
                 text-decoration: none;
-                color: #374151;
-                font-weight: 500;
-                background-color: #fff;
-                transition: background-color 0.2s ease, border-color 0.2s ease;
-                font-size: 0.9rem; /* Reduced font size */
-                white-space: nowrap; /* Prevents text from wrapping */
+                color: #fff;
+                font-weight: 600;
+                background-color: #000000ff;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: all 0.2s ease-in-out;
             }
 
-            .choose-options-btn:hover {
-                background-color: #f9fafb;
-                border-color: #111827;
+            .add-to-cart-btn:hover {
+                background-color: #e65c00;
+                color: #fff;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(255, 103, 0, 0.4);
             }
 
             @media (max-width: 768px) {
@@ -166,10 +154,6 @@
 
         <a href="{{route('product.details', $product->slug)}}" class="product-image-container">
             <img src="{{asset('uploads/product/'.$product->image)}}" alt="{{$product->title}}">
-
-            @if($product->discount_price > 0)
-                <div class="hot-selling-badge">🔥 Hot Selling 🔥</div>
-            @endif
         </a>
 
         <div class="product-content">
@@ -177,19 +161,20 @@
                 <h5 class="product-title">{{$product->title}}</h5>
             </a>
             
-            <p class="product-vendor">TRENDIEZZS</p>
+            <p class="product-vendor">OPPS</p>
 
             @if($product->reviews->count() > 0)
                 @php
-                    // Calculate the average rating and round it
                     $rating = round($product->reviews->avg('rating'));
                 @endphp
                 <div class="product-rating">
                     <div class="stars">
                         @for($i = 1; $i <= 5; $i++)
                             @if($i <= $rating)
-                                <span>&#9733;</span> @else
-                                <span>&#9734;</span> @endif
+                                <span>&#9733;</span>
+                            @else
+                                <span>&#9734;</span>
+                            @endif
                         @endfor
                     </div>
                     <span class="review-count">({{$product->reviews->count()}})</span>
@@ -204,7 +189,12 @@
                 @endif
             </div>
 
-            <a href="{{route('product.details', $product->slug)}}" class="choose-options-btn">Choose options</a>
+            <button class="add-to-cart-btn" id="productInfo" data-url="{{route('product.info', $product->slug)}}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                </svg>
+                <span>Add to cart</span>
+            </button>
         </div>
     </div>
 </div>

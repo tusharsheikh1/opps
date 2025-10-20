@@ -17,9 +17,27 @@ use Illuminate\Support\Facades\Session;
 
 class CartController extends Controller
 {
+    /**
+     * --- THIS FUNCTION IS UPDATED ---
+     * We now fetch the cart contents from the server and pass them to the view
+     * to prevent the "slow load" from JavaScript.
+     */
     public function cart()
     {
-        return view('frontend.cart');
+        $cartCollection = Cart::content();
+        // Get subtotal as a raw number, no formatting
+        $subtotal = Cart::subtotal(2, '.', ''); 
+        $count = Cart::count();
+
+        // --- OPTIMIZATION ---
+        // We pass the sorted carts, subtotal, and count directly to the view.
+        // cart.blade.php will now use this data for the initial page load.
+        // We sort by 'weight' (which you set as user_id/vendor_id)
+        return view('frontend.cart', [
+            'carts' => $cartCollection->sortBy('weight'),
+            'subtotal' => $subtotal,
+            'count' => $count
+        ]);
     }
 
     // add to cart - FIXED VERSION
@@ -174,13 +192,18 @@ class CartController extends Controller
     // get cart data
     public function getCart() {
         
-         $cartCollection= Cart::content();
-        $data= $cartCollection->sortBy('weight');
+         $cartCollection = Cart::content();
          
+         // Return an object { "rowId": {...} } as your JS expects
+         $data = $cartCollection->sortBy('weight'); 
+         
+         // Get subtotal as a raw number, without formatting
+         $subtotal = Cart::subtotal(2, '.', ''); 
         
         return response()->json([
-            'count' => Cart::count(),
-            'carts' => $data
+            'count'    => Cart::count(),
+            'carts'    => $data, // This will now be a JSON object
+            'subtotal' => $subtotal
         ]);
     }
 
@@ -188,9 +211,19 @@ class CartController extends Controller
     public function updateCart($rowId, $qty)
     {
         Cart::update($rowId, ['qty' => $qty]);
+        
+        // --- FIX: ADD THIS BLOCK TO SYNC THE DATABASE ---
+        if (auth()->id()) {
+            CartInfo::where('ser', $rowId)
+                    ->where('user_id', auth()->id())
+                    ->update(['qty' => $qty]);
+        }
+        // --- END FIX ---
+        
         return response()->json([
             'alert'   => 'Success',
             'message' => 'Quantity update successfully',
+            'count'   => Cart::count()
         ]);
     }
 
@@ -198,10 +231,18 @@ class CartController extends Controller
     public function destroyCart($rowId)
     {
         Cart::remove($rowId);
-        $cart=CartInfo::where('ser',$rowId)->delete();
+        
+        // --- REFACTOR: Added auth() check for safety and consistency ---
+        if (auth()->id()) {
+            CartInfo::where('ser', $rowId)
+                    ->where('user_id', auth()->id())
+                    ->delete();
+        }
+        
         return response()->json([
             'alert'   => 'Success',
             'message' => 'Product successfully remove to cart',
+            'count'   => Cart::count()
         ]);
     }
     
@@ -211,60 +252,10 @@ class CartController extends Controller
      * @param  mixed $code
      * @return void
      */
-    public function applyCoupon($code,$stotal)
+    public function applyCoupon($code, $stotal)
     {
-        $coupon = Coupon::where('code', $code)->where('status', true)->where('expire_date', '>=', date('Y-m-d'))->first();
-        
-        if($coupon){
-            if ($coupon->available_limit > 0) {
-                $coupon_limit = DB::table('coupon_user')->where('user_id', auth()->id())->where('coupon_id', $coupon->id)->get();
-                
-                if ($coupon_limit->count() < $coupon->limit_per_user) {
-                    
-                    if(Session::has('coupon')){
-                        return response()->json([
-                            'message' => 'Already applied this coupon code.',
-                            'alert'   => 'error',
-                        ]);
-                    }
-
-                    $subtotal = $stotal;
-                    if ($coupon->discount_type == 'percent') {
-                        $discount  = (floatval($coupon->discount) / 100) * $subtotal;
-                    } 
-                    else {
-                        $discount = $coupon->discount;
-                    }
-                    
-                    Session::put('coupon', [
-                        'name'     => $coupon->code,
-                        'discount' => $discount
-                    ]);
-                    $coupon->users()->attach(auth()->id());
-                    $coupon->update([
-                        'available_limit' => $coupon->available_limit - 1
-                    ]);
-                    return response()->json([
-                        'message'  => 'Successfully apply coupon',
-                        'alert'    => 'success',
-                        'total'    => $subtotal - $discount,
-                        'discount' => $discount
-                    ]);
-                }
-                return response()->json([
-                    'message' => 'Your coupon use limit not available, already use '.auth()->user()->coupons()->count().' time',
-                    'alert'   => 'error',
-                ]);
-            }
-            return response()->json([
-                'message' => 'Coupon Limit Not Available',
-                'alert'   => 'error',
-            ]);
-        }
-        return response()->json([
-            'message' => 'Invalid Coupon Code!!',
-            'alert' => 'error',
-        ]);
+        // --- REFACTOR: Call the shared private method ---
+        return $this->validateAndApplyCoupon($code, $stotal);
     }
     
     /**
@@ -273,69 +264,91 @@ class CartController extends Controller
      * @param  mixed $code
      * @return void
      */
-    public function applyCouponBuyNow($code, $id, $qty,$dynamic)
+    public function applyCouponBuyNow($code, $id, $qty, $dynamic)
     {
-        $coupon = Coupon::where('code', $code)->where('status', true)->where('expire_date', '>=', date('Y-m-d'))->first();
+        $product = Product::find($id);
+        if (!$product) {
+            return response()->json([
+                'message' => 'Sorry something wrong' . $id,
+                'alert'   => 'error'
+            ]);
+        }
+
+        if ($qty >= 6 && $product->whole_price > 0) {
+            $subtotal = $product->whole_price * $qty;
+        } else {
+            $subtotal = $dynamic * $qty;
+        }
         
-        if($coupon){
-            if ($coupon->available_limit > 0) {
-                $coupon_limit = DB::table('coupon_user')->where('user_id', auth()->id())->where('coupon_id', $coupon->id)->get();
-                
-                if ($coupon_limit->count() < $coupon->limit_per_user) {
-                    
-                    if(Session::has('coupon')){
-                        return response()->json([
-                            'message' => 'Already applied this coupon code.',
-                            'alert'   => 'error'
-                        ]);
-                    }
-                    $product = Product::find($id);
-                    if ($product) {
-                        if($qty>=6 && $product->whole_price >0){
-                            $subtotal = $product->whole_price * $qty;
-                        }else{
-                            $subtotal = $dynamic * $qty;
-                        }
-                        if ($coupon->discount_type == 'percent') {
-                            $discount  = (floatval($coupon->discount) / 100) * $subtotal;
-                        } 
-                        else {
-                            $discount = $coupon->discount;
-                        }
-                        
-                        Session::put('coupon', [
-                            'name'     => $coupon->code,
-                            'discount' => $discount
-                        ]);
-                        $coupon->users()->attach(auth()->id());
-                        $coupon->update([
-                            'available_limit' => $coupon->available_limit - 1
-                        ]);
-                        return response()->json([
-                            'message'  => 'Successfully apply coupon',
-                            'alert'    => 'success',
-                            'total'    => $subtotal - $discount,
-                            'discount' => $discount
-                        ]);
-                    }
-                    return response()->json([
-                        'message' => 'Sorry something wrong'.$id,
-                        'alert'   => 'error'
-                    ]);
-                }
-                return response()->json([
-                    'message' => 'Your coupon use limit not available, already use '.auth()->user()->coupons()->count().' time',
-                    'alert'   => 'error'
-                ]);
-            }
+        // --- REFACTOR: Call the shared private method ---
+        return $this->validateAndApplyCoupon($code, $subtotal);
+    }
+
+    /**
+     * --- NEW PRIVATE FUNCTION ---
+     * Contains all the shared logic from the original applyCoupon methods
+     * to remove code duplication.
+     */
+    private function validateAndApplyCoupon($code, $subtotal)
+    {
+        $coupon = Coupon::where('code', $code)
+                        ->where('status', true)
+                        ->where('expire_date', '>=', date('Y-m-d'))
+                        ->first();
+        
+        if (!$coupon) {
+            return response()->json([
+                'message' => 'Invalid Coupon Code!!',
+                'alert'   => 'error'
+            ]);
+        }
+
+        if ($coupon->available_limit <= 0) {
             return response()->json([
                 'message' => 'Coupon Limit Not Available',
                 'alert'   => 'error'
             ]);
         }
+
+        $coupon_limit = DB::table('coupon_user')
+                          ->where('user_id', auth()->id())
+                          ->where('coupon_id', $coupon->id)
+                          ->count();
+
+        if ($coupon_limit >= $coupon->limit_per_user) {
+            return response()->json([
+                'message' => 'Your coupon use limit not available, already use ' . $coupon_limit . ' time',
+                'alert'   => 'error',
+            ]);
+        }
+
+        if (Session::has('coupon')) {
+            return response()->json([
+                'message' => 'Already applied a coupon code.',
+                'alert'   => 'error',
+            ]);
+        }
+
+        // All checks passed, apply the coupon
+        if ($coupon->discount_type == 'percent') {
+            $discount = (floatval($coupon->discount) / 100) * $subtotal;
+        } else {
+            $discount = $coupon->discount;
+        }
+        
+        Session::put('coupon', [
+            'name'     => $coupon->code,
+            'discount' => $discount
+        ]);
+
+        $coupon->users()->attach(auth()->id());
+        $coupon->decrement('available_limit'); // More efficient than update
+
         return response()->json([
-            'message' => 'Invalid Coupon Code!!',
-            'alert' => 'error'
+            'message'  => 'Successfully apply coupon',
+            'alert'    => 'success',
+            'total'    => $subtotal - $discount,
+            'discount' => $discount
         ]);
     }
 }

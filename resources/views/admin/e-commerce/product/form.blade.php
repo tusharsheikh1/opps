@@ -33,22 +33,100 @@
             border: 2px solid #ddd;
             margin-right: 10px;
         }
-        .color-variation-item {
+        .color-variation-card {
             transition: all 0.3s ease;
+            border-left: 4px solid #007bff;
         }
-        .color-variation-item:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        .color-variation-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .size-only-card {
+            border-left: 4px solid #17a2b8;
+        }
+        .size-stock-input {
+            max-width: 100px;
+        }
+        .stock-matrix-table {
+            width: 100%;
+            margin-top: 15px;
+        }
+        .stock-matrix-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+        .stock-matrix-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #dee2e6;
         }
         .color-images-area {
             background-color: #f8f9fa;
-            padding: 10px;
+            padding: 15px;
             border-radius: 4px;
+            margin-top: 15px;
         }
         .attribute-item {
             transition: all 0.2s ease;
         }
         .attribute-item:hover {
             background-color: #f8f9fa !important;
+        }
+        .stock-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .stock-summary h4 {
+            color: white;
+            margin-bottom: 10px;
+        }
+        .stock-badge {
+            background-color: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .color-header {
+            background: linear-gradient(to right, #f8f9fa, #ffffff);
+            border-bottom: 2px solid #007bff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .remove-color-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .price-display {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .price-display h5 {
+            color: white;
+            margin: 0;
+            font-size: 18px;
+        }
+        .price-display .original-price {
+            text-decoration: line-through;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+        .price-display .discount-percentage {
+            background-color: rgba(255,255,255,0.3);
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 10px;
         }
     </style>
 @endpush
@@ -94,7 +172,7 @@
             @endforeach
         @endif
 
-        <form action="{{ isset($product) ? route('admin.product.update', $product->id) : route('admin.product.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ isset($product) ? route('admin.product.update', $product->id) : route('admin.product.store') }}" method="POST" enctype="multipart/form-data" id="productForm">
             @csrf
             @isset($product)
                 @method('PUT')
@@ -102,9 +180,7 @@
             @endisset
 
             <div class="row">
-                <!-- Left Column -->
                 <div class="col-md-8">
-                    <!-- General Information -->
                     <div class="card card-primary card-outline">
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-info-circle"></i> General Information</h3>
@@ -130,7 +206,6 @@
                         </div>
                     </div>
                     
-                    <!-- Pricing & Inventory -->
                     <div class="card card-primary card-outline">
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-dollar-sign"></i> Pricing & Inventory</h3>
@@ -175,7 +250,17 @@
                                     @error('discount_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
-                            <div class="row">
+
+                            <div id="priceDisplay" class="price-display" style="display: none;">
+                                <h5>
+                                    <i class="fas fa-tag"></i> Final Price: 
+                                    <span id="finalPrice">৳0.00</span>
+                                    <span id="originalPrice" class="original-price"></span>
+                                    <span id="discountPercentage" class="discount-percentage"></span>
+                                </h5>
+                            </div>
+
+                            <div class="row mt-3">
                                 <div class="col-md-6 form-group">
                                     <label for="sku">SKU</label>
                                     <input type="text" name="sku" id="sku" class="form-control @error('sku') is-invalid @enderror" value="{{ $product->sku ?? old('sku') }}" placeholder="Product SKU">
@@ -183,164 +268,304 @@
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label for="quantity">Stock Quantity <span class="text-danger">*</span></label>
-                                    <input type="number" name="quantity" id="quantity" class="form-control @error('quantity') is-invalid @enderror" value="{{ $product->quantity ?? old('quantity') }}" required min="0">
-                                    <small class="form-text text-muted">For simple products. Variable product stock is auto-calculated.</small>
+                                    <input type="number" name="quantity" id="quantity" class="form-control @error('quantity') is-invalid @enderror" value="{{ $product->quantity ?? old('quantity') ?? 0 }}" required min="0">
+                                    <small class="form-text text-muted">Enter total stock or add variations.</small>
                                     @error('quantity')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Variations & Stock Management -->
-                    <div class="card card-primary card-outline">
+                    <div class="card card-info card-outline">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-boxes"></i> Variations & Stock Management</h3>
+                            <h3 class="card-title"><i class="fas fa-expand-arrows-alt"></i> Size-Only Variations (No Color)</h3>
                         </div>
                         <div class="card-body">
-                            <!-- Color Variations Section -->
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Use this section if your product has size variations but no color variations.
+                            </div>
+
+                            <div id="size_only_section" class="card card-body size-only-card">
+                                <h5 class="mb-3"><i class="fas fa-ruler-combined"></i> Size Variations</h5>
+                                <table class="stock-matrix-table table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Size</th>
+                                            <th>Stock Quantity</th>
+                                            <th>Price Adjustment</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="size_only_rows">
+                                        @isset($product)
+                                            @php
+                                                // Get size-only variations (where color_id is null)
+                                                $sizeOnlyVariations = [];
+                                                if(isset($colorSizeStock)) {
+                                                    foreach($colorSizeStock as $item) {
+                                                        if($item->color_id === null) {
+                                                            $sizeOnlyVariations[$item->size_id] = $item;
+                                                        }
+                                                    }
+                                                }
+                                            @endphp
+
+                                            @foreach($sizes as $size)
+                                                @php
+                                                    $sizeData = $sizeOnlyVariations[$size->id] ?? null;
+                                                    $quantity = $sizeData->quantity ?? 0;
+                                                    $price = $sizeData->price ?? 0;
+                                                @endphp
+                                                <tr>
+                                                    <td><strong>{{ $size->name }}</strong></td>
+                                                    <td>
+                                                        <input type="number" 
+                                                               class="form-control form-control-sm size-stock-input size-only-qty-input" 
+                                                               name="size_only_stock[{{ $size->id }}][quantity]" 
+                                                               value="{{ $quantity }}" 
+                                                               min="0" 
+                                                               placeholder="Qty">
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" 
+                                                               step="0.01" 
+                                                               class="form-control form-control-sm size-stock-input" 
+                                                               name="size_only_stock[{{ $size->id }}][price]" 
+                                                               value="{{ $price }}" 
+                                                               placeholder="+ Price">
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @else
+                                            @foreach($sizes as $size)
+                                                <tr>
+                                                    <td><strong>{{ $size->name }}</strong></td>
+                                                    <td>
+                                                        <input type="number" 
+                                                               class="form-control form-control-sm size-stock-input size-only-qty-input" 
+                                                               name="size_only_stock[{{ $size->id }}][quantity]" 
+                                                               value="0" 
+                                                               min="0" 
+                                                               placeholder="Qty">
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" 
+                                                               step="0.01" 
+                                                               class="form-control form-control-sm size-stock-input" 
+                                                               name="size_only_stock[{{ $size->id }}][price]" 
+                                                               value="0" 
+                                                               placeholder="+ Price">
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @endisset
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-primary card-outline">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-th"></i> Color & Size Stock Management</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="stock-summary" id="stockSummary" style="display: none;">
+                                <h4><i class="fas fa-chart-line"></i> Stock Summary</h4>
+                                <div id="stockSummaryContent"></div>
+                            </div>
+
                             <div class="form-group">
-                                <label for="select_color"><i class="fas fa-palette"></i> Colors</label>
-                                <small class="form-text text-muted mb-2">Add color variations with individual stock quantities and prices</small>
-                                <select id="select_color" class="form-control">
+                                <label for="select_color"><i class="fas fa-palette"></i> Add Color Variation</label>
+                                <small class="form-text text-muted mb-2">Select a color to add size variations with individual stock quantities</small>
+                                <select id="select_color" class="form-control select2">
                                     <option value="">Select a color to add</option>
                                     @foreach ($colors as $color)
-                                        <option value="{{ $color->name.','.$color->id.','.$color->code }}">{{ $color->name }}</option>
+                                        <option value="{{ $color->id }}" data-name="{{ $color->name }}" data-code="{{ $color->code }}">{{ $color->name }}</option>
                                     @endforeach
                                 </select>
-                                <div id="increment_color" class="mt-3">
-                                    @isset($product)
-                                        @foreach($colors_product as $pro_color)
-                                            <div class="color-variation-item border rounded p-3 mb-3" data-color-id="{{$pro_color->id}}">
-                                                <div class="row align-items-center">
-                                                    <div class="col-md-3">
+                            </div>
+
+                            <div id="color_variations_container">
+                                @isset($product)
+                                    @isset($colorSizeStock)
+                                        @php
+                                            // Group stock data by color for easier processing (excluding null color_id)
+                                            $colorGroups = [];
+                                            foreach($colorSizeStock as $item) {
+                                                if($item->color_id !== null) {
+                                                    if(!isset($colorGroups[$item->color_id])) {
+                                                        $colorGroups[$item->color_id] = [
+                                                            'color_name' => $item->color_name,
+                                                            'color_code' => $item->color_code,
+                                                            'sizes_data' => []
+                                                        ];
+                                                    }
+                                                    $colorGroups[$item->color_id]['sizes_data'][$item->size_id] = $item;
+                                                }
+                                            }
+                                        @endphp
+
+                                        @foreach($colorGroups as $colorId => $colorData)
+                                            <div class="color-variation-card card mb-4" data-color-id="{{ $colorId }}">
+                                                <div class="card-body position-relative">
+                                                    <button type="button" class="btn btn-sm btn-danger remove-color-btn remove-color-variation">
+                                                        <i class="fas fa-trash"></i> Remove Color
+                                                    </button>
+                                                    
+                                                    <div class="color-header">
                                                         <div class="d-flex align-items-center">
-                                                            <div class="color-swatch" style="background-color: {{$pro_color->code}};"></div>
-                                                            <strong>{{$pro_color->name}}</strong>
+                                                            <div class="color-swatch" style="background-color: {{ $colorData['color_code'] }};"></div>
+                                                            <h5 class="mb-0">{{ $colorData['color_name'] }}</h5>
                                                         </div>
-                                                        <input type="hidden" name="colors[]" value="{{$pro_color->id}}">
                                                     </div>
-                                                    <div class="col-md-3">
-                                                        <label class="small mb-1">Stock Quantity *</label>
-                                                        <input class="form-control form-control-sm color-qty-input" type="number" placeholder="Qty" name="color_quantits[]" value="{{$pro_color->qnty}}" required min="0">
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <label class="small mb-1">Price Adjustment</label>
-                                                        <input class="form-control form-control-sm" type="number" step="0.01" placeholder="+ Price" name="color_prices[]" value="{{$pro_color->price}}">
-                                                    </div>
-                                                    <div class="col-md-3 text-right">
-                                                        <button type="button" class="btn btn-sm btn-info upload-color-images" data-color-id="{{$pro_color->id}}">
-                                                            <i class="fas fa-images"></i> Images
+
+                                                    <table class="stock-matrix-table table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Size</th>
+                                                                <th>Stock Quantity *</th>
+                                                                <th>Price Adjustment</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="size-rows-container">
+                                                            @foreach($sizes as $size)
+                                                                @php
+                                                                    $stockData = $colorData['sizes_data'][$size->id] ?? null;
+                                                                    $quantity = $stockData->quantity ?? 0;
+                                                                    $price = $stockData->price ?? 0;
+                                                                @endphp
+                                                                <tr class="size-row">
+                                                                    <td><strong>{{ $size->name }}</strong></td>
+                                                                    <td>
+                                                                        <input type="number" 
+                                                                               class="form-control form-control-sm size-stock-input color-size-qty-input" 
+                                                                               name="color_size_stock[{{ $colorId }}][{{ $size->id }}][quantity]" 
+                                                                               value="{{ $quantity }}" 
+                                                                               min="0" 
+                                                                               required
+                                                                               placeholder="Qty">
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="number" 
+                                                                               step="0.01" 
+                                                                               class="form-control form-control-sm size-stock-input" 
+                                                                               name="color_size_stock[{{ $colorId }}][{{ $size->id }}][price]" 
+                                                                               value="{{ $price }}" 
+                                                                               placeholder="+ Price">
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+
+                                                    <div class="mt-3">
+                                                        <button type="button" class="btn btn-sm btn-info toggle-color-images">
+                                                            <i class="fas fa-images"></i> Manage Images for {{ $colorData['color_name'] }}
                                                         </button>
-                                                        <button type="button" class="btn btn-sm btn-danger remove_color_item">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                
-                                                <!-- Color-specific image upload area -->
-                                                <div class="color-images-area mt-3" style="display:none;">
-                                                    <label class="small"><i class="fas fa-camera"></i> Images for {{$pro_color->name}}</label>
-                                                    <div class="color-images-container">
-                                                        <input type="file" class="form-control-file" name="color_images[{{$pro_color->id}}][]" multiple accept="image/*">
-                                                    </div>
-                                                    @php
-                                                        $colorImages = $product->images->where('color_attri', $pro_color->id);
-                                                    @endphp
-                                                    @if($colorImages->count() > 0)
-                                                        <div class="mt-2">
-                                                            <small class="text-muted">Existing images:</small>
-                                                            <div class="d-flex flex-wrap mt-2">
-                                                                @foreach($colorImages as $img)
-                                                                    <div class="position-relative mr-2 mb-2">
-                                                                        <img src="{{ asset('uploads/product/'.$img->name) }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; border: 2px solid #ddd;">
-                                                                        <a href="{{ route('admin.idelte', $img->id) }}" class="btn btn-sm btn-danger position-absolute" style="top: -5px; right: -5px; padding: 2px 6px;" onclick="return confirm('Delete this image?')">
-                                                                            <i class="fas fa-times"></i>
-                                                                        </a>
+                                                        <div class="color-images-area" style="display:none;">
+                                                            <label class="small font-weight-bold"><i class="fas fa-camera"></i> Upload Images</label>
+                                                            <input type="file" class="form-control-file" name="color_images[{{ $colorId }}][]" multiple accept="image/*">
+                                                            
+                                                            @php
+                                                                $colorImages = $product->images->where('color_attri', $colorId);
+                                                            @endphp
+                                                            @if($colorImages->count() > 0)
+                                                                <div class="mt-3">
+                                                                    <small class="text-muted">Existing images:</small>
+                                                                    <div class="d-flex flex-wrap mt-2">
+                                                                        @foreach($colorImages as $img)
+                                                                            <div class="position-relative mr-2 mb-2">
+                                                                                <img src="{{ asset('uploads/product/'.$img->name) }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; border: 2px solid #ddd;">
+                                                                                <a href="{{ route('admin.idelte', $img->id) }}" class="btn btn-sm btn-danger position-absolute" style="top: -5px; right: -5px; padding: 2px 6px;" onclick="return confirm('Delete this image?')">
+                                                                                    <i class="fas fa-times"></i>
+                                                                                </a>
+                                                                            </div>
+                                                                        @endforeach
                                                                     </div>
-                                                                @endforeach
-                                                            </div>
+                                                                </div>
+                                                            @endif
                                                         </div>
-                                                    @endif
+                                                    </div>
                                                 </div>
                                             </div>
                                         @endforeach
                                     @endisset
-                                </div>
-                                <small class="text-info"><i class="fas fa-info-circle"></i> Total stock = Sum of all color quantities + attribute quantities</small>
+                                @endisset
+                            </div>
+
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle"></i> <strong>How it works:</strong> Each color can have multiple sizes with individual stock quantities. Total stock is automatically calculated.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-warning card-outline" id="attribute_section">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-tags"></i> Attribute Variations</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Attributes can be combined with color-size variations or used independently.
                             </div>
                             
-                            <hr class="my-4"/>
-                            
-                            <!-- Attribute Variations Section -->
-                            <div id="attribute_section">
-                                <label><i class="fas fa-tags"></i> Attributes (Size, Material, etc.)</label>
-                                <small class="form-text text-muted mb-3">Add attribute variations with individual stock quantities and prices</small>
-                                @php
-                                    $product_attributes_map = [];
-                                    if (isset($product)) {
-                                        foreach($product->attributes_values as $val) {
-                                            $product_attributes_map[$val->id] = [
-                                                'qnty' => $val->pivot->qnty ?? '',
-                                                'price' => $val->pivot->price ?? ''
-                                            ];
-                                        }
+                            @php
+                                $product_attributes_map = [];
+                                if (isset($product)) {
+                                    foreach($product->attributes_values as $val) {
+                                        $product_attributes_map[$val->id] = [
+                                            'qnty' => $val->pivot->qnty ?? '',
+                                            'price' => $val->pivot->price ?? ''
+                                        ];
                                     }
-                                @endphp
+                                }
+                            @endphp
 
-                                @if(isset($attributes) && count($attributes) > 0)
-                                    @foreach($attributes as $attribute)
-                                    <div class="mb-4 p-3 border rounded bg-light">
-                                        <h6 class="font-weight-bold"><i class="fas fa-tag"></i> {{ $attribute->name }}</h6>
-                                        <hr class="mt-2 mb-3">
-                                        <div class="row">
-                                            @foreach($attribute->values as $key => $value)
-                                                @php
-                                                    $isChecked = isset($product_attributes_map[$value->id]);
-                                                    $qnty = $isChecked ? $product_attributes_map[$value->id]['qnty'] : '';
-                                                    $price = $isChecked ? $product_attributes_map[$value->id]['price'] : '';
-                                                @endphp
-                                                <div class="col-md-6 mb-3">
-                                                    <div class="attribute-item p-2 border rounded bg-white">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input attribute-checkbox" type="checkbox" name="attributes[]" value="{{ $value->id }}" id="attr_{{ $value->id }}" {{ $isChecked ? 'checked' : '' }}>
-                                                            <label class="form-check-label font-weight-bold" for="attr_{{ $value->id }}">
-                                                                {{ $value->name }}
-                                                            </label>
+                            @if(isset($attributes) && count($attributes) > 0)
+                                @foreach($attributes as $attribute)
+                                <div class="mb-4 p-3 border rounded bg-light">
+                                    <h6 class="font-weight-bold"><i class="fas fa-tag"></i> {{ $attribute->name }}</h6>
+                                    <hr class="mt-2 mb-3">
+                                    <div class="row">
+                                        @foreach($attribute->values as $key => $value)
+                                            @php
+                                                $isChecked = isset($product_attributes_map[$value->id]);
+                                                $qnty = $isChecked ? $product_attributes_map[$value->id]['qnty'] : '';
+                                                $price = $isChecked ? $product_attributes_map[$value->id]['price'] : '';
+                                            @endphp
+                                            <div class="col-md-6 mb-3">
+                                                <div class="attribute-item p-2 border rounded bg-white">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input attribute-checkbox" type="checkbox" name="attributes[]" value="{{ $value->id }}" id="attr_{{ $value->id }}" {{ $isChecked ? 'checked' : '' }}>
+                                                        <label class="form-check-label font-weight-bold" for="attr_{{ $value->id }}">
+                                                            {{ $value->name }}
+                                                        </label>
+                                                    </div>
+                                                    <div class="attribute-details row mt-2" style="{{ $isChecked ? '' : 'display: none;' }}">
+                                                        <div class="col-6">
+                                                            <label class="small mb-1">Stock Qty *</label>
+                                                            <input type="number" name="attributes_quantits[]" class="form-control form-control-sm attr-qty-input" placeholder="Quantity" value="{{ $qnty }}" {{ $isChecked ? '' : 'disabled' }} min="0">
                                                         </div>
-                                                        <div class="attribute-details row mt-2" style="{{ $isChecked ? '' : 'display: none;' }}">
-                                                            <div class="col-6">
-                                                                <label class="small mb-1">Stock Qty *</label>
-                                                                <input type="number" name="attributes_quantits[]" class="form-control form-control-sm attr-qty-input" placeholder="Quantity" value="{{ $qnty }}" {{ $isChecked ? '' : 'disabled' }} min="0">
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <label class="small mb-1">Price Adj.</label>
-                                                                <input type="number" step="0.01" name="attribute_prices[]" class="form-control form-control-sm" placeholder="+ Price" value="{{ $price }}" {{ $isChecked ? '' : 'disabled' }}>
-                                                            </div>
+                                                        <div class="col-6">
+                                                            <label class="small mb-1">Price Adj.</label>
+                                                            <input type="number" step="0.01" name="attribute_prices[]" class="form-control form-control-sm" placeholder="+ Price" value="{{ $price }}" {{ $isChecked ? '' : 'disabled' }}>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            @endforeach
-                                        </div>
+                                            </div>
+                                        @endforeach
                                     </div>
-                                    @endforeach
-                                @else
-                                    <div class="alert alert-info">
-                                        <i class="fas fa-info-circle"></i> No attributes defined. <a href="{{ route('admin.attribute.index') }}" target="_blank">Create attributes</a> to add variations like Size, Material, etc.
-                                    </div>
-                                @endif
-                            </div>
-                            
-                            <div class="alert alert-warning mt-3 mb-0">
-                                <i class="fas fa-calculator"></i> <strong>Stock Calculation:</strong> 
-                                <span id="total-stock-display">Total stock will be calculated automatically</span>
-                            </div>
+                                </div>
+                                @endforeach
+                            @else
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> No attributes defined. <a href="{{ route('admin.attribute.index') }}" target="_blank">Create attributes</a> first.
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Column -->
                 <div class="col-md-4">
-                    <!-- Publish Card -->
                     <div class="card card-primary card-outline">
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-cog"></i> Publish</h3>
@@ -378,7 +603,6 @@
                         </div>
                     </div>
                     
-                    <!-- Categorization Card -->
                     <div class="card card-primary card-outline">
                         <div class="card-header"><h3 class="card-title"><i class="fas fa-folder"></i> Categorization</h3></div>
                         <div class="card-body">
@@ -416,7 +640,6 @@
                         </div>
                     </div>
 
-                    <!-- Media Card -->
                     <div class="card card-primary card-outline">
                         <div class="card-header"><h3 class="card-title"><i class="fas fa-images"></i> Media</h3></div>
                         <div class="card-body">
@@ -477,105 +700,240 @@
             $('.dropify').dropify();
             $('#full_description, #short_description').summernote({ height: 150 });
 
+            // All available sizes (from backend)
+            const allSizes = @json($sizes);
+
+            // Calculate and display final price after discount
+            function calculateFinalPrice() {
+                let regularPrice = parseFloat($('#regular_price').val()) || 0;
+                let discountValue = parseFloat($('#discount_price').val()) || 0;
+                let discountType = $('#dis_type').val();
+                
+                if(regularPrice > 0 && discountValue > 0) {
+                    let finalPrice = regularPrice;
+                    let discountAmount = 0;
+                    let discountPercentage = 0;
+                    
+                    if(discountType == '2') {
+                        // Percentage discount
+                        discountPercentage = discountValue;
+                        discountAmount = (regularPrice * discountValue) / 100;
+                        finalPrice = regularPrice - discountAmount;
+                    } else {
+                        // Fixed amount discount
+                        discountAmount = discountValue;
+                        finalPrice = regularPrice - discountValue;
+                        discountPercentage = ((discountAmount / regularPrice) * 100).toFixed(2);
+                    }
+                    
+                    if(finalPrice < 0) {
+                        finalPrice = 0;
+                    }
+                    
+                    $('#priceDisplay').fadeIn();
+                    $('#finalPrice').text('$' + finalPrice.toFixed(2));
+                    $('#originalPrice').text('$' + regularPrice.toFixed(2));
+                    $('#discountPercentage').text(discountPercentage + '% OFF');
+                } else {
+                    $('#priceDisplay').fadeOut();
+                }
+            }
+
             // Calculate and display total stock
             function calculateTotalStock() {
-                let total = 0;
-                let hasVariations = false;
+                let totalFromVariations = 0;
+                let hasColorSizeVariations = false;
+                let hasSizeOnlyVariations = false;
+                let hasAttributes = false;
+                let colorStockSummary = {};
+                let sizeOnlyStock = 0;
+                let attributeStock = 0;
                 
-                // Sum color quantities
-                $('input[name="color_quantits[]"]').each(function() {
+                // Sum color-size quantities
+                $('.color-size-qty-input').each(function() {
                     let val = parseInt($(this).val()) || 0;
                     if(val > 0) {
-                        total += val;
-                        hasVariations = true;
+                        totalFromVariations += val;
+                        hasColorSizeVariations = true;
+                        
+                        let colorCard = $(this).closest('.color-variation-card');
+                        let colorName = colorCard.find('.color-header h5').text().trim();
+                        if(!colorStockSummary[colorName]) {
+                            colorStockSummary[colorName] = 0;
+                        }
+                        colorStockSummary[colorName] += val;
                     }
                 });
                 
+                // Sum size-only quantities
+                $('.size-only-qty-input').each(function() {
+                    let val = parseInt($(this).val()) || 0;
+                    if(val > 0) {
+                        totalFromVariations += val;
+                        sizeOnlyStock += val;
+                        hasSizeOnlyVariations = true;
+                    }
+                });
+
                 // Sum attribute quantities
                 $('input[name="attributes_quantits[]"]:not(:disabled)').each(function() {
                     let val = parseInt($(this).val()) || 0;
                     if(val > 0) {
-                        total += val;
-                        hasVariations = true;
+                        totalFromVariations += val;
+                        attributeStock += val;
+                        hasAttributes = true;
                     }
                 });
                 
-                // Update display
-                if(hasVariations && total > 0) {
-                    $('#total-stock-display').html(`<strong>Total Stock: ${total} units</strong> (from all variations)`);
-                    $('#quantity').val(total).prop('readonly', true);
+                let hasAnyVariation = hasColorSizeVariations || hasSizeOnlyVariations || hasAttributes;
+                let finalTotal = 0;
+
+                if (hasAnyVariation) {
+                    // Variations exist: lock the field and set the calculated value
+                    $('#quantity').val(totalFromVariations).prop('readonly', true);
+                    $('#quantity').next('small.form-text').text('Auto-calculated from variations');
+                    finalTotal = totalFromVariations;
                 } else {
-                    $('#total-stock-display').html('Add color or attribute variations to calculate total stock automatically');
+                    // No variations: unlock the field.
                     $('#quantity').prop('readonly', false);
+                    $('#quantity').next('small.form-text').text('Enter total stock for this simple product.');
+                    // The total is whatever is in the field.
+                    finalTotal = parseInt($('#quantity').val()) || 0;
+                }
+                
+                // Update stock summary
+                if(finalTotal > 0) {
+                    let summaryHtml = `<div class="stock-badge"><strong>Total: ${finalTotal} units</strong></div>`;
+                    
+                    if(hasColorSizeVariations) {
+                        for(let color in colorStockSummary) {
+                            summaryHtml += `<div class="stock-badge">${color}: ${colorStockSummary[color]}</div>`;
+                        }
+                    }
+                    
+                    if(hasSizeOnlyVariations) {
+                        summaryHtml += `<div class="stock-badge">Size-Only: ${sizeOnlyStock}</div>`;
+                    }
+                    
+                    if(hasAttributes) {
+                        summaryHtml += `<div class="stock-badge">Attributes: ${attributeStock}</div>`;
+                    }
+                    
+                    $('#stockSummaryContent').html(summaryHtml);
+                    $('#stockSummary').fadeIn();
+                } else {
+                    $('#stockSummary').fadeOut();
                 }
             }
 
-            // Dynamic color fields with enhanced functionality
+            // Add new color variation
             $('#select_color').on('change', function() {
                 if (!$(this).val()) return;
-                let colorData = $(this).val().split(',');
-                let colorName = colorData[0];
-                let colorId = colorData[1];
-                let colorCode = colorData[2];
+                
+                let colorId = $(this).val();
+                let colorName = $(this).find(':selected').data('name');
+                let colorCode = $(this).find(':selected').data('code');
+
+                // Check if color already added
+                if($(`.color-variation-card[data-color-id="${colorId}"]`).length > 0) {
+                    alert('This color has already been added!');
+                    $(this).val('').trigger('change');
+                    return;
+                }
+
+                // Generate size rows
+                let sizeRows = '';
+                allSizes.forEach(function(size) {
+                    sizeRows += `
+                    <tr class="size-row">
+                        <td><strong>${size.name}</strong></td>
+                        <td>
+                            <input type="number" 
+                                   class="form-control form-control-sm size-stock-input color-size-qty-input" 
+                                   name="color_size_stock[${colorId}][${size.id}][quantity]" 
+                                   value="0" 
+                                   min="0" 
+                                   required
+                                   placeholder="Qty">
+                        </td>
+                        <td>
+                            <input type="number" 
+                                   step="0.01" 
+                                   class="form-control form-control-sm size-stock-input" 
+                                   name="color_size_stock[${colorId}][${size.id}][price]" 
+                                   value="0" 
+                                   placeholder="+ Price">
+                        </td>
+                    </tr>`;
+                });
 
                 let colorHtml = `
-                <div class="color-variation-item border rounded p-3 mb-3" data-color-id="${colorId}">
-                    <div class="row align-items-center">
-                        <div class="col-md-3">
+                <div class="color-variation-card card mb-4" data-color-id="${colorId}">
+                    <div class="card-body position-relative">
+                        <button type="button" class="btn btn-sm btn-danger remove-color-btn remove-color-variation">
+                            <i class="fas fa-trash"></i> Remove Color
+                        </button>
+                        
+                        <div class="color-header">
                             <div class="d-flex align-items-center">
                                 <div class="color-swatch" style="background-color: ${colorCode};"></div>
-                                <strong>${colorName}</strong>
+                                <h5 class="mb-0">${colorName}</h5>
                             </div>
-                            <input type="hidden" name="colors[]" value="${colorId}">
                         </div>
-                        <div class="col-md-3">
-                            <label class="small mb-1">Stock Quantity *</label>
-                            <input class="form-control form-control-sm color-qty-input" type="number" placeholder="Qty" name="color_quantits[]" value="" required min="0">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="small mb-1">Price Adjustment</label>
-                            <input class="form-control form-control-sm" type="number" step="0.01" placeholder="+ Price" name="color_prices[]" value="">
-                        </div>
-                        <div class="col-md-3 text-right">
-                            <button type="button" class="btn btn-sm btn-info upload-color-images" data-color-id="${colorId}">
-                                <i class="fas fa-images"></i> Images
+
+                        <table class="stock-matrix-table table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Size</th>
+                                    <th>Stock Quantity *</th>
+                                    <th>Price Adjustment</th>
+                                </tr>
+                            </thead>
+                            <tbody class="size-rows-container">
+                                ${sizeRows}
+                            </tbody>
+                        </table>
+
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-sm btn-info toggle-color-images">
+                                <i class="fas fa-images"></i> Manage Images for ${colorName}
                             </button>
-                            <button type="button" class="btn btn-sm btn-danger remove_color_item">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="color-images-area mt-3" style="display:none;">
-                        <label class="small"><i class="fas fa-camera"></i> Images for ${colorName}</label>
-                        <div class="color-images-container">
-                            <input type="file" class="form-control-file" name="color_images[${colorId}][]" multiple accept="image/*">
+                            <div class="color-images-area" style="display:none;">
+                                <label class="small font-weight-bold"><i class="fas fa-camera"></i> Upload Images</label>
+                                <input type="file" class="form-control-file" name="color_images[${colorId}][]" multiple accept="image/*">
+                            </div>
                         </div>
                     </div>
                 </div>`;
                 
-                $('#increment_color').append(colorHtml);
-                $(this).val(''); // Reset select
+                $('#color_variations_container').append(colorHtml);
+                $(this).val('').trigger('change');
                 calculateTotalStock();
             });
 
             // Remove color variation
-            $(document).on('click', '.remove_color_item', function() {
-                if(confirm('Remove this color variation?')) {
-                    $(this).closest('.color-variation-item').fadeOut(300, function() {
+            $(document).on('click', '.remove-color-variation', function() {
+                if(confirm('Remove this entire color variation including all sizes?')) {
+                    $(this).closest('.color-variation-card').fadeOut(300, function() {
                         $(this).remove();
                         calculateTotalStock();
                     });
                 }
             });
 
-            // Toggle color image upload area
-            $(document).on('click', '.upload-color-images', function() {
-                $(this).closest('.color-variation-item').find('.color-images-area').slideToggle();
+            // Toggle color images area
+            $(document).on('click', '.toggle-color-images', function() {
+                $(this).closest('.card-body').find('.color-images-area').slideToggle();
             });
 
             // Update stock calculation on quantity change
-            $(document).on('input', '.color-qty-input, .attr-qty-input', function() {
+            $(document).on('input', '#quantity, .color-size-qty-input, .size-only-qty-input, .attr-qty-input', function() {
                 calculateTotalStock();
+            });
+
+            // Update price display on input change
+            $('#regular_price, #discount_price, #dis_type').on('input change', function() {
+                calculateFinalPrice();
             });
 
             // Attribute checkbox logic
@@ -650,32 +1008,34 @@
             // Initial calculations and setup
             @if(isset($product))
                 fetchSubCategories($('#category').val());
-                calculateTotalStock();
             @endif
+            calculateTotalStock();
+            calculateFinalPrice();
 
-            // Form validation before submit
-            $('form').on('submit', function(e) {
-                let hasColors = $('input[name="colors[]"]').length > 0;
-                let hasAttributes = $('input[name="attributes[]"]:checked').length > 0;
+            // === START: FORM VALIDATION ===
+            $('#productForm').on('submit', function(e) {
+                // This checks the FINAL value of the quantity field.
+                // It works for both simple products (user typed) and
+                // variable products (auto-calculated).
                 
-                if(hasColors || hasAttributes) {
-                    let totalStock = 0;
+                let totalStock = parseInt($('#quantity').val()) || 0;
+                if(totalStock === 0) {
+                    e.preventDefault(); // Stop the form from submitting
+                    alert('Please add stock quantities! A product cannot be saved with zero total stock.');
                     
-                    $('input[name="color_quantits[]"]').each(function() {
-                        totalStock += parseInt($(this).val()) || 0;
-                    });
-                    
-                    $('input[name="attributes_quantits[]"]:not(:disabled)').each(function() {
-                        totalStock += parseInt($(this).val()) || 0;
-                    });
-                    
-                    if(totalStock === 0) {
-                        e.preventDefault();
-                        alert('Please add stock quantities for your variations!');
-                        return false;
+                    // Try to focus the user
+                    if ($('#quantity').is('[readonly]')) {
+                        // It's a variable product
+                        $('#stockSummary').css('border', '2px solid red');
+                    } else {
+                        // It's a simple product
+                        $('#quantity').focus().css('border', '2px solid red');
                     }
+                    
+                    return false;
                 }
             });
+            // === END: FORM VALIDATION ===
         });
     </script>
 @endpush

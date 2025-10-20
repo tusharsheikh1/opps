@@ -64,6 +64,10 @@ Route::get('product/filter', [ProductController::class, 'productFilter'])->name(
 Route::get('product/search', [ProductController::class, 'productSearch'])->name('product.search');
 Route::POst('product/advance-search/', [ProductController::class, 'advanceSearch'])->name('product.advance-search');
 
+// +++ THIS IS THE NEW ROUTE FOR THE QUICK VIEW MODAL +++
+Route::get('/products/quick-view/{slug}', [ProductController::class, 'quickView'])->name('product.quickview');
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 Route::get('product/{slug}', [ProductController::class, 'productDetails'])->name('product.details');
 Route::get('campaing/product/{slug}', [ProductController::class, 'productDetails1'])->name('product.cam.details');
 Route::get('/blogs', [ablogController::class, 'getAllBlogs'])->name('blogs');

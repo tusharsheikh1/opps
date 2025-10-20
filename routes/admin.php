@@ -126,6 +126,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('get/extra-categories', [ProductController::class, 'extraCategory']);
 
     Route::get('admin/product/color/{cc}/{pp}', [ProductController::class, 'nColorDelete'])->name('color.delete.n2');
+    Route::get('admin/product/size/{ss}/{pp}', [ProductController::class, 'nSizeDelete'])->name('size.delete.n2');
     Route::get('admin/product/attr/{cc}', [ProductController::class, 'nattrDelete'])->name('attr.delete.n2');
 
     Route::get('product/bluk', [ProductController::class, 'imex'])->name('product.imex');

@@ -8,11 +8,11 @@
     <div class="modern-product-card {{ 
         (isset($product->category) && (
             str_contains(strtolower($product->category->name ?? ''), 'book') || 
-            str_contains(strtolower($product->category->name ?? ''), 'বই') ||
+            str_contains(strtolower($product->category->name ?? ''), 'bengali_book') ||
             str_contains(strtolower($product->category->name ?? ''), 'kitab')
         )) || 
         str_contains(strtolower($product->title), 'book') || 
-        str_contains(strtolower($product->title), 'বই') 
+        str_contains(strtolower($product->title), 'bengali_book') 
         ? 'book-product' : '' }}">
         <style>
             .modern-product-card {
@@ -49,13 +49,11 @@
                 background: white;
             }
 
-            /* For book products, use contain to show full cover */
             .modern-product-card.book-product .product-image-container img {
                 object-fit: contain;
                 padding: 8px;
             }
 
-            /* For non-book products, use cover for better appearance */
             .modern-product-card:not(.book-product) .product-image-container img {
                 object-fit: cover;
                 padding: 0;
@@ -276,7 +274,6 @@
                 text-decoration: none;
             }
 
-            /* Book-specific styling for better cover display */
             .modern-product-card.book-product .product-image-container {
                 height: 220px;
             }
@@ -285,6 +282,30 @@
                 min-height: 360px;
             }
 
+            .add-to-cart-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px; 
+                flex: 1;
+                padding: 12px 16px;
+                border: none;
+                border-radius: 10px;
+                text-decoration: none;
+                color: #fff;
+                font-weight: 600;
+                background-color: #ff6700;
+                font-size: 0.875rem;
+                cursor: pointer;
+                transition: all 0.2s ease-in-out;
+            }
+
+            .add-to-cart-btn:hover {
+                background-color: #e65c00;
+                color: #fff;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(255, 103, 0, 0.4);
+            }
             @media (max-width: 768px) {
                 .modern-product-card {
                     height: auto;
@@ -353,13 +374,11 @@
             }
         </style>
 
-        <!-- Product Image -->
         <div class="product-image-container">
             <a href="{{route('product.details', $product->slug)}}">
                 <img src="{{asset('uploads/product/'.$product->image)}}" alt="{{$product->title}}">
             </a>
 
-            <!-- Discount Badge -->
             @if($product->discount_price > 0)
                 @php
                     if($product->dis_type == '2') {
@@ -372,7 +391,6 @@
                 <div class="discount-badge">{{$discount_price}} OFF</div>
             @endif
 
-            <!-- Wishlist Button -->
             @php
                 $hw = App\Models\wishlist::where('product_id', $product->id)->where('user_id', auth()->id())->first();
                 $wishlist_color = $hw ? '#ef4444' : '#6b7280';
@@ -385,7 +403,6 @@
                 </button>
             </form>
 
-            <!-- Quick View Overlay -->
             <div class="quick-view-overlay">
                 <a href="{{route('product.details', $product->slug)}}" class="quick-view-btn">
                     <i class="fas fa-search"></i>
@@ -394,9 +411,7 @@
             </div>
         </div>
 
-        <!-- Product Content -->
         <div class="product-content">
-            <!-- Rating -->
             <div class="rating-container">
                 @php
                     if ($product->reviews->count() > 0) {
@@ -418,12 +433,10 @@
                 </div>
             </div>
 
-            <!-- Product Title -->
             <a href="{{route('product.details', $product->slug)}}" style="text-decoration: none;">
                 <h5 class="product-title">{{implode(' ', array_slice(explode(' ', $product->title), 0, 10))}}...</h5>
             </a>
 
-            <!-- Price -->
             <div class="price-container">
                 @if($product->discount_price > 0 || $product->price)
                     <span class="current-price">{{ setting('CURRENCY_ICON') ?? '৳' }}{{$product->price ?? $product->discount_price}}</span>
@@ -433,20 +446,25 @@
                 @endif
             </div>
 
-            <!-- Product Message -->
             <div class="product-message">
                 @if ($product->prdct_extra_msg)
                     <small>{{ $product->prdct_extra_msg }}</small>
                 @endif
             </div>
 
-            <!-- Action Buttons -->
             <div class="action-buttons">
                 @if($product->quantity <= '0')
                     <a href="{{route('product.details', $product->slug)}}" class="btn-primary btn-out-of-stock">
                         <i class="fas fa-clock"></i>
                         Pre Order
                     </a>
+                @else
+                    <button class="add-to-cart-btn" id="productInfo" data-url="{{route('product.info', $product->slug)}}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                        </svg>
+                        <span>Add to cart</span>
+                    </button>
                 @endif
             </div>
         </div>
@@ -473,7 +491,6 @@
             success: function (response) {
                 responseMessage(response.alert, response.message, response.alert.toLowerCase());
                 
-                // Update wishlist button appearance
                 const button = $('#submit_payment_form{{$typeid}} .wishlist-btn i');
                 if (response.action === 'added') {
                     button.removeClass('far').addClass('fas').css('color', '#ef4444');
@@ -503,7 +520,6 @@
         });
     });
 
-    // Response message handler
     function responseMessage(heading, message, icon) {
         $.toast({
             heading: heading,
@@ -514,7 +530,6 @@
         });
     }
 
-    // Loader handler
     function loader(status) {
         if (status == true) {
             $('#loading-image').removeClass('d-none').addClass('d-block');

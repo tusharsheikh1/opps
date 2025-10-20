@@ -168,6 +168,7 @@ return [
         browner12\helpers\HelperServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        
         /*
          * Application Service Providers...
          */
@@ -176,6 +177,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\ViewServiceProvider::class, // <-- The new provider is registered here
 
         // custom mail config data from db
         App\Providers\MailConfigServiceProvider::class,
