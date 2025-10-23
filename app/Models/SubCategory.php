@@ -21,13 +21,23 @@ class SubCategory extends Model
 
     /**
      * Get the category that owns the sub category.
+     * Foreign key: category_id (in sub_categories table)
      */
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
+    
+    /**
+     * Get all mini categories under this sub category
+     * 
+     * IMPORTANT: Based on migration 2025_10_22_120617, the column in mini_categories
+     * was renamed from 'category_id' to 'sub_category_id'
+     * 
+     * Foreign key: sub_category_id (in mini_categories table)
+     */
     public function miniCategory()
     {
-        return $this->hasMany(miniCategory::class,'category_id');
+        return $this->hasMany(miniCategory::class, 'sub_category_id');
     }
 }

@@ -21,10 +21,11 @@ class Category extends Model
 
     /**
      * Get the sub categories for the category.
+     * A category can have many sub categories
      */
     public function sub_categories()
     {
-        return $this->hasMany(SubCategory::class);
+        return $this->hasMany(SubCategory::class, 'category_id');
     }
 
     /**

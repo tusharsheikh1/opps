@@ -629,6 +629,18 @@
                                 <label for="sub_category">Sub Categories</label>
                                 <select name="sub_categories[]" id="sub_category" class="form-control select2" multiple></select>
                             </div>
+                            
+                            {{-- START: ADDED HTML --}}
+                            <div class="form-group">
+                                <label for="mini_category">Mini Categories</label>
+                                <select name="mini_categories[]" id="mini_category" class="form-control select2" multiple></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="extra_category">Extra Categories</label>
+                                <select name="extra_categories[]" id="extra_category" class="form-control select2" multiple></select>
+                            </div>
+                            {{-- END: ADDED HTML --}}
+
                              <div class="form-group">
                                 <label for="tags">Tags</label>
                                 <select name="tags[]" id="tags" multiple class="form-control select2">
@@ -997,13 +1009,104 @@
                             options += `<option value="${val.id}" ${isSelected}>${val.name}</option>`;
                         });
                         $('#sub_category').html(options).select2({theme: 'bootstrap4'});
+
+                        // Trigger change to load mini categories if any are pre-selected
+                        if (selectedSubCategories.length > 0) {
+                                $('#sub_category').trigger('change');
+                        }
                     }
                 });
             }
 
+            // START: ADDED JAVASCRIPT
+
+            // Fetch MiniCategories on SubCategory change
+            function fetchMiniCategories(subCategoryIds) {
+                if (!subCategoryIds || subCategoryIds.length === 0) {
+                    $('#mini_category').html('').select2({theme: 'bootstrap4'});
+                    return;
+                }
+                
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ url("/admin/get/mini-categories") }}', // From admin.php routes
+                    data: {
+                        'ids': subCategoryIds,
+                        '_token': '{{ csrf_token() }}',
+                    },
+                    dataType: "JSON",
+                    success: function (response) {
+                        let options = '';
+                        let selectedMiniCategories = [];
+                        @if(isset($product))
+                            selectedMiniCategories = @json($product->mini_categories->pluck('id'));
+                        @endif
+
+                        $.each(response, function (key, val) {
+                            let isSelected = selectedMiniCategories.includes(val.id) ? 'selected' : '';
+                            options += `<option value="${val.id}" ${isSelected}>${val.name}</option>`;
+                        });
+                        $('#mini_category').html(options).select2({theme: 'bootstrap4'});
+                        
+                        // Trigger change to load extra categories if any are pre-selected
+                        if (selectedMiniCategories.length > 0) {
+                             $('#mini_category').trigger('change');
+                        }
+                    }
+                });
+            }
+
+            // Fetch ExtraCategories on MiniCategory change
+            function fetchExtraCategories(miniCategoryIds) {
+                if (!miniCategoryIds || miniCategoryIds.length === 0) {
+                    $('#extra_category').html('').select2({theme: 'bootstrap4'});
+                    return;
+                }
+                
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ url("/admin/get/extra-categories") }}', // From admin.php routes
+                    data: {
+                        'ids': miniCategoryIds,
+                        '_token': '{{ csrf_token() }}',
+                    },
+                    dataType: "JSON",
+                    success: function (response) {
+                        let options = '';
+                        let selectedExtraCategories = [];
+                        @if(isset($product))
+                            selectedExtraCategories = @json($product->extra_categories->pluck('id'));
+                        @endif
+
+                        $.each(response, function (key, val) {
+                            let isSelected = selectedExtraCategories.includes(val.id) ? 'selected' : '';
+                            options += `<option value="${val.id}" ${isSelected}>${val.name}</option>`;
+                        });
+                        $('#extra_category').html(options).select2({theme: 'bootstrap4'});
+                    }
+                });
+            }
+
+            // END: ADDED JAVASCRIPT
+
             $('#category').on('change', function() {
                 fetchSubCategories($(this).val());
+                // When category changes, clear the children
+                $('#mini_category').html('').select2({theme: 'bootstrap4'});
+                $('#extra_category').html('').select2({theme: 'bootstrap4'});
             });
+
+            // --- ADDED NEW LISTENERS ---
+            $('#sub_category').on('change', function() {
+                fetchMiniCategories($(this).val());
+                // When sub-category changes, clear the child
+                $('#extra_category').html('').select2({theme: 'bootstrap4'});
+            });
+
+            $('#mini_category').on('change', function() {
+                fetchExtraCategories($(this).val());
+            });
+            // --- END OF NEW LISTENERS ---
 
             // Initial calculations and setup
             @if(isset($product))

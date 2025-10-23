@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\VendorAccount;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class OrderDisplayService
 {
@@ -77,8 +78,9 @@ class OrderDisplayService
                         ]);
                     }
                     
-                    $product->quantity = $product->quantity + $item->qty;
-                    $product->save();
+                    // === UPDATED STOCK INCREASE LOGIC ===
+                    // Increase stock based on product variation type
+                    $this->increaseProductStock($product, $item);
                 }
             }
            
@@ -132,8 +134,9 @@ class OrderDisplayService
                         ]);
                     }
 
-                    $product->quantity = $product->quantity + $item->qty;
-                    $product->save();
+                    // === UPDATED STOCK INCREASE LOGIC ===
+                    // Increase stock based on product variation type
+                    $this->increaseProductStock($product, $item);
                 }
             }
 
@@ -300,4 +303,94 @@ class OrderDisplayService
     {
         return $request->validate($rules);
     }
+
+    /**
+     * Increase stock for product based on variation type (for cancellations/returns)
+     * Handles: Color-Size, Size-Only, Attributes, and Simple products
+     */
+    private function increaseProductStock($product, $item)
+    {
+        $quantity = $item->qty;
+        
+        // Decode size/color data from order item
+        $colorId = $item->color ?? null;
+        $sizeData = json_decode($item->size, true);
+        
+        // Priority 1: Check for Color-Size variation
+        if ($colorId && !empty($sizeData)) {
+            foreach ($sizeData as $sizeInfo) {
+                if (isset($sizeInfo['size_id'])) {
+                    $sizeId = $sizeInfo['size_id'];
+                    
+                    // Increase in color_size_product table
+                    DB::table('color_size_product')
+                        ->where('product_id', $product->id)
+                        ->where('color_id', $colorId)
+                        ->where('size_id', $sizeId)
+                        ->increment('quantity', $quantity);
+                    
+                    \Log::info('Stock increased: Color-Size (Cancel/Return)', [
+                        'product_id' => $product->id,
+                        'color_id' => $colorId,
+                        'size_id' => $sizeId,
+                        'quantity' => $quantity
+                    ]);
+                    break;
+                }
+            }
+        }
+        // Priority 2: Check for Size-Only variation (no color)
+        elseif (empty($colorId) && !empty($sizeData)) {
+            foreach ($sizeData as $sizeInfo) {
+                if (isset($sizeInfo['size_id'])) {
+                    $sizeId = $sizeInfo['size_id'];
+                    
+                    // Increase in color_size_product table where color_id IS NULL
+                    DB::table('color_size_product')
+                        ->where('product_id', $product->id)
+                        ->where('size_id', $sizeId)
+                        ->whereNull('color_id')
+                        ->increment('quantity', $quantity);
+                    
+                    \Log::info('Stock increased: Size-Only (Cancel/Return)', [
+                        'product_id' => $product->id,
+                        'size_id' => $sizeId,
+                        'quantity' => $quantity
+                    ]);
+                    break;
+                }
+            }
+        }
+        // Priority 3: Check for Attribute variation
+        elseif (!empty($sizeData)) {
+            foreach ($sizeData as $attrInfo) {
+                if (isset($attrInfo['attribute_value_id'])) {
+                    $attributeValueId = $attrInfo['attribute_value_id'];
+                    
+                    // Increase in attribute_product table
+                    DB::table('attribute_product')
+                        ->where('product_id', $product->id)
+                        ->where('attribute_value_id', $attributeValueId)
+                        ->increment('qnty', $quantity);
+                    
+                    \Log::info('Stock increased: Attribute (Cancel/Return)', [
+                        'product_id' => $product->id,
+                        'attribute_value_id' => $attributeValueId,
+                        'quantity' => $quantity
+                    ]);
+                    break;
+                }
+            }
+        }
+        
+        // Always increase main product quantity (for all product types)
+        $product->increment('quantity', $quantity);
+        
+        \Log::info('Stock increased: Main product quantity (Cancel/Return)', [
+            'product_id' => $product->id,
+            'quantity' => $quantity,
+            'new_stock' => $product->fresh()->quantity
+        ]);
+    }
+
 }

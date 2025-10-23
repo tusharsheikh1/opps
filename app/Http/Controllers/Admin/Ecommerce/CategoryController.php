@@ -156,7 +156,7 @@ class CategoryController extends Controller
         }
           SubCategory::where('category_id',$category->id)->update(['status'=> $request->filled('status')]);
                miniCategory::
-                          join('sub_categories',  'sub_categories.id', '=','mini_categories.category_id' )
+                          join('sub_categories',  'sub_categories.id', '=','mini_categories.sub_category_id' )
                           ->where('sub_categories.category_id',$category->id)
                           ->update(['mini_categories.status'=> $request->filled('status')]);
         $products=Product::join('category_product', 'products.id', '=', 'category_product.product_id')

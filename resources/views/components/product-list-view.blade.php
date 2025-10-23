@@ -294,7 +294,7 @@
                 text-decoration: none;
                 color: #fff;
                 font-weight: 600;
-                background-color: #ff6700;
+                background-color: #000000ff;
                 font-size: 0.875rem;
                 cursor: pointer;
                 transition: all 0.2s ease-in-out;

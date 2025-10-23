@@ -4,6 +4,10 @@
 <script src="{{ asset('/') }}assets/frontend/js/slick.js"></script>
 <script src="{{ asset('/') }}assets/frontend/js/moment.js"></script>
 <script src="{{ asset('/') }}assets/frontend/js/toast.min.js"></script>
+
+{{-- Toast Helper - Add this AFTER toast.min.js --}}
+<script src="{{ asset('/') }}assets/frontend/js/toast-helper.js"></script>
+
 <script src="{{ asset('/') }}assets/frontend/js/Font-Awesome.js"></script>
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 <x:notify-messages />
@@ -27,7 +31,7 @@
         //.... so on
     }
     const texts = [
-        "{!! setting('placeholder_one') !!}', '{!! setting('placeholder_two') !!}', '{!! setting('placeholder_three') !!}', '{!! setting('placeholder_four') !!}"
+        "{!! setting('placeholder_one') !!}", "{!! setting('placeholder_two') !!}", "{!! setting('placeholder_three') !!}", "{!! setting('placeholder_four') !!}"
     ];
     const input = document.querySelector('#searchbox');
     const animationWorker = function(input, texts) {

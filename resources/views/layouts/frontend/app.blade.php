@@ -61,5 +61,6 @@
     </style>
 
     @include('layouts.frontend.partials.script')
+    <script src="{{ asset('js/product-variations.js') }}"></script>
 </body>
 </html>

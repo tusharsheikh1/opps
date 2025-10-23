@@ -2,513 +2,575 @@
 
 @push('meta')
 <meta name='description' content="Order Successfully Placed - Thank You for Your Purchase"/>
-<meta name='keywords' content="Order Success, Book Order, E-commerce Success" />
+<meta name='keywords' content="Order Success, Purchase Confirmation, E-commerce" />
 @endpush
 
-@section('title', 'Order Success - Thank You!')
+@section('title', 'Thank You - Order Confirmed!')
 
 @section('content')
 
-<div class="order-success-container">
-    <div class="container">
-        <div class="order-success-card">
-            <style>
-                .order-success-container {
-                    background: #f8fafc;
-                    min-height: 90vh;
-                    padding: 40px 0;
-                }
+<style>
+    :root {
+        --color-success: #10b981; /* Emerald 500 */
+        --color-success-light: #ecfdf5; /* Emerald 50 */
+        --color-primary: #3b82f6; /* Blue 500 */
+        --color-primary-hover: #2563eb; /* Blue 600 */
+        --color-text-dark: #1f2937; /* Gray 800 */
+        --color-text-medium: #4b5563; /* Gray 600 */
+        --color-text-light: #6b7280; /* Gray 500 */
+        --color-border: #e5e7eb; /* Gray 200 */
+        --color-background: #f9fafb; /* Gray 50 */
+    }
 
-                .order-success-card {
-                    background: white;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-                    max-width: 800px;
-                    margin: 0 auto;
-                    overflow: hidden;
-                }
+    .order-success-page {
+        background-color: var(--color-background);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        padding: 40px 15px;
+        min-height: 85vh; /* Adjusted min-height */
+        display: flex; /* Added for centering */
+        align-items: center; /* Added for centering */
+        justify-content: center; /* Added for centering */
+    }
 
-                .success-header {
-                    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                    color: white;
-                    padding: 30px;
-                    text-align: center;
-                }
+    .success-card {
+        max-width: 800px;
+        width: 100%; /* Ensure it takes width on smaller screens */
+        margin: 20px auto; /* Added top/bottom margin */
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07); /* Softer shadow */
+        overflow: hidden;
+    }
 
-                .success-icon {
-                    width: 60px;
-                    height: 60px;
-                    background: rgba(255, 255, 255, 0.2);
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 0 auto 15px;
-                }
+    /* 1. Header */
+    .success-header {
+        padding: 40px;
+        text-align: center;
+        border-bottom: 1px solid var(--color-border);
+        background: linear-gradient(135deg, var(--color-success-light) 0%, #ffffff 100%); /* Subtle gradient */
+    }
 
-                .success-icon i {
-                    font-size: 28px;
-                    color: white;
-                }
+    .success-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--color-success); /* Solid success color */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: white; /* White icon */
+        box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4); /* Icon shadow */
+    }
 
-                .success-title {
-                    font-size: 1.8rem;
-                    font-weight: 700;
-                    margin-bottom: 8px;
-                }
+    .success-icon i {
+        font-size: 28px;
+    }
 
-                .success-subtitle {
-                    font-size: 1rem;
-                    opacity: 0.9;
-                }
+    .success-title {
+        font-size: 1.75rem; /* Slightly smaller */
+        font-weight: 700;
+        color: var(--color-text-dark);
+        margin: 0;
+    }
 
-                .order-content {
-                    padding: 30px;
-                }
+    .success-subtitle {
+        font-size: 1.05rem; /* Slightly smaller */
+        color: var(--color-text-medium);
+        margin-top: 8px;
+        line-height: 1.6;
+    }
 
-                .order-number-section {
-                    background: #f8fafc;
-                    border: 2px solid #e2e8f0;
-                    border-radius: 8px;
-                    padding: 20px;
-                    text-align: center;
-                    margin-bottom: 30px;
-                }
+    .success-email-notice {
+        font-size: 0.9rem; /* Slightly smaller */
+        color: var(--color-text-light);
+        margin-top: 15px;
+    }
 
-                .order-label {
-                    font-size: 0.85rem;
-                    color: #64748b;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    margin-bottom: 8px;
-                }
+    /* 2. Key Details */
+    .order-key-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Adjusted minmax */
+        gap: 25px; /* Increased gap */
+        padding: 30px 40px; /* Adjusted padding */
+        background: #ffffff; /* White background */
+        border-bottom: 1px solid var(--color-border);
+    }
 
-                .order-number {
-                    font-size: 1.5rem;
-                    font-weight: 700;
-                    color: #1e293b;
-                    font-family: 'Courier New', monospace;
-                }
+    .detail-box {
+        text-align: left;
+    }
 
-                .details-grid {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 30px;
-                    margin-bottom: 30px;
-                }
+    .detail-box-label {
+        font-size: 0.8rem; /* Slightly smaller */
+        font-weight: 600;
+        color: var(--color-text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px; /* Added letter spacing */
+        margin-bottom: 6px;
+    }
 
-                .detail-section {
-                    background: #f8fafc;
-                    border-radius: 8px;
-                    padding: 20px;
-                }
+    .detail-box-value {
+        font-size: 1rem; /* Slightly smaller */
+        font-weight: 600;
+        color: var(--color-text-dark);
+        line-height: 1.4; /* Adjusted line height */
+    }
 
-                .section-title {
-                    font-size: 1.1rem;
-                    font-weight: 700;
-                    color: #1e293b;
-                    margin-bottom: 15px;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                }
+    .detail-box-value.order-number {
+        font-family: 'Courier New', monospace;
+        font-size: 1.1rem; /* Adjusted size */
+        color: var(--color-primary);
+        font-weight: 700; /* Bolder */
+    }
 
-                .section-title i {
-                    color: #3b82f6;
-                }
+    /* 3. Order Items */
+    .order-items-summary {
+        padding: 30px 40px;
+    }
 
-                .detail-item {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 10px;
-                    padding: 8px 0;
-                    border-bottom: 1px solid #e2e8f0;
-                }
+    .summary-title {
+        font-size: 1.2rem; /* Adjusted size */
+        font-weight: 600;
+        color: var(--color-text-dark);
+        margin-bottom: 25px; /* Increased margin */
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--color-border);
+    }
 
-                .detail-item:last-child {
-                    border-bottom: none;
-                    margin-bottom: 0;
-                }
+    .product-list { /* Added wrapper */
+        display: flex;
+        flex-direction: column;
+        gap: 20px; /* Gap between items */
+    }
 
-                .detail-label {
-                    font-weight: 500;
-                    color: #64748b;
-                }
+    .product-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding-bottom: 20px; /* Use gap instead of padding/border */
+        border-bottom: 1px solid var(--color-border); /* Keep border */
+    }
 
-                .detail-value {
-                    font-weight: 600;
-                    color: #1e293b;
-                }
+    .product-item:last-child {
+       border-bottom: none; /* Remove border for last item */
+       padding-bottom: 0;
+    }
 
-                .billing-section {
-                    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-                    border-radius: 8px;
-                    padding: 20px;
-                    margin-bottom: 30px;
-                }
 
-                .total-amount {
-                    font-size: 1.4rem;
-                    font-weight: 700;
-                    color: #059669;
-                    text-align: center;
-                    margin-top: 10px;
-                }
+    .product-image {
+        width: 70px; /* Slightly larger */
+        height: 70px;
+        border-radius: 8px;
+        background: var(--color-background); /* Lighter background */
+        object-fit: cover;
+        flex-shrink: 0;
+        border: 1px solid var(--color-border); /* Subtle border */
+    }
 
-                .notifications-section {
-                    background: #fef3c7;
-                    border: 2px solid #f59e0b;
-                    border-radius: 8px;
-                    padding: 20px;
-                    margin-bottom: 30px;
-                }
+    .product-image-placeholder { /* Style for placeholder */
+        width: 70px;
+        height: 70px;
+        border-radius: 8px;
+        background: var(--color-background);
+        border: 1px solid var(--color-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: var(--color-text-light);
+        flex-shrink: 0;
+    }
 
-                .notification-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    margin-bottom: 10px;
-                }
 
-                .notification-item:last-child {
-                    margin-bottom: 0;
-                }
+    .product-info {
+        flex-grow: 1;
+    }
 
-                .notification-icon {
-                    width: 20px;
-                    text-align: center;
-                }
+    .product-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--color-text-dark);
+        margin: 0;
+        line-height: 1.4;
+    }
 
-                .notification-icon.enabled {
-                    color: #059669;
-                }
+    .product-meta {
+        font-size: 0.85rem; /* Smaller meta */
+        color: var(--color-text-light);
+        margin-top: 5px; /* Increased margin */
+    }
 
-                .notification-icon.disabled {
-                    color: #dc2626;
-                }
+    .product-price {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--color-text-dark);
+        text-align: right;
+        flex-shrink: 0;
+        white-space: nowrap; /* Prevent price wrapping */
+    }
 
-                .delivery-timeline {
-                    background: #ecfdf5;
-                    border: 2px solid #10b981;
-                    border-radius: 8px;
-                    padding: 20px;
-                    margin-bottom: 30px;
-                    text-align: center;
-                }
+    /* 4. Details Grid (Billing & Shipping) */
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr; /* Default to single column */
+        gap: 1px;
+        border-top: 1px solid var(--color-border);
+        background: var(--color-border);
+    }
 
-                .timeline-title {
-                    font-size: 1.1rem;
-                    font-weight: 700;
-                    color: #065f46;
-                    margin-bottom: 15px;
-                }
+    /* Use media query for two columns on larger screens */
+    @media (min-width: 768px) {
+        .details-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
 
-                .timeline-dates {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 15px;
-                }
 
-                .date-item {
-                    text-align: center;
-                }
+    .grid-section {
+        background: #ffffff;
+        padding: 30px 40px;
+    }
 
-                .date-label {
-                    font-size: 0.85rem;
-                    color: #059669;
-                    font-weight: 600;
-                    margin-bottom: 5px;
-                }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-text-dark);
+        margin-bottom: 20px; /* Increased margin */
+    }
 
-                .date-value {
-                    font-size: 1rem;
-                    font-weight: 700;
-                    color: #065f46;
-                }
+    .address-details p {
+        font-size: 0.95rem;
+        color: var(--color-text-medium);
+        line-height: 1.7; /* Increased line height */
+        margin: 0 0 5px 0; /* Spacing between address lines */
+    }
+     .address-details p:last-child {
+         margin-bottom: 0;
+     }
 
-                .timeline-bar {
-                    height: 4px;
-                    background: #d1fae5;
-                    border-radius: 2px;
-                    position: relative;
-                    margin-bottom: 10px;
-                }
+    /* Billing Summary */
+    .billing-summary .detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px; /* Increased margin */
+        font-size: 0.95rem;
+    }
 
-                .timeline-progress {
-                    height: 100%;
-                    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                    border-radius: 2px;
-                    width: 20%;
-                }
+    .billing-summary .detail-label {
+        color: var(--color-text-medium);
+    }
 
-                .action-buttons {
-                    display: flex;
-                    gap: 15px;
-                    justify-content: center;
-                }
+    .billing-summary .detail-value {
+        font-weight: 500;
+        color: var(--color-text-dark);
+    }
 
-                .action-btn {
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    text-decoration: none;
-                    transition: all 0.3s ease;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                    border: 2px solid transparent;
-                    min-width: 150px;
-                    justify-content: center;
-                }
+    .billing-summary .detail-value.discount {
+        color: #ef4444; /* Red 500 */
+        font-weight: 600;
+    }
 
-                .btn-primary {
-                    background: #3b82f6;
-                    color: white;
-                    border-color: #3b82f6;
-                }
+    .billing-summary .total-divider {
+        height: 1px;
+        background: var(--color-border);
+        margin: 20px 0; /* Increased margin */
+    }
 
-                .btn-primary:hover {
-                    background: #2563eb;
-                    border-color: #2563eb;
-                    transform: translateY(-1px);
-                    color: white;
-                    text-decoration: none;
-                }
+    .billing-summary .total-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.15rem; /* Slightly smaller */
+        font-weight: 700;
+        color: var(--color-text-dark);
+    }
 
-                .btn-secondary {
-                    background: white;
-                    color: #64748b;
-                    border-color: #e2e8f0;
-                }
+    /* 5. Footer Actions */
+    .success-footer {
+        padding: 30px 40px;
+        background: var(--color-background);
+        border-top: 1px solid var(--color-border);
+        display: flex;
+        flex-wrap: wrap; /* Allow wrapping on small screens */
+        justify-content: center;
+        gap: 15px;
+    }
 
-                .btn-secondary:hover {
-                    background: #f8fafc;
-                    border-color: #cbd5e1;
-                    color: #475569;
-                    text-decoration: none;
-                }
+    .action-btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 0.95rem; /* Slightly smaller */
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease-in-out; /* Faster transition */
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid transparent; /* Use 1px border */
+        min-width: 180px; /* Slightly wider */
+        justify-content: center;
+        cursor: pointer; /* Add cursor */
+    }
 
-                /* Mobile Responsiveness */
-                @media (max-width: 768px) {
-                    .order-success-container {
-                        padding: 20px 0;
-                    }
+    .btn-primary {
+        background: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+    }
 
-                    .order-success-card {
-                        margin: 0 20px;
-                        border-radius: 8px;
-                    }
+    .btn-primary:hover {
+        background: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+        transform: translateY(-2px); /* Slightly more lift */
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); /* Add shadow on hover */
+        color: white;
+        text-decoration: none;
+    }
 
-                    .success-header {
-                        padding: 20px;
-                    }
+    .btn-secondary {
+        background: white;
+        color: var(--color-text-medium);
+        border-color: #cbd5e1; /* Gray 300 */
+    }
 
-                    .success-title {
-                        font-size: 1.5rem;
-                    }
+    .btn-secondary:hover {
+        background: #f8fafc; /* Gray 50 slightly darker */
+        border-color: #94a3b8; /* Gray 400 */
+        color: var(--color-text-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        text-decoration: none;
+    }
 
-                    .order-content {
-                        padding: 20px;
-                    }
+    .action-btn i {
+        font-size: 1em; /* Make icon size relative */
+    }
 
-                    .details-grid {
-                        grid-template-columns: 1fr;
-                        gap: 20px;
-                    }
 
-                    .timeline-dates {
-                        flex-direction: column;
-                        gap: 15px;
-                    }
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .order-success-page {
+            padding: 0; /* Remove padding for full width card */
+             align-items: flex-start; /* Align card to top */
+        }
 
-                    .action-buttons {
-                        flex-direction: column;
-                        align-items: center;
-                    }
+        .success-card {
+            margin: 0;
+            border-radius: 0;
+            box-shadow: none;
+            min-height: 100vh; /* Ensure card takes full height */
+        }
 
-                    .action-btn {
-                        width: 100%;
-                        max-width: 250px;
-                    }
-                }
-            </style>
+        .success-header,
+        .order-key-details,
+        .order-items-summary,
+        .grid-section,
+        .success-footer {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
 
-            <!-- Success Header -->
-            <div class="success-header">
-                <div class="success-icon">
-                    <i class="fas fa-check"></i>
-                </div>
-                <h1 class="success-title">Order Confirmed!</h1>
-                <p class="success-subtitle">Thank you for your purchase. Your order has been successfully placed.</p>
+         .success-header { padding-top: 40px; padding-bottom: 30px;}
+         .order-key-details { grid-template-columns: 1fr 1fr; gap: 15px;} /* Keep 2 columns if possible */
+         .detail-box-value { font-size: 0.95rem;}
+         .detail-box-value.order-number { font-size: 1rem;}
+
+        .product-image, .product-image-placeholder { width: 60px; height: 60px; } /* Adjust size */
+        .product-name { font-size: 0.95rem; }
+        .product-price { font-size: 0.95rem; }
+        .product-list { gap: 15px;}
+        .product-item { padding-bottom: 15px;}
+
+        .details-grid { grid-template-columns: 1fr; gap: 0; border-top: none;} /* Remove gap and top border */
+        .grid-section { border-top: 1px solid var(--color-border); } /* Add border between sections */
+        .grid-section:first-child { border-top: none;}
+
+
+        .success-footer {
+            flex-direction: column;
+            gap: 12px; /* Reduce gap */
+            padding-top: 25px;
+            padding-bottom: 25px;
+        }
+
+        .action-btn {
+            width: 100%;
+            min-width: auto; /* Remove min-width */
+        }
+    }
+</style>
+
+<div class="order-success-page">
+    <div class="success-card">
+
+        <div class="success-header">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
             </div>
+            <h1 class="success-title">Thank You For Your Order!</h1>
+            <p class="success-subtitle">Your order has been placed successfully and is being processed.</p>
+            @if(!empty($data['email']) && $data['email'] !== 'noreply@lems.shop')
+                <p class="success-email-notice">
+                    A confirmation email with details has been sent to <strong>{{ $data['email'] }}</strong>.
+                </p>
+            @endif
+        </div>
 
-            <!-- Order Content -->
-            <div class="order-content">
-                <!-- Order Number -->
-                <div class="order-number-section">
-                    <div class="order-label">Order Number</div>
-                    <div class="order-number">{{ $data['invoice'] }}</div>
+        <div class="order-key-details">
+            <div class="detail-box">
+                <div class="detail-box-label">Order Number</div>
+                <div class="detail-box-value order-number">{{ $data['invoice'] ?? 'N/A' }}</div>
+            </div>
+            <div class="detail-box">
+                <div class="detail-box-label">Order Date</div>
+                <div class="detail-box-value">
+                    {{ $data['date'] ? \Carbon\Carbon::parse($data['date'])->format('F d, Y') : now()->format('F d, Y') }}
                 </div>
-
-                <!-- User & Billing Details Grid -->
-                <div class="details-grid">
-                    <!-- Customer Information -->
-                    <div class="detail-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-user"></i>
-                            Customer Information
-                        </h3>
-                        <div class="detail-item">
-                            <span class="detail-label">Name:</span>
-                            <span class="detail-value">{{ $data['name'] ?? $data['customer_name'] ?? $data['billing_name'] ?? 'N/A' }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Mobile:</span>
-                            <span class="detail-value">{{ $data['phone'] ?? $data['mobile'] ?? $data['contact'] ?? 'N/A' }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Email:</span>
-                            <span class="detail-value">{{ $data['email'] ?? $data['customer_email'] ?? 'N/A' }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Address:</span>
-                            <span class="detail-value">{{ $data['address'] ?? $data['shipping_address'] ?? $data['billing_address'] ?? 'N/A' }}</span>
-                        </div>
-                        @if(isset($data['city']) || isset($data['area']))
-                        <div class="detail-item">
-                            <span class="detail-label">City/Area:</span>
-                            <span class="detail-value">{{ $data['city'] ?? $data['area'] ?? 'N/A' }}</span>
-                        </div>
-                        @endif
-                        @if(isset($data['postal_code']) || isset($data['zip']))
-                        <div class="detail-item">
-                            <span class="detail-label">Postal Code:</span>
-                            <span class="detail-value">{{ $data['postal_code'] ?? $data['zip'] ?? 'N/A' }}</span>
-                        </div>
-                        @endif
-                    </div>
-
-                    <!-- Order Information -->
-                    <div class="detail-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-shopping-bag"></i>
-                            Order Information
-                        </h3>
-                        <div class="detail-item">
-                            <span class="detail-label">Order Date:</span>
-                            <span class="detail-value">{{ now()->format('F d, Y') }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Payment Method:</span>
-                            <span class="detail-value">{{ $data['payment_method'] ?? 'Cash on Delivery' }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Status:</span>
-                            <span class="detail-value" style="color: #f59e0b;">Processing</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Billing Summary -->
-                <div class="billing-section">
-                    <h3 class="section-title">
-                        <i class="fas fa-receipt"></i>
-                        Billing Summary
-                    </h3>
-                    @if(isset($data['subtotal']))
-                    <div class="detail-item">
-                        <span class="detail-label">Subtotal:</span>
-                        <span class="detail-value">{{ setting('CURRENCY_ICON') ?? '৳' }}{{ $data['subtotal'] }}</span>
-                    </div>
-                    @endif
-                    @if(isset($data['shipping_cost']))
-                    <div class="detail-item">
-                        <span class="detail-label">Shipping Cost:</span>
-                        <span class="detail-value">{{ setting('CURRENCY_ICON') ?? '৳' }}{{ $data['shipping_cost'] }}</span>
-                    </div>
-                    @endif
-                    @if(isset($data['discount']))
-                    <div class="detail-item">
-                        <span class="detail-label">Discount:</span>
-                        <span class="detail-value" style="color: #dc2626;">-{{ setting('CURRENCY_ICON') ?? '৳' }}{{ $data['discount'] }}</span>
-                    </div>
-                    @endif
-                    <div class="total-amount">
-                        Total: {{ setting('CURRENCY_ICON') ?? '৳' }}{{ $data['total'] ?? $data['grand_total'] ?? 'N/A' }}
-                    </div>
-                </div>
-
-                <!-- Notification Preferences -->
-                <div class="notifications-section">
-                    <h3 class="section-title">
-                        <i class="fas fa-bell"></i>
-                        Notification Preferences
-                    </h3>
-                    <div class="notification-item">
-                        <i class="fas fa-sms notification-icon enabled"></i>
-                        <span><strong>SMS Notifications:</strong> You will receive order updates via SMS</span>
-                    </div>
-                    <div class="notification-item">
-                        <i class="fas fa-envelope notification-icon disabled"></i>
-                        <span><strong>Email Notifications:</strong> Email notifications are disabled</span>
-                    </div>
-                </div>
-
-                <!-- Delivery Timeline -->
-                <div class="delivery-timeline">
-                    <h3 class="timeline-title">
-                        <i class="fas fa-truck"></i>
-                        Estimated Delivery Timeline
-                    </h3>
-                    <div class="timeline-dates">
-                        <div class="date-item">
-                            <div class="date-label">Order Date</div>
-                            <div class="date-value">{{ now()->format('M d, Y') }}</div>
-                        </div>
-                        <div class="date-item">
-                            <div class="date-label">Estimated Delivery</div>
-                            <div class="date-value">{{ now()->addDays(5)->format('M d, Y') }}</div>
-                        </div>
-                    </div>
-                    <div class="timeline-bar">
-                        <div class="timeline-progress"></div>
-                    </div>
-                    <p style="color: #059669; font-weight: 600; margin: 0;">
-                        Your order will be delivered within 5 business days
-                    </p>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="action-buttons">
-                    <a href="{{route('order')}}" class="action-btn btn-primary">
-                        <i class="fas fa-list"></i>
-                        Track My Orders
-                    </a>
-                    <a href="{{route('home')}}" class="action-btn btn-secondary">
-                        <i class="fas fa-book"></i>
-                        Continue Shopping
-                    </a>
+            </div>
+            <div class="detail-box">
+                <div class="detail-box-label">Payment Method</div>
+                <div class="detail-box-value">{{ $data['payment_method'] ?? 'N/A' }}</div>
+            </div>
+            <div class="detail-box">
+                <div class="detail-box-label">Total Amount</div>
+                <div class="detail-box-value">
+                    {{-- Use setting('CURRENCY_ICON') consistently --}}
+                    {{ setting('CURRENCY_ICON') ?? '৳' }}{{ number_format($data['total'] ?? 0, 2) }}
                 </div>
             </div>
         </div>
+
+        {{-- Check if orderDetails exists and is not empty --}}
+        @if(isset($data['orderDetails']) && $data['orderDetails']->isNotEmpty())
+        <div class="order-items-summary">
+            <h2 class="summary-title">Order Summary ({{ $data['orderDetails']->count() }} {{ $data['orderDetails']->count() > 1 ? 'items' : 'item' }})</h2>
+            <div class="product-list">
+                @foreach($data['orderDetails'] as $item)
+                    <div class="product-item">
+                        {{-- Logic to generate image URL --}}
+                        @php
+                            $imageUrl = null;
+                            // Ensure the 'product' relationship is loaded and thumbnail_image exists
+                            if (isset($item->product) && !empty($item->product->thumbnail_image)) {
+                                // Check if the path already includes 'uploads/product/'
+                                if (str_contains($item->product->thumbnail_image, 'uploads/product/')) {
+                                    $imageUrl = asset($item->product->thumbnail_image);
+                                } else {
+                                    // Assume it's just the filename and prepend the path
+                                    $imageUrl = asset('uploads/product/' . $item->product->thumbnail_image);
+                                }
+                            }
+                        @endphp
+
+                        {{-- Display image or placeholder --}}
+                        @if($imageUrl)
+                            <img src="{{ $imageUrl }}" alt="{{ $item->title ?? 'Product Image' }}" class="product-image">
+                        @else
+                            {{-- Fallback placeholder --}}
+                            <div class="product-image-placeholder">
+                                <i class="fas fa-image"></i> {{-- Changed icon --}}
+                            </div>
+                        @endif
+
+                        <div class="product-info">
+                            <h3 class="product-name">{{ $item->title ?? 'Product Name' }}</h3>
+                            <div class="product-meta">
+                                Qty: {{ $item->qty ?? 1 }}
+                                {{-- Optionally display color if available in $item --}}
+                                @if(!empty($item->color) && $item->color != 'blank')
+                                 | Color: {{ Str::ucfirst($item->color) }}
+                                @endif
+                                {{-- Decode and display size/attributes if stored in $item->size --}}
+                                @php
+                                    try {
+                                        // Ensure $item->size is treated as string before decoding
+                                        $attributes = json_decode((string)($item->size ?? '{}'), true, 512, JSON_THROW_ON_ERROR);
+                                    } catch (\JsonException $e) {
+                                        $attributes = [];
+                                        \Log::error("JSON Decode Error in order_success for item size: " . $e->getMessage(), ['item_size' => $item->size ?? null]);
+                                    }
+                                @endphp
+                                {{-- Check if $attributes is a valid array --}}
+                                @if(!empty($attributes) && is_array($attributes))
+                                    @foreach($attributes as $key => $valueId)
+                                         {{-- You might need to fetch the attribute value name based on $valueId --}}
+                                         {{-- Basic display: | Key: ValueID --}}
+                                         | {{ Str::ucfirst(str_replace('_', ' ', $key)) }}: {{ $valueId }} {{-- Displaying Value ID for now --}}
+                                    @endforeach
+                                @endif
+                            </div>
+                        </div>
+                        <div class="product-price">
+                             {{-- Use setting('CURRENCY_ICON') consistently --}}
+                            {{ setting('CURRENCY_ICON') ?? '৳' }}{{ number_format(($item->price ?? 0) * ($item->qty ?? 1), 2) }}
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @else
+         <div style="padding: 20px 40px; text-align: center; color: var(--color-text-light);">No items found in this order.</div>
+        @endif
+
+        <div class="details-grid">
+            <div class="grid-section shipping-details">
+                <h3 class="section-title">Shipping Address</h3>
+                <div class="address-details">
+                    <p><strong>{{ $data['name'] ?? 'N/A' }}</strong></p>
+                    <p><i class="fas fa-phone-alt fa-fw" style="color: var(--color-text-light); margin-right: 5px;"></i>{{ $data['phone'] ?? 'N/A' }}</p>
+                    <p><i class="fas fa-map-marker-alt fa-fw" style="color: var(--color-text-light); margin-right: 5px;"></i>{{ $data['address'] ?? 'No address provided' }}</p>
+                    {{-- Optionally add City, District etc. if available --}}
+                    {{-- <p>{{ $data['town'] ?? '' }}{{ isset($data['district']) ? ', ' . $data['district'] : '' }}</p> --}}
+                </div>
+            </div>
+
+            <div class="grid-section billing-summary">
+                <h3 class="section-title">Billing Summary</h3>
+
+                <div class="detail-item">
+                    <span class="detail-label">Subtotal:</span>
+                    <span class="detail-value">{{ setting('CURRENCY_ICON') ?? '৳' }}{{ number_format($data['subtotal'] ?? 0, 2) }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Shipping:</span>
+                    <span class="detail-value">{{ setting('CURRENCY_ICON') ?? '৳' }}{{ number_format($data['shipping_charge'] ?? 0, 2) }}</span>
+                </div>
+
+                @if(isset($data['discount']) && $data['discount'] > 0)
+                <div class="detail-item">
+                    <span class="detail-label">Discount{{ isset($data['coupon_code']) && !empty($data['coupon_code']) ? ' (' . $data['coupon_code'] . ')' : '' }}:</span>
+                    <span class="detail-value discount">-{{ setting('CURRENCY_ICON') ?? '৳' }}{{ number_format($data['discount'], 2) }}</span>
+                </div>
+                @endif
+
+                <div class="total-divider"></div>
+
+                <div class="total-item">
+                    <span class="total-label">Total</span>
+                    <span class="total-value">{{ setting('CURRENCY_ICON') ?? '৳' }}{{ number_format($data['total'] ?? 0, 2) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="success-footer">
+            <a href="{{ route('order') }}" class="action-btn btn-primary">
+                <i class="fas fa-receipt"></i> {{-- Changed icon --}}
+                View My Orders
+            </a>
+            <a href="{{ route('home') }}" class="action-btn btn-secondary">
+                <i class="fas fa-store"></i> {{-- Changed icon --}}
+                Continue Shopping
+            </a>
+        </div>
+
     </div>
 </div>
 
 @endsection
 
 @push('js')
-<script>
-$(document).ready(function() {
-    // Auto-scroll to top
-    window.scrollTo(0, 0);
-    
-    // Simple animation for timeline progress
-    setTimeout(() => {
-        $('.timeline-progress').css('width', '20%');
-    }, 500);
-});
-</script>
+{{-- No JS needed for this static page --}}
 @endpush

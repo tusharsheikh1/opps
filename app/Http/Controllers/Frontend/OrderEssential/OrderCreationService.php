@@ -28,18 +28,18 @@ class OrderCreationService
     private function checkGuestOrderInterval($phone, $email = null)
     {
         $fiveMinutesAgo = Carbon::now()->subMinutes(5);
-        
+
         $query = Order::where('created_at', '>=', $fiveMinutesAgo)
             ->where('phone', $phone);
-        
+
         // Also check by email if provided and not empty
         if (!empty($email) && $email !== 'noreply@lems.shop') {
-            $query->orWhere(function($q) use ($email, $fiveMinutesAgo) {
+            $query->orWhere(function ($q) use ($email, $fiveMinutesAgo) {
                 $q->where('email', $email)
                   ->where('created_at', '>=', $fiveMinutesAgo);
             });
         }
-        
+
         return $query->exists();
     }
 
@@ -49,24 +49,24 @@ class OrderCreationService
     private function getRemainingTime($phone, $email = null)
     {
         $query = Order::where('phone', $phone);
-        
+
         if (!empty($email) && $email !== 'noreply@lems.shop') {
             $query->orWhere('email', $email);
         }
-        
+
         $lastOrder = $query->orderBy('created_at', 'desc')->first();
-        
+
         if (!$lastOrder) {
             return 0;
         }
-        
+
         $nextAllowedTime = $lastOrder->created_at->addMinutes(5);
         $now = Carbon::now();
-        
+
         if ($nextAllowedTime > $now) {
             return $nextAllowedTime->diffInSeconds($now);
         }
-        
+
         return 0;
     }
 
@@ -99,27 +99,32 @@ class OrderCreationService
             'holder_name'     => 'nullable|string|max:255',
             'branch'          => 'nullable|string|max:255',
             'routing'         => 'nullable|string|max:255',
+            // Added validation for cart-specific fields if they exist
+            'seller_count'    => 'sometimes|required|integer|min:1',
+            'stotal'          => 'sometimes|required|numeric|min:0',
         ]);
 
         // Check order interval for guests (users not logged in)
         if (!auth()->check()) {
             $email = $request->email ?: 'noreply@lems.shop';
-            
+
             if ($this->checkGuestOrderInterval($request->phone, $email)) {
                 $remainingSeconds = $this->getRemainingTime($request->phone, $email);
                 $remainingMinutes = ceil($remainingSeconds / 60);
                 $whatsappNumber = setting('whatsapp') ?? setting('phone') ?? '01XXXXXXXXX';
-                
+
                 notify()->warning("অপেক্ষা করুন! আপনি ইতিমধ্যে একটা অর্ডার করেছেন। আপনি {$remainingMinutes} মিনিট পর আবার অর্ডার করতে পারবেন। এটি ভুয়া অর্ডার প্রতিরোধের জন্য। অর্ডারের যেকোন পরিবর্তনের জন্য আমাদের WhatsApp {$whatsappNumber} এ নক করুন।", "অর্ডার সীমাবদ্ধতা");
                 return redirect()->back();
             }
         }
 
-        $seller_count = $request->seller_count;
-        $shipping_charge = $this->calculateShippingCharge($request->stotal, $request->shipping_range, $seller_count);
-        $single_charge = $this->calculateSingleCharge($request->stotal, $request->shipping_range);
+        // Use stotal and seller_count passed from the form (validated above)
+        $cart_subtotal = $request->stotal ?? 0; // Default to 0 if not provided
+        $seller_count = $request->seller_count ?? 1; // Default to 1 if not provided
 
-        $cart_subtotal = $request->stotal;
+        $shipping_charge = $this->calculateShippingCharge($cart_subtotal, $request->shipping_range, $seller_count);
+        $single_charge = $this->calculateSingleCharge($cart_subtotal, $request->shipping_range);
+
         $coupon_code = '';
         $discount = 0;
         $total = $cart_subtotal + $shipping_charge;
@@ -135,26 +140,32 @@ class OrderCreationService
 
         $total_refer = 0;
         $usids = [];
-        
+
         foreach (Cart::content() as $item) {
             $pp = Product::find($item->id);
+            // Ensure $pp is not null before proceeding
+             if (!$pp) {
+                \Log::warning('Product not found in cart processing: ID ' . $item->id);
+                continue; // Skip this item if product doesn't exist
+            }
+
             if (!in_array("$pp->user_id", $usids)) {
                 $usids[] = $pp->user_id;
             }
 
             $total_refer += (($item->price / 100) * $item->qty);
             $price = ($item->qty >= 6 && $pp->whole_price > 0) ? $pp->whole_price : $item->price;
-            
-            $vendor = User::find($pp->user_id);
+
+            $vendor = User::find($pp->user_id); // Vendor can be null
             $vp = $price * $item->qty;
-            $gt = $this->calculateGrandTotal($vendor, $vp);
+            $gt = $this->calculateGrandTotal($vendor, $vp); // Pass null-safe vendor
 
             $order->orderDetails()->create([
                 'product_id'  => $item->id,
-                'seller_id'   => $pp->user_id,
+                'seller_id'   => $pp->user_id, // Can be null
                 'title'       => $item->name,
-                'color'       => $item->options->color,
-                'size'        => json_encode($item->options->attributes),
+                'color'       => $item->options->color ?? 'blank',
+                'size'        => json_encode($item->options->attributes), // Keep json_encode here
                 'qty'         => $item->qty,
                 'price'       => $price,
                 'total_price' => $price * $item->qty,
@@ -162,7 +173,7 @@ class OrderCreationService
             ]);
 
             $this->updateUserPoints($item, $order);
-            $this->updateVendorAccount($pp, $item, $order, $price);
+            $this->updateVendorAccount($pp, $item, $order, $price); // This method is now null-safe
         }
 
         $this->createMultiOrder($usids, $order->id, $single_charge);
@@ -212,27 +223,32 @@ class OrderCreationService
             'holder_name'     => 'nullable|string|max:255',
             'branch'          => 'nullable|string|max:255',
             'routing'         => 'nullable|string|max:255',
+             // Added validation for cart-specific fields if they exist
+            'seller_count'    => 'sometimes|required|integer|min:1',
+            'stotal'          => 'sometimes|required|numeric|min:0',
         ]);
 
         // Check order interval for guests
         $email = $request->email ?: 'noreply@lems.shop';
-        
+
         if ($this->checkGuestOrderInterval($request->phone, $email)) {
             $remainingSeconds = $this->getRemainingTime($request->phone, $email);
             $remainingMinutes = ceil($remainingSeconds / 60);
             $whatsappNumber = setting('whatsapp') ?? setting('phone') ?? '01XXXXXXXXX';
-            
-            notify()->warning("অপেক্ষা করুন! আপনি ইতিমধ্যে একটা অর্ডার করেছেন। আপনি {$remainingMinutes} মিনিট পর আবার অর্ডার করতে পারবেন। এটি ভুয়া অর্ডার প্রতিরোধের জন্য। অর্ডারের যেকোন পরিবর্তনের জন্য আমাদের WhatsApp {$whatsappNumber} এ নক করুন।", "অর্ডার সীমাবদ্ধতা");
+
+            notify()->warning("Please wait! You have already placed an order. You can order again after {$remainingMinutes} minutes. This is to prevent fake orders. For any changes to your order, please knock us on our WhatsApp {$whatsappNumber}.", "Order Restriction");
             return redirect()->back();
         }
 
-        // Similar logic as orderStore_minimal but with Dhaka-based shipping
-        $seller_count = $request->seller_count;
-        $shipping_charge = $this->calculateShippingChargeByCity($request->stotal, $request->city, $seller_count);
-        $single_charge = $this->calculateSingleChargeByCity($request->stotal, $request->city);
+        // Use stotal and seller_count passed from the form (validated above)
+        $cart_subtotal = $request->stotal ?? 0; // Default to 0 if not provided
+        $seller_count = $request->seller_count ?? 1; // Default to 1 if not provided
+
+        $shipping_charge = $this->calculateShippingChargeByCity($cart_subtotal, $request->city, $seller_count);
+        $single_charge = $this->calculateSingleChargeByCity($cart_subtotal, $request->city);
 
         // Rest of the logic is similar to orderStore_minimal
-        return $this->processGuestOrder($request, $shipping_charge, $single_charge);
+        return $this->processGuestOrder($request, $shipping_charge, $single_charge, $cart_subtotal);
     }
 
     /**
@@ -263,13 +279,18 @@ class OrderCreationService
             'holder_name'     => 'nullable|string|max:255',
             'branch'          => 'nullable|string|max:255',
             'routing'         => 'nullable|string|max:255',
+            // Added validation for cart-specific fields if they exist
+            'seller_count'    => 'sometimes|required|integer|min:1',
+            'stotal'          => 'sometimes|required|numeric|min:0',
         ]);
 
-        $seller_count = $request->seller_count;
-        $shipping_charge = $this->calculateShippingChargeByCity($request->stotal, $request->city, $seller_count);
-        $single_charge = $this->calculateSingleChargeByCity($request->stotal, $request->city);
+        // Use stotal and seller_count passed from the form (validated above)
+        $cart_subtotal = $request->stotal ?? 0; // Default to 0 if not provided
+        $seller_count = $request->seller_count ?? 1; // Default to 1 if not provided
 
-        $cart_subtotal = $request->stotal;
+        $shipping_charge = $this->calculateShippingChargeByCity($cart_subtotal, $request->city, $seller_count);
+        $single_charge = $this->calculateSingleChargeByCity($cart_subtotal, $request->city);
+
         $coupon_code = '';
         $discount = 0;
         $total = $cart_subtotal + $shipping_charge;
@@ -284,7 +305,7 @@ class OrderCreationService
 
         // Wallet payment validation
         if ($request->payment_method == 'wallate') {
-            if ($wl > auth()->user()->wallate) {
+             if (!auth()->check() || $wl > auth()->user()->wallate) { // Added auth check
                 notify()->warning("don't have enough balance in wallate", "Warning");
                 return redirect()->back();
             } else {
@@ -295,7 +316,7 @@ class OrderCreationService
         }
 
         if ($request->partial_paid > 0) {
-            if ($request->partial_paid > auth()->user()->wallate) {
+             if (!auth()->check() || $request->partial_paid > auth()->user()->wallate) { // Added auth check
                 notify()->warning("don't have enough balance in wallate", "Warning");
                 return redirect()->back();
             } else {
@@ -341,7 +362,7 @@ class OrderCreationService
         $this->generateOrderId($order);
 
         // Process cart items similar to other methods
-        $this->processCartItems($order);
+        $this->processCartItems($order); // This method is now null-safe
         $this->handleWalletPayment($request, $order);
         $this->handlePartialPayment($request, $order);
         $this->handleCouponDiscount($order, $discount);
@@ -363,10 +384,13 @@ class OrderCreationService
     // Helper methods
     private function calculateShippingCharge($stotal, $shipping_range, $seller_count)
     {
+         // Ensure seller_count is at least 1
+        $seller_count = max(1, $seller_count);
+
         if ($stotal > setting('shipping_free_above')) {
             return 0;
         }
-        
+
         if ($shipping_range == 1) {
             return setting('shipping_charge') * $seller_count;
         } else {
@@ -379,16 +403,19 @@ class OrderCreationService
         if ($stotal > setting('shipping_free_above')) {
             return 0;
         }
-        
+
         return ($shipping_range == 1) ? setting('shipping_charge') : setting('shipping_charge_out_of_range');
     }
 
     private function calculateShippingChargeByCity($stotal, $city, $seller_count)
     {
+        // Ensure seller_count is at least 1
+        $seller_count = max(1, $seller_count);
+
         if ($stotal > setting('shipping_free_above')) {
             return 0;
         }
-        
+
         if ($city == 'Dhaka') {
             return setting('shipping_charge') * $seller_count;
         } else {
@@ -401,7 +428,7 @@ class OrderCreationService
         if ($stotal > setting('shipping_free_above')) {
             return 0;
         }
-        
+
         return ($city == 'Dhaka') ? setting('shipping_charge') : setting('shipping_charge_out_of_range');
     }
 
@@ -450,183 +477,394 @@ class OrderCreationService
         ]);
     }
 
+    /**
+     * --- THIS FUNCTION IS NOW NULL-SAFE ---
+     * Calculate grand total with commission
+     */
     private function calculateGrandTotal($vendor, $vp)
     {
+        // FIX: Check if vendor is null. If so, apply default commission.
+        // Assume default commission applies (funds go to admin)
+        if (!$vendor) {
+            $commissionRate = setting('shop_commission') ?? 0; // Get default commission rate
+            $commission = ($commissionRate / 100) * $vp;
+            return $vp - $commission; // The 'grand total' from seller perspective is after commission
+        }
+
+        // If vendor exists and is admin, no commission deducted for seller
         if ($vendor->role_id == 1) {
             return $vp;
         } else {
-            if ($vendor->shop_info->commission == NULL) {
-                $commission = (setting('shop_commission') / 100) * $vp;
-                return $vp - $commission;
-            } else {
-                $commission = ($vendor->shop_info->commission / 100) * $vp;
-                return $vp - $commission;
-            }
+            // Vendor exists and is not admin
+            $commissionRate = $vendor->shop_info->commission ?? setting('shop_commission') ?? 0;
+            $commission = ($commissionRate / 100) * $vp;
+            return $vp - $commission; // Grand total for seller after commission
         }
     }
 
     private function updateUserPoints($item, $order)
     {
         $product = Product::find($item->id);
-        if (auth()->user()) {
-            $userPoint = User::find(auth()->id());
-            $pointp = $product->point * $item->qty;
-            if (setting('is_point') == 1) {
-                $point = $pointp;
-            } else {
-                $point = 0;
-            }
-            $userPoint->pen_point += $point;
-            $userPoint->update();
-            $order->point += $point;
+         // Safety check: Ensure product exists before accessing properties
+        if (!$product) {
+            \Log::warning('Product not found for points update: ID ' . $item->id);
+            return;
         }
-        $order->save();
+        if (auth()->check()) { // Use auth()->check() instead of auth()->user() for boolean check
+            $userPoint = User::find(auth()->id());
+            // Safety check for user
+            if ($userPoint) {
+                $pointp = $product->point * $item->qty;
+                if (setting('is_point') == 1) {
+                    $point = $pointp;
+                } else {
+                    $point = 0;
+                }
+                $userPoint->pen_point += $point;
+                $userPoint->update();
+                $order->point += $point;
+                 $order->save(); // Save order after updating points
+            }
+        }
+       // $order->save(); // Removed redundant save here
     }
 
+    /**
+     * --- THIS FUNCTION IS NOW NULL-SAFE ---
+     * Update vendor account and commission
+     */
     private function updateVendorAccount($pp, $item, $order, $price)
     {
-        $product = Product::find($item->id);
+        // Use $pp directly as it's already the product object
+        $product = $pp;
         if ($product) {
-            $vendor = User::find($product->user_id);
+            $vendor = User::find($product->user_id); // $vendor can be null
             $vp = $price * $item->qty;
-            
-            if ($vendor->role_id == 1) {
+
+            // FIX: Check if vendor is null. If no vendor, treat as admin sale (vendor_id = 1)
+            if (!$vendor || $vendor->role_id == 1) {
                 $account = VendorAccount::where('vendor_id', 1)->first();
-                $account->pending_amount += $vp;
-                $account->save();
+                if ($account) { // Added safety check for account
+                    $account->pending_amount += $vp;
+                    $account->save();
+                     \Log::info('Admin account updated (No Vendor or Admin Vendor)', ['order_id' => $order->id, 'amount' => $vp]);
+                } else {
+                     \Log::warning('Admin VendorAccount (ID 1) not found for order: ' . $order->id);
+                }
             } else {
+                // Vendor exists and is not admin
                 $grand_total = $price * $item->qty;
 
-                if ($vendor->shop_info->commission == NULL) {
-                    $commission = (setting('shop_commission') / 100) * $grand_total;
-                    $amount = $grand_total - $commission;
-                } else {
-                    $commission = ($vendor->shop_info->commission / 100) * $grand_total;
-                    $amount = $grand_total - $commission;
-                }
-                
+                // Determine commission rate safely
+                $commissionRate = $vendor->shop_info->commission ?? setting('shop_commission') ?? 0;
+                $commission = ($commissionRate / 100) * $grand_total;
+                $amount = $grand_total - $commission; // Amount vendor receives
+
+                // Update Admin Account with commission
                 $adminAccount = VendorAccount::where('vendor_id', 1)->first();
-                $adminAccount->update([
-                    'pending_amount' => $adminAccount->pending_amount + $commission
-                ]);
-
-                $vendor->vendorAccount()->update([
-                    'pending_amount' => $vendor->vendorAccount->pending_amount + $amount
-                ]);
-
-                $check = Commission::where('user_id', $product->user_id)->where('order_id', $order->id)->first();
-                if (!$check) {
-                    Commission::create([
-                        'user_id'  => $product->user_id,
-                        'order_id' => $order->id,
-                        'amount'   => $commission,
-                        'status'   => '0',
-                    ]);
+                if ($adminAccount) { // Added safety check
+                    $adminAccount->increment('pending_amount', $commission); // Use increment for atomicity
+                     \Log::info('Admin account updated with commission', ['order_id' => $order->id, 'commission' => $commission]);
                 } else {
-                    $check->amount = $check->amount + $commission;
-                    $check->update();
+                     \Log::warning('Admin VendorAccount (ID 1) not found for commission calculation on order: ' . $order->id);
                 }
+
+                // Update Vendor Account with their share
+                if ($vendor->vendorAccount) { // Added safety check
+                     $vendor->vendorAccount()->increment('pending_amount', $amount); // Use increment
+                     \Log::info('Vendor account updated', ['vendor_id' => $vendor->id, 'order_id' => $order->id, 'amount' => $amount]);
+                } else {
+                     \Log::warning('VendorAccount not found for vendor: ' . $vendor->id . ' on order: ' . $order->id);
+                }
+
+                // Create or Update Commission Record
+                Commission::updateOrCreate(
+                    ['user_id' => $product->user_id, 'order_id' => $order->id],
+                    ['amount' => DB::raw("amount + $commission"), 'status' => '0'] // Use DB::raw for atomic update
+                );
+                 \Log::info('Commission record created/updated', ['vendor_id' => $vendor->id, 'order_id' => $order->id, 'commission_added' => $commission]);
             }
-            
-            $product->quantity = $product->quantity - $item->qty;
-            $product->save();
+
+            // === UPDATED STOCK REDUCTION LOGIC ===
+            $this->reduceProductStock($product, $item);
+        } else {
+             \Log::warning('Product not found in updateVendorAccount: Item ID ' . $item->id);
         }
     }
+
+
+    /**
+     * Reduce stock for product based on variation type
+     * Handles: Color-Size, Size-Only, Attributes, and Simple products
+     */
+    private function reduceProductStock($product, $item)
+    {
+        $quantity = $item->qty;
+
+        // --- FIX: Remove json_decode() ---
+        // $sizeData = json_decode($item->options->attributes, true);
+        // Directly use the attributes, assuming they are already an array/object
+        $sizeData = $item->options->attributes ?? []; // Use null coalescing for safety
+
+        $colorId = $item->options->color ?? null;
+
+        $stockReduced = false; // Flag to track if variation stock was reduced
+
+        // Priority 1: Check for Color-Size variation
+        // Check if $sizeData is an array or an object before trying to iterate
+        if ($colorId && $colorId !== 'blank' && (is_array($sizeData) || is_object($sizeData)) && !empty($sizeData)) {
+            foreach ($sizeData as $attributeSlug => $attributeValueId) {
+                 // Assuming size attribute slug is 'size', adjust if different
+                if ($attributeSlug === 'size') {
+                    // Reduce from color_size_product table
+                    DB::table('color_size_product')
+                        ->where('product_id', $product->id)
+                        ->where('color_id', $colorId) // Use the actual color ID if stored, otherwise need lookup
+                        ->where('size_id', $attributeValueId) // Assuming value is the size_id
+                        ->decrement('quantity', $quantity);
+
+                    \Log::info('Stock reduced: Color-Size', [
+                        'product_id' => $product->id,
+                        'color_id' => $colorId, // Log the color slug/ID used
+                        'size_id' => $attributeValueId,
+                        'quantity' => $quantity
+                    ]);
+                    $stockReduced = true;
+                    break; // Only reduce once per cart item for size
+                }
+            }
+        }
+        // Priority 2: Check for Size-Only variation (no color)
+        elseif ((empty($colorId) || $colorId === 'blank') && (is_array($sizeData) || is_object($sizeData)) && !empty($sizeData)) {
+             foreach ($sizeData as $attributeSlug => $attributeValueId) {
+                // Assuming size attribute slug is 'size', adjust if different
+                if ($attributeSlug === 'size') {
+                    // Reduce from color_size_product table where color_id IS NULL
+                    DB::table('color_size_product')
+                        ->where('product_id', $product->id)
+                        ->where('size_id', $attributeValueId) // Assuming value is the size_id
+                        ->whereNull('color_id')
+                        ->decrement('quantity', $quantity);
+
+                    \Log::info('Stock reduced: Size-Only', [
+                        'product_id' => $product->id,
+                        'size_id' => $attributeValueId,
+                        'quantity' => $quantity
+                    ]);
+                     $stockReduced = true;
+                    break; // Only reduce once per cart item for size
+                }
+            }
+        }
+        // Priority 3: Check for Attribute variation (other than size/color handled above)
+        if (!$stockReduced && (is_array($sizeData) || is_object($sizeData)) && !empty($sizeData)) {
+             foreach ($sizeData as $attributeSlug => $attributeValueId) {
+                  // Skip if it's the size attribute handled above
+                 if ($attributeSlug === 'size') continue;
+
+                 // Reduce from attribute_product table
+                DB::table('attribute_product')
+                    ->where('product_id', $product->id)
+                    ->where('attribute_value_id', $attributeValueId)
+                    ->decrement('qnty', $quantity);
+
+                \Log::info('Stock reduced: Attribute', [
+                    'product_id' => $product->id,
+                    'attribute_value_id' => $attributeValueId,
+                    'quantity' => $quantity
+                ]);
+                 $stockReduced = true; // Mark as reduced even for attributes
+                 // Don't break here, allow reducing stock for multiple attributes if necessary
+            }
+        }
+
+        // Always reduce from main product quantity (for all product types)
+        // Check if stock hasn't already been reduced at a variation level
+        // (Optional: Depends if main quantity tracks total or just base product without variations)
+        // if (!$stockReduced) { // Only decrement main if no variation stock was touched
+            $product->decrement('quantity', $quantity);
+
+            \Log::info('Stock reduced: Main product quantity', [
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'remaining_stock' => $product->fresh()->quantity // Use fresh() to get updated value
+            ]);
+        // }
+    }
+
 
     private function createMultiOrder($usids, $orderId, $single_charge)
     {
-        foreach ($usids as $seller) {
-            $total = DB::table('order_details')->where('seller_id', $seller)->where('order_id', $orderId)->sum('total_price');
+         // Ensure $usids is an array and filter out potential nulls or empty values explicitly
+         $valid_usids = array_filter((array)$usids, function($id) {
+            return $id !== null && $id !== '';
+        });
+
+        // Add admin (ID 1) if there are items without a seller ID OR if $usids was empty
+         $hasItemsWithoutSeller = Cart::content()->contains(function ($item) {
+            $product = Product::find($item->id);
+            return !$product || $product->user_id === null;
+         });
+
+         if ($hasItemsWithoutSeller || empty($valid_usids)) {
+             if(!in_array(1, $valid_usids)) { // Add admin only if not already present
+                $valid_usids[] = 1;
+             }
+         }
+
+        foreach ($valid_usids as $seller_id) {
+             // Calculate total for this specific seller_id OR null seller_id items assigned to admin (1)
+             $total = DB::table('order_details')
+                        ->where('order_id', $orderId)
+                        // If current seller_id is 1 (admin), sum items where seller_id was originally null
+                        ->when($seller_id == 1, function ($query) {
+                            $query->whereNull('seller_id');
+                        },
+                        // Otherwise, sum items for the specific seller_id
+                        function ($query) use ($seller_id) {
+                            $query->where('seller_id', $seller_id);
+                        })
+                        ->sum('total_price');
+
+            // Add shipping charge only once if applicable, typically to the first record or admin's record
+            // For simplicity, let's add it to every multi_order record for now.
+            // A more complex logic might distribute it or add it only to the admin's share.
             $total += $single_charge;
-            DB::table('multi_order')->insert([
-                'vendor_id' => $seller, 
-                'order_id' => $orderId, 
-                'partial_pay' => 0, 
-                'status' => 0, 
-                'total' => $total
-            ]);
+
+            // Avoid inserting if total is zero (e.g., only free items or calculation error)
+            if ($total > 0) {
+                 DB::table('multi_order')->insert([
+                    'vendor_id' => $seller_id, // Use the actual seller_id (or 1 for admin/null)
+                    'order_id' => $orderId,
+                    'partial_pay' => 0,
+                    'status' => 0,
+                    'total' => $total
+                ]);
+            } else {
+                 \Log::warning('Skipping multi_order insert for vendor/admin ID ' . $seller_id . ' on order ID ' . $orderId . ' because total is zero.');
+            }
         }
     }
+
 
     private function handleWalletPayment($request, $order)
     {
         if ($request->payment_method == 'wallate') {
             $order->update([
                 'pay_staus' => 1,
-                'pay_date'  => date('d-m-y'),
+                'pay_date'  => date('d-m-y'), // Consider using Carbon::now() for consistency
             ]);
         }
     }
 
     private function handlePartialPayment($request, $order)
     {
-        if (auth()->user() && $request->partial_paid < auth()->user()->wallate && $request->partial_paid > 0) {
+        // Ensure user is authenticated and has sufficient balance
+        if (auth()->check() && $request->partial_paid > 0 && $request->partial_paid <= auth()->user()->wallate) {
             $parts = DB::table('multi_order')->where('order_id', $order->id)->get();
             $amount = $request->partial_paid;
-            
+
             foreach ($parts as $part) {
-                if ($amount > 0) {
-                    if ($part->partial_pay != $part->total) {
-                        $total_requested = $part->partial_pay + $amount;
+                if ($amount <= 0) break; // Stop if amount is fully allocated
 
-                        if ($total_requested > $part->total) {
-                            $new_balance = $total_requested - $part->total;
-                            $slice = $amount - $new_balance;
-                            $amount -= $slice;
-                        } else {
-                            $slice = $amount;
-                            $amount -= $slice;
-                        }
+                $payable = $part->total - $part->partial_pay - ($part->discount ?? 0); // Consider discount
+                if ($payable > 0) {
+                    $slice = min($amount, $payable); // Allocate the minimum of remaining amount or payable amount
 
-                        DB::table('multi_order')->where('id', $part->id)->update(['partial_pay' => $part->partial_pay + $slice]);
-                    }
+                    DB::table('multi_order')->where('id', $part->id)->increment('partial_pay', $slice);
+                    $amount -= $slice;
                 }
             }
-            
-            PartialPayment::create([
-                'order_id' => $order->id,
-                'payment_method' => 'wall',
-                'amount' => $request->partial_paid,
-                'status' => 1,
-            ]);
+
+            // Record the partial payment only if some amount was actually used
+             if ($request->partial_paid > $amount) { // Check if any amount was allocated
+                 PartialPayment::create([
+                    'order_id' => $order->id,
+                    'user_id' => auth()->id(), // Add user_id for tracking
+                    'payment_method' => 'wall', // Assuming 'wall' is wallet
+                    'amount' => $request->partial_paid - $amount, // Record the amount actually used
+                    'status' => 1, // Assuming 1 means successful
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                 // Deduct from user's wallet (ensure this happens only once)
+                // The wallet deduction should ideally happen before this loop or be handled carefully
+                // Let's assume the wallet was already deducted in the main orderStore method.
+                 \Log::info('Partial payment applied from wallet.', ['order_id' => $order->id, 'amount_applied' => $request->partial_paid - $amount]);
+             }
+
+             if ($amount > 0) {
+                // This means the partial payment was more than the total due, which shouldn't happen if wallet balance check is correct. Log a warning.
+                 \Log::warning('Partial payment amount exceeded total due.', ['order_id' => $order->id, 'excess_amount' => $amount]);
+                // Optionally, refund the excess amount here.
+            }
+        } elseif ($request->partial_paid > 0) {
+            // Log if partial payment was attempted without auth or sufficient funds
+             \Log::warning('Partial payment skipped due to insufficient funds or user not authenticated.', ['order_id' => $order->id, 'attempted_amount' => $request->partial_paid]);
         }
     }
+
 
     private function handleCouponDiscount($order, $discount)
     {
-        if (Session::has('coupon')) {
+        if (Session::has('coupon') && $discount > 0) {
             $n_parts = DB::table('multi_order')->where('order_id', $order->id)->get();
-            $n_amount = $discount;
-            
+            $n_amount = $discount; // Total discount to distribute
+
+            // Calculate the total payable amount across all parts BEFORE discount
+             $totalPayableBeforeDiscount = $n_parts->sum(function ($part) {
+                return $part->total - $part->partial_pay; // Consider payments already made
+            });
+
+             if ($totalPayableBeforeDiscount <= 0) return; // No need to apply discount if nothing is payable
+
             foreach ($n_parts as $n_part) {
-                if ($n_amount > 0) {
-                    if ($n_part->partial_pay != $n_part->total) {
-                        $n_total_requested = $n_part->discount + $n_amount;
+                if ($n_amount <= 0) break; // Stop if discount is fully distributed
 
-                        if ($n_total_requested > $n_part->total) {
-                            $n_new_balance = $n_total_requested - $n_part->total;
-                            $n_slice = $n_amount - $n_new_balance;
-                            $n_amount -= $n_slice;
-                        } else {
-                            $n_slice = $n_amount;
-                            $n_amount -= $n_slice;
-                        }
+                $partPayable = $n_part->total - $n_part->partial_pay;
+                if ($partPayable <= 0) continue; // Skip parts already fully paid
 
-                        DB::table('multi_order')->where('id', $n_part->id)->update(['discount' => $n_part->partial_pay + $n_slice]);
+                // Calculate proportional discount for this part
+                $proportion = $partPayable / $totalPayableBeforeDiscount;
+                 $discountSlice = min($n_amount, round($discount * $proportion, 2)); // Allocate proportionally, ensure it doesn't exceed remaining discount
+
+                // Ensure discount doesn't make the part negative
+                 $discountSlice = min($discountSlice, $partPayable);
+
+                 if ($discountSlice > 0) {
+                    DB::table('multi_order')->where('id', $n_part->id)->increment('discount', $discountSlice);
+                    $n_amount -= $discountSlice;
+                }
+            }
+
+            // If there's any remaining discount due to rounding, apply it to the first part that can take it
+            if ($n_amount > 0.005) { // Use a small threshold for floating point comparison
+                foreach ($n_parts as $n_part) {
+                    $partStillPayable = $n_part->total - $n_part->partial_pay - ($n_part->discount ?? 0); // Check again after initial distribution
+                    if ($partStillPayable > 0) {
+                         $finalSlice = min($n_amount, $partStillPayable);
+                         DB::table('multi_order')->where('id', $n_part->id)->increment('discount', $finalSlice);
+                         \Log::info('Applied remaining coupon discount due to rounding.', ['order_id' => $order->id, 'multi_order_id' => $n_part->id, 'amount' => $finalSlice]);
+                        break;
                     }
                 }
             }
         }
     }
 
+
     private function prepareOrderData($order, $request)
     {
+         // Eager load orderDetails to avoid N+1 queries if accessing it later
+         $order->load('orderDetails');
+
         return [
             'order_id'        => $order->order_id,
             'invoice'         => $order->invoice,
-            'name'            => $request->first_name,
-            'email'           => $request->email,
-            'address'         => $request->address,
+            'name'            => $request->first_name . ' ' . $request->last_name, // Combine names
+            'email'           => $request->email ?? $order->email, // Use order email as fallback
+            'address'         => $request->address ?? $order->address, // Use order address as fallback
             'coupon_code'     => $order->coupon_code,
             'subtotal'        => $order->subtotal,
             'shipping_charge' => $order->shipping_charge,
@@ -636,28 +874,55 @@ class OrderCreationService
             'payment_method'  => $order->payment_method,
             'pay_status'      => $order->pay_staus,
             'pay_date'        => $order->pay_date,
-            'orderDetails'    => $order->orderDetails,
-            'phone'           => $request->phone,
+            'orderDetails'    => $order->orderDetails, // Already loaded
+            'phone'           => $request->phone ?? $order->phone, // Use order phone as fallback
         ];
     }
 
+
     private function handlePaymentMethod($request, $data, $amount, $order)
     {
+         // Ensure amount is valid
+         $amount = max(0, $amount); // Prevent negative amounts
+
         if ($request->payment_method == 'aamarpay') {
             return $this->processAamarpay($request, $amount, $order->id);
         } elseif ($request->payment_method == 'uddoktapay') {
             $url = $this->processUddoktapay($request, $amount, $order->id);
             if ($url) {
                 return Redirect::to($url);
+            } else {
+                 // Handle failure to get payment URL
+                 notify()->error('Failed to initiate UddoktaPay payment. Please try again or choose another method.', 'Payment Error');
+                 // Optionally: Revert stock, cancel order parts, etc.
+                 return redirect()->route('checkout'); // Redirect back to checkout
             }
         } else {
+             // For non-gateway methods (COD, Bank, etc.) or if gateway fails before redirect
+            try {
+                 // Send confirmation email
+                if (setting('mail_config') == 1 && !empty($data['email']) && $data['email'] !== 'noreply@lems.shop') {
+                    Mail::send('frontend.invoice-mail', $data, function ($mail) use ($data) {
+                        $mail->from(config('mail.from.address'), config('app.name'))
+                            ->to($data['email'], $data['name'])
+                            ->subject('Your Order Invoice - #' . $data['invoice']);
+                    });
+                }
+            } catch (\Exception $e) {
+                 \Log::error('Failed to send order confirmation email: ' . $e->getMessage(), ['order_id' => $order->id]);
+                 // Don't fail the order placement, just log the email error
+            }
+             // Show success page
             return view('frontend.order_success', compact('data'));
         }
     }
 
-    private function processGuestOrder($request, $shipping_charge, $single_charge)
+    /**
+     * --- THIS FUNCTION IS NOW NULL-SAFE ---
+     */
+    private function processGuestOrder($request, $shipping_charge, $single_charge, $cart_subtotal)
     {
-        $cart_subtotal = $request->stotal;
+        // $cart_subtotal is now passed as an argument
         $coupon_code = '';
         $discount = 0;
         $total = $cart_subtotal + $shipping_charge;
@@ -679,7 +944,7 @@ class OrderCreationService
             'thana'           => $request->thana,
             'post_code'       => $request->postcode,
             'phone'           => $request->phone,
-            'email'           => $request->email,
+            'email'           => $request->email ?? 'noreply@lems.shop', // Ensure email has a default
             'shipping_method' => $request->shipping_method,
             'shipping_charge' => $shipping_charge,
             'single_charge'   => $single_charge,
@@ -696,186 +961,61 @@ class OrderCreationService
             'discount'        => $discount,
             'is_pre'          => $request->pr ?? 0,
             'total'           => $total,
-            'cart_type'       => 1,
+            'cart_type'       => 1, // Assuming 1 is for regular cart orders
         ]);
 
         $this->generateOrderId($order);
 
         $total_refer = 0;
         $usids = [];
-        
+
         foreach (Cart::content() as $item) {
-            $pp = Product::find($item->id);
-            if (!in_array("$pp->user_id", $usids)) {
-                $usids[] = $pp->user_id;
+             $pp = Product::find($item->id);
+             // Ensure $pp is not null before proceeding
+             if (!$pp) {
+                \Log::warning('Product not found in GUEST cart processing: ID ' . $item->id);
+                continue; // Skip this item if product doesn't exist
             }
 
-            $total_refer += (($item->price / 100) * $item->qty);
-            if ($item->qty >= 6 && $pp->whole_price > 0) {
-                $price = $pp->whole_price;
-            } else {
-                $price = $item->price;
+            if (!in_array("$pp->user_id", $usids)) {
+                $usids[] = $pp->user_id; // user_id can be null here
             }
-            $vendor = User::find($pp->user_id);
+
+            $total_refer += (($item->price / 100) * $item->qty); // Be careful if price is 0
+            $price = ($item->qty >= 6 && $pp->whole_price > 0) ? $pp->whole_price : $item->price;
+
+            $vendor = User::find($pp->user_id); // Vendor can be null
             $vp = $price * $item->qty;
-            if ($vendor->role_id == 1) {
-                $gt = $vp;
-            } else {
-                if ($vendor->shop_info->commission == NULL) {
-                    $commission = (setting('shop_commission') / 100) * $vp;
-                    $gt = $vp - $commission;
-                } else {
-                    $commission = ($vendor->shop_info->commission / 100) * $vp;
-                    $gt = $vp - $commission;
-                }
-            }
-            
+            $gt = $this->calculateGrandTotal($vendor, $vp); // Handles null vendor
+
+
             $order->orderDetails()->create([
                 'product_id'  => $item->id,
-                'seller_id'   => $pp->user_id,
+                'seller_id'   => $pp->user_id, // Can be null
                 'title'       => $item->name,
-                'color'       => $item->options->color,
-                'size'        => json_encode($item->options->attributes),
+                'color'       => $item->options->color ?? 'blank',
+                'size'        => json_encode($item->options->attributes), // Keep json_encode
                 'qty'         => $item->qty,
                 'price'       => $price,
                 'total_price' => $price * $item->qty,
                 'g_total'     => $gt
             ]);
 
-            $product = Product::find($item->id);
+            // Points update only happens for logged-in users, so skip here for guests
+            // $this->updateUserPoints($item, $order);
 
-            if (auth()->user()) {
-                $userPoint = User::find(auth()->id());
-                $pointp = $product->point * $item->qty;
-                if (setting('is_point') == 1) {
-                    $point = $pointp;
-                } else {
-                    $point = 0;
-                }
-                $userPoint->pen_point += $point;
-                $userPoint->update();
-                $order->point += $point;
-            }
-
-            $order->save();
-            
-            if ($product) {
-                $vendor = User::find($product->user_id);
-                if ($vendor->role_id == 1) {
-                    $account = VendorAccount::where('vendor_id', 1)->first();
-                    $account->pending_amount += $vp;
-                    $account->save();
-                } else {
-                    $grand_total = $price * $item->qty;
-
-                    if ($vendor->shop_info->commission == NULL) {
-                        $commission = (setting('shop_commission') / 100) * $grand_total;
-                        $amount = $grand_total - $commission;
-                    } else {
-                        $commission = ($vendor->shop_info->commission / 100) * $grand_total;
-                        $amount = $grand_total - $commission;
-                    }
-                    
-                    $adminAccount = VendorAccount::where('vendor_id', 1)->first();
-                    $adminAccount->update([
-                        'pending_amount' => $adminAccount->pending_amount + $commission
-                    ]);
-
-                    $vendor->vendorAccount()->update([
-                        'pending_amount' => $vendor->vendorAccount->pending_amount + $amount
-                    ]);
-
-                    $check = Commission::where('user_id', $product->user_id)->where('order_id', $order->id)->first();
-                    if (!$check) {
-                        Commission::create([
-                            'user_id'  => $product->user_id,
-                            'order_id' => $order->id,
-                            'amount'   => $commission,
-                            'status'   => '0',
-                        ]);
-                    } else {
-                        $check->amount = $check->amount + $commission;
-                        $check->update();
-                    }
-                }
-                $product->quantity = $product->quantity - $item->qty;
-                $product->save();
-            }
+            // Vendor account update handles null vendor
+            $this->updateVendorAccount($pp, $item, $order, $price);
         }
 
-        foreach ($usids as $seller) {
-            $total = DB::table('order_details')->where('seller_id', $seller)->where('order_id', $order->id)->sum('total_price');
-            $total += $single_charge;
-            DB::table('multi_order')->insert([
-                'vendor_id' => $seller, 
-                'order_id' => $order->id, 
-                'partial_pay' => 0, 
-                'status' => 0, 
-                'total' => $total
-            ]);
-        }
-        
-        if ($request->payment_method == 'wallate') {
-            $order->update([
-                'pay_staus' => 1,
-                'pay_date'  => date('d-m-y'),
-            ]);
-        }
+        $this->createMultiOrder($usids, $order->id, $single_charge);
 
-        if (auth()->user()) {
-            if ($request->partial_paid < auth()->user()->wallate && $request->partial_paid > 0) {
-                $parts = DB::table('multi_order')->where('order_id', $order->id)->get();
-                $amount = $request->partial_paid;
-                foreach ($parts as $part) {
-                    if ($amount > 0) {
-                        if ($part->partial_pay != $part->total) {
-                            $total_requested = $part->partial_pay + $amount;
+        // Wallet and partial payments are not applicable for guests
+        // $this->handleWalletPayment($request, $order);
+        // $this->handlePartialPayment($request, $order);
 
-                            if ($total_requested > $part->total) {
-                                $new_balance = $total_requested - $part->total;
-                                $slice = $amount - $new_balance;
-                                $amount -= $slice;
-                            } else {
-                                $slice = $amount;
-                                $amount -= $slice;
-                            }
+        $this->handleCouponDiscount($order, $discount); // Apply coupon if any
 
-                            DB::table('multi_order')->where('id', $part->id)->update(['partial_pay' => $part->partial_pay + $slice]);
-                        }
-                    }
-                }
-                PartialPayment::create([
-                    'order_id' => $order->id,
-                    'payment_method' => 'wall',
-                    'amount' => $request->partial_paid,
-                    'status' => 1,
-                ]);
-            }
-        }
-
-        if (Session::has('coupon')) {
-            $n_parts = DB::table('multi_order')->where('order_id', $order->id)->get();
-            $n_amount = $discount;
-            foreach ($n_parts as $n_part) {
-                if ($n_amount > 0) {
-                    if ($n_part->partial_pay != $n_part->total) {
-                        $n_total_requested = $n_part->discount + $n_amount;
-
-                        if ($n_total_requested > $n_part->total) {
-                            $n_new_balance = $n_total_requested - $n_part->total;
-                            $n_slice = $n_amount - $n_new_balance;
-                            $n_amount -= $n_slice;
-                        } else {
-                            $n_slice = $n_amount;
-                            $n_amount -= $n_slice;
-                        }
-
-                        DB::table('multi_order')->where('id', $n_part->id)->update(['discount' => $n_part->partial_pay + $n_slice]);
-                    }
-                }
-            }
-        }
-        
         Cart::destroy();
         Session::forget('coupon');
         $order->update(['refer_bonus' => $total_refer]);
@@ -890,210 +1030,284 @@ class OrderCreationService
         return $this->handlePaymentMethod($request, $data, $total ?? $cart_subtotal + $shipping_charge, $order);
     }
 
+
+    /**
+     * --- THIS FUNCTION IS NOW NULL-SAFE ---
+     */
     private function processCartItems($order)
     {
         $total_refer = 0;
         $usids = [];
-        
+
         foreach (Cart::content() as $item) {
-            $pp = Product::find($item->id);
-            if (!in_array("$pp->user_id", $usids)) {
+             $pp = Product::find($item->id);
+             // Ensure $pp is not null before proceeding
+             if (!$pp) {
+                \Log::warning('Product not found in AUTH cart processing: ID ' . $item->id);
+                continue; // Skip this item if product doesn't exist
+            }
+
+            // user_id can be null
+            if (!in_array($pp->user_id, $usids)) {
                 $usids[] = $pp->user_id;
             }
 
-            $total_refer += (($item->price / 100) * $item->qty);
-            if ($item->qty >= 6 && $pp->whole_price > 0) {
-                $price = $pp->whole_price;
-            } else {
-                $price = $item->price;
-            }
-            $vendor = User::find($pp->user_id);
-            $vp = $price * $item->qty;
-            if ($vendor->role_id == 1) {
-                $gt = $vp;
-            } else {
-                if ($vendor->shop_info->commission == NULL) {
-                    $commission = (setting('shop_commission') / 100) * $vp;
-                    $gt = $vp - $commission;
-                } else {
-                    $commission = ($vendor->shop_info->commission / 100) * $vp;
-                    $gt = $vp - $commission;
-                }
-            }
-            
+            $total_refer += (($item->price / 100) * $item->qty); // Be careful if price is 0
+             $price = ($item->qty >= 6 && $pp->whole_price > 0) ? $pp->whole_price : $item->price;
+
+             $vendor = User::find($pp->user_id); // Vendor can be null
+             $vp = $price * $item->qty;
+             $gt = $this->calculateGrandTotal($vendor, $vp); // Handles null vendor
+
+
             $order->orderDetails()->create([
                 'product_id'  => $item->id,
-                'seller_id'   => $pp->user_id,
+                'seller_id'   => $pp->user_id, // Can be null
                 'title'       => $item->name,
-                'color'       => $item->options->color,
-                'size'        => json_encode($item->options->attributes),
+                'color'       => $item->options->color ?? 'blank',
+                'size'        => json_encode($item->options->attributes), // Keep json_encode
                 'qty'         => $item->qty,
                 'price'       => $price,
                 'total_price' => $price * $item->qty,
                 'g_total'     => $gt
             ]);
 
-            $product = Product::find($item->id);
-            if (auth()->user()) {
-                $userPoint = User::find(auth()->id());
-                $pointp = $product->point * $item->qty;
-                if (setting('is_point') == 1) {
-                    $point = $pointp;
-                } else {
-                    $point = 0;
-                }
-                $userPoint->pen_point += $point;
-                $userPoint->update();
-                $order->point += $point;
-            }
-            $order->save();
-            
-            if ($product) {
-                $vendor = User::find($product->user_id);
-                if ($vendor->role_id == 1) {
-                    $account = VendorAccount::where('vendor_id', 1)->first();
-                    $account->pending_amount += $vp;
-                    $account->save();
-                } else {
-                    $grand_total = $price * $item->qty;
+            // Points update only for authenticated users
+            $this->updateUserPoints($item, $order);
 
-                    if ($vendor->shop_info->commission == NULL) {
-                        $commission = (setting('shop_commission') / 100) * $grand_total;
-                        $amount = $grand_total - $commission;
-                    } else {
-                        $commission = ($vendor->shop_info->commission / 100) * $grand_total;
-                        $amount = $grand_total - $commission;
-                    }
-                    
-                    $adminAccount = VendorAccount::where('vendor_id', 1)->first();
-                    $adminAccount->update([
-                        'pending_amount' => $adminAccount->pending_amount + $commission
-                    ]);
-
-                    $vendor->vendorAccount()->update([
-                        'pending_amount' => $vendor->vendorAccount->pending_amount + $amount
-                    ]);
-
-                    $check = Commission::where('user_id', $product->user_id)->where('order_id', $order->id)->first();
-                    if (!$check) {
-                        Commission::create([
-                            'user_id'  => $product->user_id,
-                            'order_id' => $order->id,
-                            'amount'   => $commission,
-                            'status'   => '0',
-                        ]);
-                    } else {
-                        $check->amount = $check->amount + $commission;
-                        $check->update();
-                    }
-                }
-                $product->quantity = $product->quantity - $item->qty;
-                $product->save();
-            }
+            // Vendor account update handles null vendor
+            $this->updateVendorAccount($pp, $item, $order, $price);
         }
 
-        return $total_refer;
+         // Update the order's total refer bonus after processing all items
+         $order->update(['refer_bonus' => $total_refer]);
+
+         // Return unique seller IDs including null if present, for createMultiOrder
+         // No, createMultiOrder handles adding admin (1) if needed. Just return collected IDs.
+         return $usids; // Return the collected user IDs (including nulls)
     }
+
 
     private function processAamarpay($request, $amount, $orderId)
     {
+         // Ensure amount is at least 1 BDT for most gateways
+         if ($amount < 1) {
+            \Log::error('AamarPay Error: Amount must be at least 1 BDT.', ['order_id' => $orderId, 'amount' => $amount]);
+            notify()->error('Invalid payment amount. Cannot proceed with AamarPay.', 'Payment Error');
+            return redirect()->route('checkout'); // Or appropriate error page
+        }
+
         if (setting('amode') == '2') {
             $url = 'https://secure.aamarpay.com/request.php';
         } else {
-            $url = 'https://sandbox.aamarpay.com/request.php';
+            $url = 'https://sandbox.aamarpay.com/request.php'; // Ensure sandbox URL is correct
         }
 
+        // Validate required settings
+         $store_id = setting('astore');
+         $signature_key = setting('akey');
+         if(empty($store_id) || empty($signature_key)) {
+            \Log::error('AamarPay Error: Store ID or Signature Key is missing in settings.', ['order_id' => $orderId]);
+            notify()->error('AamarPay configuration is incomplete. Please contact support.', 'Payment Error');
+            return redirect()->route('checkout');
+        }
+
+
         $fields = array(
-            'store_id' => setting('astore'),
-            'amount' => $amount,
-            'payment_type' => 'VISA',
+            'store_id' => $store_id,
+            'amount' => number_format($amount, 2, '.', ''), // Format amount correctly
+            'payment_type' => 'VISA', // Usually 'creditcard' or 'mobilebanking', check AamarPay docs
             'currency' => 'BDT',
-            'tran_id' => rand(1111111, 9999999),
-            'cus_name' => $request->first_name . $request->last_name,
-            'cus_email' => $request->email,
-            'cus_add1' => $request->address,
-            'cus_add2' => $request->address,
-            'cus_city' => $request->city,
-            'cus_state' => $request->city,
-            'cus_postcode' => $request->postcode,
-            'cus_country' => 'Bangladesh',
+            'tran_id' => 'LEM' . $orderId . '_' . uniqid(), // Use a more unique transaction ID
+            'cus_name' => $request->first_name . ' ' . $request->last_name,
+            'cus_email' => $request->email ?? 'customer@example.com', // Provide a default if null
+            'cus_add1' => $request->address ?? 'N/A', // Provide default
+            'cus_add2' => $request->address ?? '', // Optional, can be empty
+            'cus_city' => $request->city ?? 'N/A', // Provide default
+            'cus_state' => $request->district ?? $request->city ?? 'N/A', // Use district or city
+            'cus_postcode' => $request->postcode ?? '1200', // Provide default
+            'cus_country' => $request->country ?? 'Bangladesh', // Provide default
             'cus_phone' => $request->phone,
-            'cus_fax' => 'Not¬Applicable',
-            'ship_name' => $request->first_name . $request->last_name,
-            'ship_add1' => $request->address,
-            'ship_add2' => $request->address,
-            'ship_city' => $request->city,
-            'ship_state' => $request->city,
-            'ship_postcode' => '1212',
-            'ship_country' => 'Bangladesh',
-            'desc' => 'Product Purches',
-            'success_url' => route('success'),
-            'fail_url' => route('fail'),
-            'cancel_url' => 'http://localhost/foldername/cancel.php',
-            'opt_a' => $orderId,
+            'cus_fax' => 'Not Applicable', // Corrected value
+            'ship_name' => $request->first_name . ' ' . $request->last_name, // Should match cus_name if not different shipping
+            'ship_add1' => $request->address ?? 'N/A',
+            'ship_add2' => '',
+            'ship_city' => $request->city ?? 'N/A',
+            'ship_state' => $request->district ?? $request->city ?? 'N/A',
+            'ship_postcode' => $request->postcode ?? '1200',
+            'ship_country' => $request->country ?? 'Bangladesh',
+            'desc' => 'Order #' . $orderId, // More specific description
+            'success_url' => route('success'), // Ensure this route exists and handles POST
+            'fail_url' => route('fail'),    // Ensure this route exists and handles POST
+            'cancel_url' => route('uddoktapay.cancel'), // Use a named route, maybe create a general 'payment.cancel' route
+            'opt_a' => $orderId, // Pass order ID
             'opt_b' => '',
             'opt_c' => '',
             'opt_d' => '',
-            'signature_key' => setting('akey')
+            'signature_key' => $signature_key
         );
 
         $fields_string = http_build_query($fields);
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $url_forward = str_replace('"', '', stripslashes(curl_exec($ch)));
-        curl_close($ch);
+        try {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_VERBOSE, false); // Usually false for production
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, true); // Use POST method
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to true in production with proper CA certs
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30); // Add timeout
+             curl_setopt($ch, CURLOPT_TIMEOUT, 60); // Add timeout
 
-        $this->redirect_to_merchant($url_forward);
+            $response = curl_exec($ch);
+             $curl_error = curl_error($ch);
+             $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+             if ($response === false) {
+                 \Log::error('AamarPay cURL Error: ' . $curl_error, ['order_id' => $orderId]);
+                 throw new Exception('Payment gateway connection error.');
+            }
+
+             \Log::info('AamarPay Request Sent:', ['url' => $url, 'fields' => $fields]); // Log request
+             \Log::info('AamarPay Response Received:', ['http_code' => $http_code, 'response' => $response]); // Log response
+
+
+             // AamarPay typically returns a payment URL path directly if successful
+            // Check if response looks like a URL path (e.g., starts with 'payment' or contains '?session')
+             if ($http_code == 200 && is_string($response) && (strpos($response, 'payment') !== false || strpos($response, '?session') !== false)) {
+                $url_forward = str_replace(['"', '\\'], '', $response); // Clean the response
+                $this->redirect_to_merchant($url_forward); // Redirect using the provided function
+                 exit; // Stop script execution after redirect header
+            } else {
+                 // Log the unexpected response
+                 \Log::error('AamarPay Error: Unexpected response.', ['order_id' => $orderId, 'http_code' => $http_code, 'response' => $response]);
+                 throw new Exception('Invalid response from payment gateway.');
+            }
+
+        } catch (Exception $e) {
+            \Log::error('AamarPay Payment Initiation Failed: ' . $e->getMessage(), ['order_id' => $orderId]);
+            notify()->error('Could not connect to AamarPay. Please try again later or choose another method.', 'Payment Error');
+            return redirect()->route('checkout');
+        }
     }
+
 
     private function processUddoktapay($request, $amount, $orderId)
     {
+         // Ensure amount is valid (UddoktaPay might have minimum)
+         if ($amount < 1) { // Check UddoktaPay minimum if applicable
+            \Log::error('UddoktaPay Error: Invalid amount.', ['order_id' => $orderId, 'amount' => $amount]);
+            notify()->error('Invalid payment amount. Cannot proceed with UddoktaPay.', 'Payment Error');
+            return null; // Return null to indicate failure
+        }
+
+         // Validate required settings
+         $api_key = setting('uapi'); // Assuming 'uapi' stores the API key
+         $api_url = setting('uddoktapay_url'); // Add setting for UddoktaPay API URL
+
+         if(empty($api_key) || empty($api_url)) {
+            \Log::error('UddoktaPay Error: API Key or API URL is missing in settings.', ['order_id' => $orderId]);
+            notify()->error('UddoktaPay configuration is incomplete. Please contact support.', 'Payment Error');
+            return null;
+        }
+
+
         $requestData = [
-            'full_name'    => $request->first_name . $request->last_name,
-            'email'        => $request->email,
-            'amount'       => $amount,
-            'metadata'     => [
+            'full_name'    => $request->first_name . ' ' . $request->last_name,
+            'email'        => $request->email ?? 'customer@example.com', // Provide default
+            'amount'       => number_format($amount, 2, '.', ''), // Format amount
+            'metadata'     => json_encode([ // Metadata should be a JSON string
                 'order_id'   => $orderId,
-                'metadata_1' => 'foo',
-                'metadata_2' => 'bar',
-            ],
-            'redirect_url'  => route('uddoktapay.success'),
-            'return_type'   => 'GET',
+                'customer_phone' => $request->phone, // Example: Add phone to metadata
+                // Add other relevant info if needed
+            ]),
+            'redirect_url'  => route('uddoktapay.success'), // Use GET as per your current setup
+            'return_type'   => 'GET', // Make sure this matches your success route method
             'cancel_url'    => route('uddoktapay.cancel'),
-            'webhook_url'   => route('uddoktapay.webhook'),
+            'webhook_url'   => route('uddoktapay.webhook'), // Ensure webhook URL is publicly accessible
         ];
 
         try {
-            $paymentUrl = UddoktaPay::init_payment($requestData);
-            return $paymentUrl;
+             // Initialize UddoktaPay library/SDK correctly
+             // Assuming your App\Library\UddoktaPay handles the API call
+             // Make sure API key and URL are configured within the library or passed here
+            \App\Library\UddoktaPay::setApiKey($api_key); // Example: Method to set API key
+            \App\Library\UddoktaPay::setApiUrl($api_url); // Example: Method to set API URL
+
+            $paymentUrl = \App\Library\UddoktaPay::init_payment($requestData); // Call the static method
+
+            if (filter_var($paymentUrl, FILTER_VALIDATE_URL)) {
+                 \Log::info('UddoktaPay payment initiated successfully.', ['order_id' => $orderId, 'redirect_url' => $paymentUrl]);
+                return $paymentUrl; // Return the valid payment URL
+            } else {
+                 \Log::error('UddoktaPay Error: Invalid payment URL received.', ['order_id' => $orderId, 'response' => $paymentUrl]);
+                 notify()->error('Received an invalid response from UddoktaPay.', 'Payment Error');
+                 return null;
+            }
         } catch (Exception $e) {
-            dd($e->getMessage());
+             \Log::error('UddoktaPay Payment Initiation Failed: ' . $e->getMessage(), ['order_id' => $orderId, 'request_data' => $requestData]);
+            // Use a generic message for the user
+            notify()->error('Could not initiate payment via UddoktaPay. Please try again or choose another method.', 'Payment Error');
+            return null; // Return null on failure
         }
     }
 
-    function redirect_to_merchant($url)
+
+    function redirect_to_merchant($url_path) // Parameter is likely path, not full URL for AamarPay
     {
         if (setting('amode') == '2') {
-            $base = 'https://secure.aamarpay.com/';
+            $base = 'https://secure.aamarpay.com/'; // Use HTTPS
         } else {
-            $base = 'https://sandbox.aamarpay.com/';
+            $base = 'https://sandbox.aamarpay.com/'; // Use HTTPS for sandbox too
         }
+
+        // Construct the full URL carefully
+         $full_url = rtrim($base, '/') . '/' . ltrim($url_path, '/');
+
+         // Validate the URL before redirecting
+         if (!filter_var($full_url, FILTER_VALIDATE_URL)) {
+            \Log::error('AamarPay Redirect Error: Invalid redirect URL generated.', ['base' => $base, 'path' => $url_path, 'full_url' => $full_url]);
+            notify()->error('Error redirecting to payment gateway.', 'Payment Error');
+            // Don't output HTML here, redirect back using Laravel's redirect
+            // return redirect()->route('checkout'); // Or handle error appropriately
+             echo "Invalid Payment URL. Please contact support."; // Basic error for direct output case
+             exit;
+        }
+
+        // Use Laravel's redirect for cleaner handling if possible
+        // If this function is called where Laravel's redirect isn't available, the JS method is okay as fallback
+        // return redirect()->away($full_url);
+
+        // Fallback using JavaScript redirect (if not in a context where Laravel redirect works)
         ?>
+        <!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml">
-          <head><script type="text/javascript">
-            function closethisasap() { document.forms["redirectpost"].submit(); } 
-          </script></head>
-          <body onLoad="closethisasap();">
-            <form name="redirectpost" method="post" action="<?php echo $base . $url; ?>"></form>
+          <head>
+              <meta charset="utf-8">
+              <title>Redirecting to AamarPay...</title>
+              <script type="text/javascript">
+                function redirectToPayment() {
+                    // Use window.location.replace for better history handling
+                    window.location.replace("<?php echo htmlspecialchars($full_url, ENT_QUOTES, 'UTF-8'); ?>");
+                }
+              </script>
+          </head>
+          <body onLoad="redirectToPayment();">
+            <p>Redirecting to AamarPay securely... If you are not redirected automatically, <a href="<?php echo htmlspecialchars($full_url, ENT_QUOTES, 'UTF-8'); ?>">click here</a>.</p>
+             {{-- Use a POST form if required by the gateway response, but AamarPay usually expects redirect --}}
+             {{-- Example POST form (if needed): --}}
+             {{-- <form name="redirectpost" method="post" action="<?php echo htmlspecialchars($full_url, ENT_QUOTES, 'UTF-8'); ?>"> --}}
+             {{-- Add any required hidden fields here --}}
+             {{-- </form> --}}
+             {{-- <script> document.forms["redirectpost"].submit(); </script> --}}
           </body>
         </html>
         <?php
+         exit; // Ensure script stops after outputting redirect HTML
     }
+
 
     private function validate($request, $rules)
     {

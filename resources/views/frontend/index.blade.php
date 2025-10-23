@@ -645,7 +645,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     <div class="container">
         <div class="section-header">
             <div>
-                <h2 class="section-title">🆕 New Arrivals</h2>
+                <h2 class="section-title">New Arrivals</h2>
             </div>
             <a href="{{route('product')}}" class="view-all-btn">
                 <span>See More</span>
@@ -681,7 +681,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     <div class="container">
         <div class="card book-announcement">
             <div class="card-header">
-                📚 Latest Book Updates & Offers
+                Latest Book Updates & Offers
             </div>
             <div class="card-body">
                 @php
@@ -693,47 +693,13 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 </div>
 @endif
 
-@if (setting('TOP_CAT_STATUS') != 0 || setting('TOP_CAT_STATUS') == "")
-<div class="book-genres modern-section">
-    <div class="container">
-        <div class="section-header">
-            <div>
-                <h2 class="section-title">📚 জনপ্রিয় বিষয়</h2>
-            </div>
-        </div>
-        <div id="categories-container" class="categories-container">
-            <div class="genre-grid">
-                @php
-                $allCategories = collect($categories_f)->merge($mini_f);
-                @endphp
-                @foreach ($allCategories as $index => $category)
-                    @if(isset($category->slug))
-                        <a href="{{route('category.product',$category->slug)}}" class="genre-card category-item" data-index="{{$index}}">
-                            <h3>{{$category->name}}</h3>
-                        </a>
-                    @else
-                        <a href="{{route('miniCategory.product',$category->slug)}}" class="genre-card category-item" data-index="{{$index}}">
-                            <h3>{{$category->name}}</h3>
-                        </a>
-                    @endif
-                @endforeach
-            </div>
-        </div>
-        
-        <div class="text-center">
-            <button id="load-more-categories" class="category-toggle" style="display: none;">Load More Categories</button>
-        </div>
-    </div>
-</div>
-@endif
-
 @if (setting('HERO_SLIDER_1') != 0 || setting('HERO_SLIDER_1') == "")
 @if (setting('HERO_SLIDER_1_TEXT'))
 <div class="modern-section">
     <div class="container">
         <div class="section-header">
             <div>
-                <h2 class="section-title">📚 {{ setting('HERO_SLIDER_1_TEXT') ?: 'Featured Book Collections' }}</h2>
+                <h2 class="section-title"> {{ setting('HERO_SLIDER_1_TEXT') ?: 'Featured Book Collections' }}</h2>
             </div>
         </div>
         <div class="autoplay2 slick-slides">
@@ -791,7 +757,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     <div class="container">
         <div class="section-header">
             <div>
-                <h2 class="section-title">🏆 Bestselling Books</h2>
+                <h2 class="section-title">Top Selling Products</h2>
             </div>
             <a href="{{route('product')}}" class="view-all-btn">
                 <span>See More</span>
@@ -870,7 +836,7 @@ $products = \App\Models\Product::whereIn('id', $productIds)->take(12)->where('st
     <div class="container">
         <div class="section-header">
             <div>
-                <h2 class="section-title">📚 {{$cat->name}}</h2>
+                <h2 class="section-title"> {{$cat->name}}</h2>
             </div>
             <a href="{{route('category.product',$cat->slug)}}" class="view-all-btn">
                 <span>See More</span>
@@ -929,7 +895,7 @@ $products = \App\Models\Product::whereIn('id', $productIds)->take(12)->where('st
 <div class="newsletter-section">
     <div class="container">
         <div class="newsletter-content">
-            <h2>📚 Stay Updated with New Book Releases</h2>
+            <h2> Stay Updated with New Book Releases</h2>
             <p>Get notified about new arrivals, bestsellers, and exclusive book deals. We respect your privacy and won't spam your inbox.</p>
             <form action="{{route('subscription')}}" method="Post" id="newsletter-form" class="newsletter-form">
                 @csrf

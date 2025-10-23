@@ -121,7 +121,7 @@ class SubCategoryController extends Controller
 
         $extra = extracategory::find($id);
         $hsaMini=miniCategory::find($extra->mini_category_id);
-        $hsasub=SubCategory::find($hsaMini->category_id);
+        $hsasub=SubCategory::find($hsaMini->sub_category_id);
         $hascategories=Category::find($hsasub->category_id);
         return view('admin.e-commerce.extra-category.update', compact(
             'categories','sub_categories', 'mini',
@@ -172,7 +172,7 @@ class SubCategoryController extends Controller
             'status'      => $request->filled('status'),
             'is_feature'      => $request->filled('is_feature')
         ]);
-         miniCategory::where('category_id',$request->category_id)->update(['status'=>$request->filled('status')]);
+         miniCategory::where('sub_category_id',$subCategory->id)->update(['status'=>$request->filled('status')]);
         $cat=Category::find($request->category);
         if($cat->status==1){
             if($request->filled('status')==1){
@@ -250,7 +250,7 @@ class SubCategoryController extends Controller
        
 
         miniCategory::create([
-            'category_id' => $request->category,
+            'sub_category_id' => $request->category,
             'name'        => $request->name,
             'slug'        => Str::slug($request->name),
             'cover_photo' => $imageName ?? 'default.png',
@@ -296,7 +296,7 @@ class SubCategoryController extends Controller
         ]);
        }else{
             $newCategory=miniCategory::create([
-                'category_id' => $request->nsubc,
+                'sub_category_id' => $request->nsubc,
                 'name'        => $request->miniCat,
                 'slug'        => Str::slug($request->miniCat),
                 'cover_photo' => 'default.png',
@@ -339,7 +339,7 @@ class SubCategoryController extends Controller
         
 
         $miniCategory->update([
-            'category_id' => $request->category,
+            'sub_category_id' => $request->category,
             'name'        => $request->name,
             'slug'        => Str::slug($request->name),
             'cover_photo' => $imageName ?? 'default.png',

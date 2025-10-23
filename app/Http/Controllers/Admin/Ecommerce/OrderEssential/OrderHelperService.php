@@ -7,12 +7,15 @@ use App\Models\Product;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\Commission;
-use DB;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderHelperService
 {
     /**
      * Helper method for processing returns
+     * Note: This is called when reversing a cancellation (e.g., Cancelled -> Processing)
+     * It DECREASES stock, as the item is no longer "returned".
      */
     public function return_helper($order)
     {
@@ -37,14 +40,16 @@ class OrderHelperService
                     ]);
                 }
 
-                $product->quantity = $product->quantity - $item->qty;
-                $product->save();
+                // Use new helper to DECREASE stock for the specific variation
+                $this->decreaseProductStock($product, $item);
             }
         }
-        if ($vendor->role_id != 1) {
-            $adminAccount->update([
-                'pending_amount' => $amount + $admin_amount->amount
-            ]);
+        if (isset($vendor) && $vendor->role_id != 1) {
+            if(isset($adminAccount) && isset($admin_amount)){
+                $adminAccount->update([
+                    'pending_amount' => $amount + $admin_amount->amount
+                ]);
+            }
         }
         $order->status = 1;
         DB::table('multi_order')->where('order_id', $order->id)->update(['status' => 1]);
@@ -61,6 +66,7 @@ class OrderHelperService
     
     /**
      * Helper method for processing refunds
+     * This INCREASES stock, as the item is refunded/returned.
      */
     public function refund_helper($order)
     {
@@ -85,14 +91,16 @@ class OrderHelperService
                     ]);
                 }
                 
-                $product->quantity = $product->quantity + $item->qty;
-                $product->save();
+                // Use new helper to INCREASE stock for the specific variation
+                $this->increaseProductStock($product, $item);
             }
         }
-        if ($vendor->role_id != 1) {
-            $adminAccount->update([
-                'pending_amount' => $amount + 0
-            ]);
+        if (isset($vendor) && $vendor->role_id != 1) {
+            if(isset($adminAccount)){
+                $adminAccount->update([
+                    'pending_amount' => $amount + 0
+                ]);
+            }
         }
         $order->status = 1;
         DB::table('multi_order')->where('order_id',$order->id)->update(['status'=>1]);
@@ -101,6 +109,7 @@ class OrderHelperService
     
     /**
      * Helper method for processing cancellations
+     * This INCREASES stock, as the item is returned to inventory.
      */
     public function cancel_helper($order)
     {
@@ -125,14 +134,16 @@ class OrderHelperService
                     ]);
                 }
 
-                $product->quantity = $product->quantity + $item->qty;
-                $product->save();
+                // Use new helper to INCREASE stock for the specific variation
+                $this->increaseProductStock($product, $item);
             }
         }
-        if ($vendor->role_id != 1) {
-            $adminAccount->update([
-                'pending_amount' => $amount - $admin_amount->amount
-            ]);
+        if (isset($vendor) && $vendor->role_id != 1) {
+             if(isset($adminAccount) && isset($admin_amount)){
+                $adminAccount->update([
+                    'pending_amount' => $amount - $admin_amount->amount
+                ]);
+             }
         }
         $order->status = 2;
         DB::table('multi_order')->where('order_id', $order->id)->update(['status' => 2]);
@@ -237,5 +248,195 @@ class OrderHelperService
         }
         
         return $query->update(['status' => $status]);
+    }
+
+    /**
+     * NEW HELPER: Increase stock for product based on variation type (for cancellations/returns)
+     */
+    private function increaseProductStock($product, $item)
+    {
+        $quantity = $item->qty;
+        
+        // Decode size/color data from order item
+        $colorId = $item->color ?? null;
+        $sizeData = json_decode($item->size, true);
+        
+        Log::info('Admin Stock Increase: Start', ['product_id' => $product->id, 'order_item_id' => $item->id, 'color' => $colorId, 'size_json' => $item->size]);
+
+        // Priority 1: Check for Color-Size variation
+        // Note: 'blank' is a string, not null, from the fixed frontend
+        if ($colorId && $colorId !== 'blank' && !empty($sizeData)) {
+            $sizeId = null;
+            if (isset($sizeData['size_id'])) { // Handle new format
+                $sizeId = $sizeData['size_id'];
+            } elseif (is_array($sizeData)) { // Handle old format
+                 foreach ($sizeData as $sizeInfo) {
+                    if (isset($sizeInfo['size_id'])) {
+                        $sizeId = $sizeInfo['size_id'];
+                        break;
+                    }
+                }
+            }
+
+            if ($sizeId) {
+                DB::table('color_size_product')
+                    ->where('product_id', $product->id)
+                    ->where('color_id', $colorId)
+                    ->where('size_id', $sizeId)
+                    ->increment('quantity', $quantity);
+                
+                Log::info('Admin Stock Increase: Color-Size', ['product_id' => $product->id, 'color_id' => $colorId, 'size_id' => $sizeId, 'qty' => $quantity]);
+            }
+        }
+        // Priority 2: Check for Size-Only variation (no color)
+        elseif (($colorId === null || $colorId === 'blank') && !empty($sizeData)) {
+             $sizeId = null;
+            if (isset($sizeData['size_id'])) { // Handle new format
+                $sizeId = $sizeData['size_id'];
+            } elseif (is_array($sizeData)) { // Handle old format
+                 foreach ($sizeData as $sizeInfo) {
+                    if (isset($sizeInfo['size_id'])) {
+                        $sizeId = $sizeInfo['size_id'];
+                        break;
+                    }
+                }
+            }
+
+            if ($sizeId) {
+                DB::table('color_size_product')
+                    ->where('product_id', $product->id)
+                    ->where('size_id', $sizeId)
+                    ->whereNull('color_id')
+                    ->increment('quantity', $quantity);
+                
+                Log::info('Admin Stock Increase: Size-Only', ['product_id' => $product->id, 'size_id' => $sizeId, 'qty' => $quantity]);
+            }
+        }
+        // Priority 3: Check for Attribute variation
+        elseif (!empty($sizeData)) {
+            $attributeValueId = null;
+            // Check for modern format first
+            if (is_array($sizeData) && array_key_exists(0, $sizeData) && isset($sizeData[0]['attribute_value_id'])) {
+                 $attributeValueId = $sizeData[0]['attribute_value_id'];
+            }
+            // Check for legacy format
+            else if (is_array($sizeData)) {
+                 foreach ($sizeData as $attrInfo) {
+                    if (isset($attrInfo['attribute_value_id'])) {
+                        $attributeValueId = $attrInfo['attribute_value_id'];
+                        break;
+                    }
+                }
+            }
+
+
+            if ($attributeValueId) {
+                 DB::table('attribute_product')
+                    ->where('product_id', $product->id)
+                    ->where('attribute_value_id', $attributeValueId)
+                    ->increment('qnty', $quantity);
+                
+                Log::info('Admin Stock Increase: Attribute', ['product_id' => $product->id, 'attr_val_id' => $attributeValueId, 'qty' => $quantity]);
+            }
+        }
+        
+        // Always increase main product quantity (for all product types)
+        $product->increment('quantity', $quantity);
+        
+        Log::info('Admin Stock Increase: Main Product', ['product_id' => $product->id, 'qty' => $quantity]);
+    }
+
+    /**
+     * NEW HELPER: Decrease stock for product based on variation type (for reversing cancellations)
+     */
+    public function decreaseProductStock($product, $item)
+    {
+        $quantity = $item->qty;
+        
+        // Decode size/color data from order item
+        $colorId = $item->color ?? null;
+        $sizeData = json_decode($item->size, true);
+
+        Log::info('Admin Stock Decrease: Start', ['product_id' => $product->id, 'order_item_id' => $item->id, 'color' => $colorId, 'size_json' => $item->size]);
+        
+        // Priority 1: Check for Color-Size variation
+        if ($colorId && $colorId !== 'blank' && !empty($sizeData)) {
+            $sizeId = null;
+            if (isset($sizeData['size_id'])) { // Handle new format
+                $sizeId = $sizeData['size_id'];
+            } elseif (is_array($sizeData)) { // Handle old format
+                 foreach ($sizeData as $sizeInfo) {
+                    if (isset($sizeInfo['size_id'])) {
+                        $sizeId = $sizeInfo['size_id'];
+                        break;
+                    }
+                }
+            }
+
+            if ($sizeId) {
+                DB::table('color_size_product')
+                    ->where('product_id', $product->id)
+                    ->where('color_id', $colorId)
+                    ->where('size_id', $sizeId)
+                    ->decrement('quantity', $quantity);
+                
+                Log::info('Admin Stock Decrease: Color-Size', ['product_id' => $product->id, 'color_id' => $colorId, 'size_id' => $sizeId, 'qty' => $quantity]);
+            }
+        }
+        // Priority 2: Check for Size-Only variation (no color)
+        elseif (($colorId === null || $colorId === 'blank') && !empty($sizeData)) {
+            $sizeId = null;
+            if (isset($sizeData['size_id'])) { // Handle new format
+                $sizeId = $sizeData['size_id'];
+            } elseif (is_array($sizeData)) { // Handle old format
+                 foreach ($sizeData as $sizeInfo) {
+                    if (isset($sizeInfo['size_id'])) {
+                        $sizeId = $sizeInfo['size_id'];
+                        break;
+                    }
+                }
+            }
+
+            if ($sizeId) {
+                DB::table('color_size_product')
+                    ->where('product_id', $product->id)
+                    ->where('size_id', $sizeId)
+                    ->whereNull('color_id')
+                    ->decrement('quantity', $quantity);
+                
+                Log::info('Admin Stock Decrease: Size-Only', ['product_id' => $product->id, 'size_id' => $sizeId, 'qty' => $quantity]);
+            }
+        }
+        // Priority 3: Check for Attribute variation
+        elseif (!empty($sizeData)) {
+            $attributeValueId = null;
+             // Check for modern format first
+            if (is_array($sizeData) && array_key_exists(0, $sizeData) && isset($sizeData[0]['attribute_value_id'])) {
+                 $attributeValueId = $sizeData[0]['attribute_value_id'];
+            }
+            // Check for legacy format
+            else if (is_array($sizeData)) {
+                 foreach ($sizeData as $attrInfo) {
+                    if (isset($attrInfo['attribute_value_id'])) {
+                        $attributeValueId = $attrInfo['attribute_value_id'];
+                        break;
+                    }
+                }
+            }
+
+            if ($attributeValueId) {
+                 DB::table('attribute_product')
+                    ->where('product_id', $product->id)
+                    ->where('attribute_value_id', $attributeValueId)
+                    ->decrement('qnty', $quantity);
+                
+                Log::info('Admin Stock Decrease: Attribute', ['product_id' => $product->id, 'attr_val_id' => $attributeValueId, 'qty' => $quantity]);
+            }
+        }
+        
+        // Always decrease main product quantity (for all product types)
+        $product->decrement('quantity', $quantity);
+        
+        Log::info('Admin Stock Decrease: Main Product', ['product_id' => $product->id, 'qty' => $quantity]);
     }
 }

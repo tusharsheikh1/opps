@@ -175,8 +175,9 @@ class OrderHelperService
                 }
             }
             
-            $product->quantity = $product->quantity - $item->qty;
-            $product->save();
+            // === UPDATED STOCK REDUCTION LOGIC ===
+            // Reduce stock based on product variation type
+            $this->reduceProductStock($product, $item);
         }
     }
 
@@ -361,7 +362,7 @@ class OrderHelperService
             'cus_postcode' => $request->postcode,
             'cus_country' => 'Bangladesh',
             'cus_phone' => $request->phone,
-            'cus_fax' => 'Not¬Applicable',
+            'cus_fax' => 'NotÂ¬Applicable',
             'ship_name' => $request->first_name . $request->last_name,
             'ship_add1' => $request->address,
             'ship_add2' => $request->address,
@@ -564,4 +565,95 @@ class OrderHelperService
             return setting('shipping_charge_out_of_range') * $sellerCount;
         }
     }
+
+    /**
+     * Reduce stock for product based on variation type
+     * Handles: Color-Size, Size-Only, Attributes, and Simple products
+     */
+    private function reduceProductStock($product, $item)
+    {
+        $quantity = $item->qty;
+        
+        // Decode size/attribute data from cart item
+        $sizeData = json_decode($item->options->attributes, true);
+        $colorId = $item->options->color ?? null;
+        
+        // Priority 1: Check for Color-Size variation
+        if ($colorId && !empty($sizeData)) {
+            foreach ($sizeData as $sizeInfo) {
+                if (isset($sizeInfo['size_id'])) {
+                    $sizeId = $sizeInfo['size_id'];
+                    
+                    // Reduce from color_size_product table
+                    DB::table('color_size_product')
+                        ->where('product_id', $product->id)
+                        ->where('color_id', $colorId)
+                        ->where('size_id', $sizeId)
+                        ->decrement('quantity', $quantity);
+                    
+                    \Log::info('Stock reduced: Color-Size (Helper)', [
+                        'product_id' => $product->id,
+                        'color_id' => $colorId,
+                        'size_id' => $sizeId,
+                        'quantity' => $quantity
+                    ]);
+                    break; // Only reduce once per cart item
+                }
+            }
+        }
+        // Priority 2: Check for Size-Only variation (no color)
+        elseif (empty($colorId) && !empty($sizeData)) {
+            foreach ($sizeData as $sizeInfo) {
+                if (isset($sizeInfo['size_id'])) {
+                    $sizeId = $sizeInfo['size_id'];
+                    
+                    // Reduce from color_size_product table where color_id IS NULL
+                    DB::table('color_size_product')
+                        ->where('product_id', $product->id)
+                        ->where('size_id', $sizeId)
+                        ->whereNull('color_id')
+                        ->decrement('quantity', $quantity);
+                    
+                    \Log::info('Stock reduced: Size-Only (Helper)', [
+                        'product_id' => $product->id,
+                        'size_id' => $sizeId,
+                        'quantity' => $quantity
+                    ]);
+                    break; // Only reduce once per cart item
+                }
+            }
+        }
+        // Priority 3: Check for Attribute variation
+        elseif (!empty($sizeData)) {
+            foreach ($sizeData as $attrInfo) {
+                if (isset($attrInfo['attribute_value_id'])) {
+                    $attributeValueId = $attrInfo['attribute_value_id'];
+                    
+                    // Reduce from attribute_product table
+                    DB::table('attribute_product')
+                        ->where('product_id', $product->id)
+                        ->where('attribute_value_id', $attributeValueId)
+                        ->decrement('qnty', $quantity);
+                    
+                    \Log::info('Stock reduced: Attribute (Helper)', [
+                        'product_id' => $product->id,
+                        'attribute_value_id' => $attributeValueId,
+                        'quantity' => $quantity
+                    ]);
+                    break; // Only reduce once per cart item
+                }
+            }
+        }
+        
+        // Always reduce from main product quantity (for all product types)
+        $product->decrement('quantity', $quantity);
+        
+        \Log::info('Stock reduced: Main product quantity (Helper)', [
+            'product_id' => $product->id,
+            'quantity' => $quantity,
+            'remaining_stock' => $product->fresh()->quantity
+        ]);
+    }
+
+
 }

@@ -10,7 +10,7 @@ use App\Models\Commission;
 use App\Http\Controllers\Admin\Ecommerce\OrderEssential\OrderNotificationService;
 use App\Http\Controllers\Admin\Ecommerce\OrderEssential\OrderHelperService;
 use Illuminate\Http\Request;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
@@ -39,11 +39,23 @@ class OrderStatusManager
         // Add logic here to reverse transactions if necessary, e.g., if moving from "delivered"
         // This is a simplified version.
         if ($order->status != 0) {
+            
+            // If moving from Cancelled (2), stock was restocked. We need to decrease it.
+            if ($order->status == 2) {
+                foreach ($order->orderDetails as $item) {
+                    $product = Product::find($item->product_id);
+                    if ($product) $this->helperService->decreaseProductStock($product, $item);
+                }
+            }
+            // If moving from Delivered (3), stock was not touched, but payment was.
+            // Reverting from Delivered should be a formal "Return" process.
+            // For simplicity, we just change status. A full reversal would be complex.
+            
             $order->status = 0;
             DB::table('multi_order')->where('order_id', $id)->update(['status' => 0]);
             $order->save();
-            // You might want a specific notification for this action
-            // $this->notificationService->sendNotification('pending', $order->invoice, $order->user_id);
+            
+            $this->notificationService->sendNotification('pending', $order->invoice, $order->user_id);
             if ($isBulk) {
                 return true;
             }
@@ -68,70 +80,82 @@ class OrderStatusManager
     public function statusProcessing($id, $isBulk = false)
     {
         $order = Order::findOrFail($id);
+        
+        // Case 1: Moving from Delivered (3) back to Processing (1)
+        // This is effectively a "return". We must RESTOCK the item.
         if($order->status == 3) {
-            $this->helperService->return_helper($order);
+            Log::info("Order {$id}: Changing status from Delivered(3) to Processing(1)");
             foreach ($order->orderDetails as $item) {
                 $product = Product::find($item->product_id);
                 if ($product) {
+                    // RESTOCK the item
+                    $this->helperService->increaseProductStock($product, $item);
+
+                    // Reverse vendor payment
                     $vendor = User::find($product->user_id);
                     if ($vendor->role_id == 1) {
                         $amount = $vendor->vendorAccount->amount;
                         $vendor->vendorAccount()->update([
                             'amount' => $amount - $item->g_total
                         ]);
-                    }
-                    else {
+                    } else {
                         $grand_total = $item->g_total;
                         $admin_amount = Commission::where('order_id',$order->id)->first();
-                        $admin_amount->status = 0;
-                        $admin_amount->update();
-                        $adminAccount = VendorAccount::where('vendor_id', 1)->first();
-                        $vendor_amount = $grand_total;
-                        $amount = $adminAccount->amount;
+                        if ($admin_amount) {
+                            $admin_amount->status = 0;
+                            $admin_amount->update();
+                            $adminAccount = VendorAccount::where('vendor_id', 1)->first();
+                            $vendor_amount = $grand_total;
+                            $amount = $adminAccount->amount;
 
-                        $vendor->vendorAccount()->update([
-                            'amount' => $vendor->vendorAccount->amount - $vendor_amount
-                        ]);
+                            $vendor->vendorAccount()->update([
+                                'amount' => $vendor->vendorAccount->amount - $vendor_amount
+                            ]);
+                            $adminAccount->update([
+                                'amount' => $amount - $admin_amount->amount
+                            ]);
+                        }
                     }
-                    
-                    $product->quantity = $product->quantity - $item->qty;
-                    $product->save();
                 }
             }
-            if ($vendor->role_id != 1) {
-                $adminAccount->update([
-                    'amount' => $amount - $admin_amount->amount
-                ]);
-            }
-            $order->status = 1;
-            DB::table('multi_order')->where('order_id',$id)->update(['status'=>1]);
-            $order->save();
+            
+            // Reverse user points
             $user = User::find($order->user_id);
             if ($user !== null) {
                 $user->point -= $order->point;
                 $user->update();
             }
-            if ($isBulk) { return true; }
-            notify()->success("Order status processing successfully", "Congratulations");
-            return back();
-        } elseif ($order->status == 0) {
-            $order->status = 1;
-            DB::table('multi_order')->where('order_id',$id)->update(['status'=>1]);
-            $order->save();
+        
+        // Case 2: Moving from Cancelled (2) to Processing (1)
+        // This reverses the cancellation. We must DECREASE stock again.
+        } elseif ($order->status == 2) {
+            Log::info("Order {$id}: Changing status from Cancelled(2) to Processing(1)");
+            // Original logic calls return_helper, which now correctly calls decreaseProductStock.
+            $this->helperService->return_helper($order);
             $this->notificationService->sendNotification('pross',$order->invoice,$order->user_id);
             if ($isBulk) { return true; }
             notify()->success("Order status processing successfully", "Congratulations");
             return back();
-        } elseif ($order->status == 2) {
-            $this->helperService->return_helper($order);
-            $this->notificationService->sendNotification('cancel',$order->invoice,$order->user_id);
-            if ($isBulk) { return true; }
-            notify()->success("Order status processing successfully", "Congratulations");
+            
+        // Case 3: Moving from Pending (0) to Processing (1)
+        // This is the standard flow. No stock change needed.
+        } elseif ($order->status == 0) {
+            Log::info("Order {$id}: Changing status from Pending(0) to Processing(1)");
+            // No stock change, just update status
+        
+        } else {
+            if ($isBulk) { return false; }
+            notify()->warning("This order status is not valid for this action", "Something Wrong");
             return back();
         }
 
-        if ($isBulk) { return false; }
-        notify()->warning("This order status not pending", "Something Wrong");
+        // Common status update for cases 0 and 3
+        $order->status = 1;
+        DB::table('multi_order')->where('order_id',$id)->update(['status'=>1]);
+        $order->save();
+        $this->notificationService->sendNotification('pross',$order->invoice,$order->user_id);
+        if ($isBulk) { return true; }
+        notify()->success("Order status processing successfully", "Congratulations");
         return back();
     }
     
@@ -150,7 +174,9 @@ class OrderStatusManager
         DB::table('multi_order')->where('order_id',$id)->update(['status'=>4]);
         $order->save();
 
-        DB::table('multi_order')->where('order_id',$id)->where('vendor_id',auth()->id())->update(['status'=>4]);
+        // This line seems vendor-specific, might need review if admin is not a vendor
+        // DB::table('multi_order')->where('order_id',$id)->where('vendor_id',auth()->id())->update(['status'=>4]);
+        
         $this->notificationService->sendNotification('shipping',$order->invoice,$order->user_id);
         if ($isBulk) { return true; }
         notify()->success("Order status Shipping successfully", "Congratulations");
@@ -169,6 +195,7 @@ class OrderStatusManager
         $order = Order::findOrFail($id);
         
         if ($order->status == 0 || $order->status == 1) {
+            Log::info("Order {$id}: Changing status to Cancelled(2)");
             $this->helperService->cancel_helper($order);
             $this->notificationService->sendNotification('cancel',$order->invoice,$order->user_id);
             if ($isBulk) { return true; }
@@ -182,7 +209,7 @@ class OrderStatusManager
     }
     
     /**
-     * Change order status pending/processing to delivered
+     * Change order status to delivered
      *
      * @param  mixed $id
      * @param  bool $isBulk
@@ -191,9 +218,25 @@ class OrderStatusManager
     public function statusDelivered($id, $isBulk = false)
     {
         $order = Order::findOrFail($id);
-        if ($order->status == 0 || $order->status == 1 || $order->status == 4) {
-            
-            $this->helperService->cancel_helper($order);
+        $wasCancelled = ($order->status == 2);
+        
+        // Valid previous statuses: Pending(0), Processing(1), Shipping(4), or reversing a Cancel(2)
+        if ($order->status == 0 || $order->status == 1 || $order->status == 4 || $order->status == 2) {
+            Log::info("Order {$id}: Changing status to Delivered(3) from ({$order->status})");
+
+            // If it was cancelled(2), we need to reverse the stock and payment cancellation.
+            if ($wasCancelled) {
+                // We need to DECREASE stock again (undoing the cancellation restock).
+                foreach ($order->orderDetails as $item) {
+                    $product = Product::find($item->product_id);
+                    if ($product) {
+                        $this->helperService->decreaseProductStock($product, $item); // Use the new helper
+                    }
+                }
+            }
+
+            // Pay the vendor (this logic moves from pending to final)
+            // This runs whether it was cancelled or not, as it pays out the final amount.
             foreach ($order->orderDetails as $item) {
                 $product = Product::find($item->product_id);
                 if ($product) {
@@ -207,33 +250,38 @@ class OrderStatusManager
                     else {
                         $grand_total = $item->g_total;
                         $admin_amount = Commission::where('order_id',$order->id)->first();
-                        $admin_amount->status = 1;
-                        $admin_amount->update();
-                        $adminAccount = VendorAccount::where('vendor_id', 1)->first();
-                        $vendor_amount = $grand_total;
-                        $amount = $adminAccount->amount;
+                        
+                        if($admin_amount) { // Check if commission record exists
+                            $admin_amount->status = 1;
+                            $admin_amount->update();
+                            $adminAccount = VendorAccount::where('vendor_id', 1)->first();
+                            $vendor_amount = $grand_total;
+                            $amount = $adminAccount->amount;
 
-                        $vendor->vendorAccount()->update([
-                            'amount' => $vendor->vendorAccount->amount + $vendor_amount
-                        ]);
+                            $vendor->vendorAccount()->update([
+                                'amount' => $vendor->vendorAccount->amount + $vendor_amount
+                            ]);
+                            $adminAccount->update([
+                                'amount' => $amount + $admin_amount->amount
+                            ]);
+                        }
                     }
                     
-                    $product->quantity = $product->quantity - $item->qty;
-                    $product->save();
+                    // DO NOT TOUCH STOCK HERE. 
+                    // Stock was reduced on initial order placement.
+                    // The only exception is reversing a cancellation, which is done above.
                 }
             }
-            if ($vendor->role_id != 1) {
-                $adminAccount->update([
-                    'amount' => $amount + $admin_amount->amount
-                ]);
-            }
+            
             $order->status = 3;
             DB::table('multi_order')->where('order_id',$id)->update(['status'=>3]);
             $order->save();
             $user = User::find($order->user_id);
             if ($user !== null) {
                 $user->point += $order->point;
-                if($order->payment_method == 'wallate') {
+                // If it was a cancelled wallet order, helper_cancel would have refunded.
+                // Now we take the money back from the wallet.
+                if($order->payment_method == 'wallate' && $wasCancelled) {
                     $user->wallate = $user->wallate - $order->total;
                 }
                 $user->save();
@@ -259,12 +307,16 @@ class OrderStatusManager
                     'orderDetails'    => $order->orderDetails,
                     'phone'           => $order->phone,
                 ];
-                Mail::send('frontend.invoice-mail', $data, function($mail) use ($data)
-                {
-                    $mail->from(config('mail.from.address'),  config('app.name'))
-                        ->to($data['email'], $data['name'])
-                        ->subject('Order Invoice');
-                });
+                try {
+                    Mail::send('frontend.invoice-mail', $data, function($mail) use ($data)
+                    {
+                        $mail->from(config('mail.from.address'),  config('app.name'))
+                            ->to($data['email'], $data['name'])
+                            ->subject('Order Invoice');
+                    });
+                } catch (\Exception $e) {
+                    Log::error("Order {$id}: Failed to send invoice email. " . $e->getMessage());
+                }
             }
             $this->notificationService->sendNotification('delevery',$order->invoice,$order->user_id);
             if ($isBulk) { return true; }
@@ -272,7 +324,7 @@ class OrderStatusManager
             return back();
         }
         if ($isBulk) { return false; }
-        notify()->warning("This order status not pending/processing", "Something Wrong");
+        notify()->warning("This order status cannot be set to delivered", "Something Wrong");
         return back();
     }
    
@@ -286,13 +338,13 @@ class OrderStatusManager
             $order->status = 7; // return accept status
             DB::table('multi_order')->where('order_id', $id)->update(['status' => 7]);
             $order->save();
-            $this->notificationService->sendNotification('delevery', $order->invoice, $order->user_id);
+            $this->notificationService->sendNotification('return_accept', $order->invoice, $order->user_id);
             if ($isBulk) { return true; }
             notify()->success("Order return accepted successfully", "Congratulations");
             return back();
         }
         if ($isBulk) { return false; }
-        notify()->warning("This order status not return accepted", "Something Wrong");
+        notify()->warning("This order status not return requested", "Something Wrong");
         return back();
     }
     
@@ -307,13 +359,21 @@ class OrderStatusManager
             DB::table('multi_order')->where('order_id', $id)->update(['status' => 8]);
             $order->save();
             
-            $this->notificationService->sendNotification('delevery', $order->invoice, $order->user_id);
+            // When return is complete, we should restock the item.
+            foreach ($order->orderDetails as $item) {
+                $product = Product::find($item->product_id);
+                if ($product) {
+                    $this->helperService->increaseProductStock($product, $item);
+                }
+            }
+            
+            $this->notificationService->sendNotification('return_complete', $order->invoice, $order->user_id);
             if ($isBulk) { return true; }
             notify()->success("Order Returned back successfully", "Congratulations");
             return back();
         }
         if ($isBulk) { return false; }
-        notify()->warning("This order retrun system not completed yet", "Something Wrong");
+        notify()->warning("This order return system not completed yet", "Something Wrong");
         return back();
     }
 
@@ -324,6 +384,8 @@ class OrderStatusManager
     {
         $order = Order::find($request->order);
         if($order->refund_method == null) {
+            // This implies this is the FIRST refund action.
+            // refund_helper will RESTOCK the item.
             $this->helperService->refund_helper($order);
             foreach ($order->orderDetails as $item) {
                 $product = Product::find($item->product_id);
@@ -338,26 +400,35 @@ class OrderStatusManager
                     else {
                         $grand_total = $item->g_total;
                         $admin_amount = Commission::where('order_id',$order->id)->first();
-                        $admin_amount->status = 0;
-                        $admin_amount->update();
-                        $adminAccount = VendorAccount::where('vendor_id', 1)->first();
-                        $vendor_amount = $grand_total ;
-                        $amount = $adminAccount->amount;
+                        if ($admin_amount) {
+                            $admin_amount->status = 0;
+                            $admin_amount->update();
+                            $adminAccount = VendorAccount::where('vendor_id', 1)->first();
+                            $vendor_amount = $grand_total ;
+                            $amount = $adminAccount->amount;
 
-                        $vendor->vendorAccount()->update([
-                            'amount' => $vendor->vendorAccount->amount - $vendor_amount
-                        ]);
+                            $vendor->vendorAccount()->update([
+                                'amount' => $vendor->vendorAccount->amount - $vendor_amount
+                            ]);
+                            
+                            $adminAccount->update([
+                                'amount' => $amount - $admin_amount->amount
+                            ]);
+                        }
                     }
                     
-                    $product->quantity = $product->quantity - $item->qty;
-                    $product->save();
+                    // The helper service already restocked.
+                    // This manual stock reduction is a BUG.
+                    // $product->quantity = $product->quantity - $item->qty;
+                    // $product->save();
                 }
             }
-            if ($vendor->role_id != 1) {
-                $adminAccount->update([
-                    'amount' => $amount - $admin_amount->amount
-                ]);
-            }
+            // This logic is also buggy.
+            // if ($vendor->role_id != 1) {
+            //     $adminAccount->update([
+            //         'amount' => $amount - $admin_amount->amount
+            //     ]);
+            // }
             $order->status = 5;
             DB::table('multi_order')->where('order_id',$order->id)->update(['status'=>5]);
             $order->refund_amount = $request->amount;
@@ -372,6 +443,7 @@ class OrderStatusManager
                 $user->update();
             }
         } else {
+            // Order already refunded, just updating details
             $order->status = 5;
             DB::table('multi_order')->where('order_id',$order->id)->update(['status'=>5]);
             $order->refund_amount = $request->amount;
@@ -383,6 +455,7 @@ class OrderStatusManager
                 $user->update();
             }
         }
+        $this->notificationService->sendNotification('refund',$order->invoice,$order->user_id);
         notify()->success("Order Refund successfully", "Congratulations");
         return back();
     }
@@ -403,7 +476,7 @@ class OrderStatusManager
             $user->wallate = $user->wallate + $request->amount;
             $user->update();
         }
-        
+        $this->notificationService->sendNotification('refund',$order->invoice,$order->user_id);
         notify()->success("Order Refund successfully", "Congratulations");
         return back();
     }
@@ -492,7 +565,7 @@ class OrderStatusManager
 
                 } catch (\Exception $e) {
                     $failedCount++;
-                    $errors[] = "Order ID {$orderId}: " . $e->getMessage();
+                    $errors[] = "Order ID {$orderId}: ". substr($e->getMessage(), 0, 100) . "...";
                     Log::error("Bulk update failed for order {$orderId}: " . $e->getMessage());
                 }
             }

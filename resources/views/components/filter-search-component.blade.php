@@ -19,7 +19,7 @@
                 ->where('slug', $request->mini_category)
                 ->first();
             $datan = DB::table('sub_categories')
-                ->where('id', $data->category_id)
+                ->where('id', $data->sub_category_id)
                 ->first();
             $cidn = $datan->category_id;
 
@@ -33,10 +33,10 @@
                 ->where('slug', $request->extra_category)
                 ->first();
             $mini = DB::table('mini_categories')
-                ->where('id', $data->category_id)
+                ->where('id', $data->mini_category_id)
                 ->first();
             $datas = DB::table('sub_categories')
-                ->where('id', $mini->category_id)
+                ->where('id', $mini->sub_category_id)
                 ->first();
             $cidn = $datas->category_id;
 
@@ -98,7 +98,7 @@
             $input = 'mini_category';
             $mini = DB::table('mini_categories')->where('slug', $value)->first();
             $data = DB::table('sub_categories')
-                ->where('id', $mini->category_id)
+                ->where('id', $mini->sub_category_id)
                 ->first();
             $cidn = $data->category_id;
         @endphp
@@ -112,7 +112,7 @@
                 ->where('id', $emini->mini_category_id)
                 ->first();
             $data = DB::table('sub_categories')
-                ->where('id', $mini->category_id)
+                ->where('id', $mini->sub_category_id)
                 ->first();
             $cidn = $data->category_id;
         @endphp
@@ -218,7 +218,7 @@
                     @endforeach
                 @endif
                 @if ($input == 'sub_category')
-                    @foreach (App\Models\miniCategory::where('category_id', $idn)->get() as $cat)
+                    @foreach (App\Models\miniCategory::where('sub_category_id', $idn)->get() as $cat)
                         <li>
                             <input class="sub_mod" type="radio" id="{{ $cat->slug }}" name="mini_category"
                                 value="{{ $cat->slug }}">

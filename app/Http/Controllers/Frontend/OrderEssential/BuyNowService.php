@@ -107,7 +107,7 @@ class BuyNowService
                 $remainingMinutes = ceil($remainingSeconds / 60);
                 $whatsappNumber = setting('whatsapp') ?? setting('phone') ?? '01XXXXXXXXX';
                 
-                notify()->warning("অপেক্ষা করুন! আপনি ইতিমধ্যে একটা অর্ডার করেছেন। আপনি {$remainingMinutes} মিনিট পর আবার অর্ডার করতে পারবেন। এটি ভুয়া অর্ডার প্রতিরোধের জন্য। অর্ডারের যেকোন পরিবর্তনের জন্য আমাদের WhatsApp {$whatsappNumber} এ নক করুন।", "অর্ডার সীমাবদ্ধতা");
+                notify()->warning("à¦…à¦ªà§‡à¦•à§ à¦·à¦¾ à¦•à¦°à§ à¦¨! à¦†à¦ªà¦¨à¦¿ à¦‡à¦¤à¦¿à¦®à¦§à§ à¦¯à§‡ à¦ à¦•à¦Ÿà¦¾ à¦…à¦°à§ à¦¡à¦¾à¦° à¦•à¦°à§‡à¦›à§‡à¦¨à¥¤ à¦†à¦ªà¦¨à¦¿ {$remainingMinutes} à¦®à¦¿à¦¨à¦¿à¦Ÿ à¦ªà¦° à¦†à¦¬à¦¾à¦° à¦…à¦°à§ à¦¡à¦¾à¦° à¦•à¦°à¦¤à§‡ à¦ªà¦¾à¦°à¦¬à§‡à¦¨à¥¤ à¦ à¦Ÿà¦¿ à¦­à§ à¦¯à¦¼à¦¾ à¦…à¦°à§ à¦¡à¦¾à¦° à¦ªà§ à¦°à¦¤à¦¿à¦°à§‹à¦§à§‡à¦° à¦œà¦¨à§ à¦¯à¥¤ à¦…à¦°à§ à¦¡à¦¾à¦°à§‡à¦° à¦¯à§‡à¦•à§‹à¦¨ à¦ªà¦°à¦¿à¦¬à¦°à§ à¦¤à¦¨à§‡à¦° à¦œà¦¨à§ à¦¯ à¦†à¦®à¦¾à¦¦à§‡à¦° WhatsApp {$whatsappNumber} à¦  à¦¨à¦• à¦•à¦°à§ à¦¨à¥¤", "à¦…à¦°à§ à¦¡à¦¾à¦° à¦¸à§€à¦®à¦¾à¦¬à¦¦à§ à¦§à¦¤à¦¾");
                 return redirect()->back();
             }
         }
@@ -155,7 +155,7 @@ class BuyNowService
             'product_id'  => $product->id,
             'seller_id'   => $product->user_id,
             'title'       => $product->title,
-            'color'       => $request->color,
+            'color'       => $request->color ?? 'blank',
             'size'        => $request->size,
             'qty'         => $request->qty,
             'price'       => $price,
@@ -230,7 +230,7 @@ class BuyNowService
             $remainingMinutes = ceil($remainingSeconds / 60);
             $whatsappNumber = setting('whatsapp') ?? setting('phone') ?? '01XXXXXXXXX';
             
-            notify()->warning("অপেক্ষা করুন! আপনি ইতিমধ্যে একটা অর্ডার করেছেন। আপনি {$remainingMinutes} মিনিট পর আবার অর্ডার করতে পারবেন। এটি ভুয়া অর্ডার প্রতিরোধের জন্য। অর্ডারের যেকোন পরিবর্তনের জন্য আমাদের WhatsApp {$whatsappNumber} এ নক করুন।", "অর্ডার সীমাবদ্ধতা");
+            notify()->warning("à¦…à¦ªà§‡à¦•à§ à¦·à¦¾ à¦•à¦°à§ à¦¨! à¦†à¦ªà¦¨à¦¿ à¦‡à¦¤à¦¿à¦®à¦§à§ à¦¯à§‡ à¦ à¦•à¦Ÿà¦¾ à¦…à¦°à§ à¦¡à¦¾à¦° à¦•à¦°à§‡à¦›à§‡à¦¨à¥¤ à¦†à¦ªà¦¨à¦¿ {$remainingMinutes} à¦®à¦¿à¦¨à¦¿à¦Ÿ à¦ªà¦° à¦†à¦¬à¦¾à¦° à¦…à¦°à§ à¦¡à¦¾à¦° à¦•à¦°à¦¤à§‡ à¦ªà¦¾à¦°à¦¬à§‡à¦¨à¥¤ à¦ à¦Ÿà¦¿ à¦­à§ à¦¯à¦¼à¦¾ à¦…à¦°à§ à¦¡à¦¾à¦° à¦ªà§ à¦°à¦¤à¦¿à¦°à§‹à¦§à§‡à¦° à¦œà¦¨à§ à¦¯à¥¤ à¦…à¦°à§ à¦¡à¦¾à¦°à§‡à¦° à¦¯à§‡à¦•à§‹à¦¨ à¦ªà¦°à¦¿à¦¬à¦°à§ à¦¤à¦¨à§‡à¦° à¦œà¦¨à§ à¦¯ à¦†à¦®à¦¾à¦¦à§‡à¦° WhatsApp {$whatsappNumber} à¦  à¦¨à¦• à¦•à¦°à§ à¦¨à¥¤", "à¦…à¦°à§ à¦¡à¦¾à¦° à¦¸à§€à¦®à¦¾à¦¬à¦¦à§ à¦§à¦¤à¦¾");
             return redirect()->back();
         }
 
@@ -527,10 +527,10 @@ class BuyNowService
                 ]);
             }
             
-            // Update product quantity
+            // === UPDATED STOCK REDUCTION LOGIC ===
+            // Reduce stock based on product variation type
             if ($product->quantity >= $request->qty) {
-                $product->quantity = $product->quantity - $request->qty;
-                $product->save();
+                $this->reduceProductStock($product, $request);
             }
         }
     }
@@ -550,6 +550,74 @@ class BuyNowService
             $order->point += $point;
             $order->save();
         }
+    }
+
+
+    /**
+     * Reduce stock for product based on variation type
+     * Handles: Color-Size, Size-Only, Attributes, and Simple products
+     */
+    private function reduceProductStock($product, $request)
+    {
+        $quantity = $request->qty;
+        $colorId = $request->color ?? null;
+        $sizeId = $request->size_id ?? null;
+        $attributeValueId = $request->attribute_value_id ?? null;
+        
+        // Priority 1: Check for Color-Size variation
+        if ($colorId && $sizeId) {
+            // Reduce from color_size_product table
+            DB::table('color_size_product')
+                ->where('product_id', $product->id)
+                ->where('color_id', $colorId)
+                ->where('size_id', $sizeId)
+                ->decrement('quantity', $quantity);
+            
+            \Log::info('Stock reduced: Color-Size (BuyNow)', [
+                'product_id' => $product->id,
+                'color_id' => $colorId,
+                'size_id' => $sizeId,
+                'quantity' => $quantity
+            ]);
+        }
+        // Priority 2: Check for Size-Only variation (no color)
+        elseif (!$colorId && $sizeId) {
+            // Reduce from color_size_product table where color_id IS NULL
+            DB::table('color_size_product')
+                ->where('product_id', $product->id)
+                ->where('size_id', $sizeId)
+                ->whereNull('color_id')
+                ->decrement('quantity', $quantity);
+            
+            \Log::info('Stock reduced: Size-Only (BuyNow)', [
+                'product_id' => $product->id,
+                'size_id' => $sizeId,
+                'quantity' => $quantity
+            ]);
+        }
+        // Priority 3: Check for Attribute variation
+        elseif ($attributeValueId) {
+            // Reduce from attribute_product table
+            DB::table('attribute_product')
+                ->where('product_id', $product->id)
+                ->where('attribute_value_id', $attributeValueId)
+                ->decrement('qnty', $quantity);
+            
+            \Log::info('Stock reduced: Attribute (BuyNow)', [
+                'product_id' => $product->id,
+                'attribute_value_id' => $attributeValueId,
+                'quantity' => $quantity
+            ]);
+        }
+        
+        // Always reduce from main product quantity (for all product types)
+        $product->decrement('quantity', $quantity);
+        
+        \Log::info('Stock reduced: Main product quantity (BuyNow)', [
+            'product_id' => $product->id,
+            'quantity' => $quantity,
+            'remaining_stock' => $product->fresh()->quantity
+        ]);
     }
 
     private function prepareOrderData($order, $request)
@@ -664,7 +732,7 @@ class BuyNowService
             'product_id'  => $product->id,
             'seller_id'   => $product->user_id,
             'title'       => $product->title,
-            'color'       => $request->color,
+            'color'       => $request->color ?? 'blank',
             'size'        => $request->size,
             'qty'         => $request->qty,
             'price'       => $price,
@@ -804,7 +872,7 @@ class BuyNowService
             'cus_postcode' => $request->postcode,
             'cus_country' => 'Bangladesh',
             'cus_phone' => $request->phone,
-            'cus_fax' => 'Not¬Applicable',
+            'cus_fax' => 'NotÂ¬Applicable',
             'ship_name' => $request->first_name . $request->last_name,
             'ship_add1' => $request->address,
             'ship_add2' => $request->address,

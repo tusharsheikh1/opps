@@ -259,3 +259,4 @@ Route::get('/cache', function () {
 })->name('system.cache.clear');
 
 Route::get('/{slug}', [pageController::class, 'pageshow'])->name('page');
+

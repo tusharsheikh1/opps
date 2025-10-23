@@ -196,7 +196,6 @@
 @endpush
 
 @section('content')
-    <!-- Content Header (Page header) -->
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -210,18 +209,13 @@
                     </ol>
                 </div>
             </div>
-        </div><!-- /.container-fluid -->
-    </section>
+        </div></section>
 
-    <!-- Notification Container -->
     <div class="notification-container" id="notificationContainer">
-        <!-- Notifications will be inserted here -->
-    </div>
+        </div>
 
-    <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
-            <!-- Display Flash Messages -->
             @if(session('success') || session('error') || session('warning') || session('info'))
                 <div class="row">
                     <div class="col-12">
@@ -268,7 +262,6 @@
                 </div>
             @endif
 
-            <!-- Display Validation Errors -->
             @if($errors->any())
                 <div class="row">
                     <div class="col-12">
@@ -336,13 +329,11 @@
                                     <i class="btn btn-info btn-sm">Courierd Already</i>
                                 @endif
 
-                                <!-- Edit Order Button -->
                                 <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editOrderModal">
                                     <i class="fas fa-edit"></i>
                                     Edit Order
                                 </button>
 
-                                <!-- Custom SMS Button -->
                                 @if(!empty($order->phone))
                                     <button type="button" class="btn btn-purple btn-sm" data-toggle="modal" data-target="#smsModal">
                                         <i class="fas fa-sms"></i>
@@ -458,8 +449,7 @@
                                                 <a href="tel:{{ $order->phone }}" class="text-decoration-none">
                                                     <i class="fas fa-phone text-success"></i> {{ $order->phone }}
                                                 </a>
-                                                
-                                                <!-- Order History Badge -->
+
                                                 @php
                                                     $cleanPhone = preg_replace('/[^0-9+]/', '', $order->phone);
                                                     $phoneOrderCount = \App\Models\Order::where(function($query) use ($order, $cleanPhone) {
@@ -476,7 +466,7 @@
                                                     })->count();
                                                 @endphp
                                                 @if($phoneOrderCount > 1)
-                                                    <span class="badge badge-primary cursor-pointer" 
+                                                    <span class="badge badge-primary cursor-pointer"
                                                           title="Click to view {{ $phoneOrderCount }} orders from this customer"
                                                           onclick="showPhoneHistory('{{ $order->phone }}')"
                                                           data-toggle="tooltip"
@@ -484,16 +474,14 @@
                                                         {{ $phoneOrderCount }} orders
                                                     </span>
                                                 @endif
-                                                
-                                                <!-- Courier History Button -->
-                                                <button type="button" class="btn btn-xs btn-outline-info" 
+
+                                                <button type="button" class="btn btn-xs btn-outline-info"
                                                         onclick="showPhoneHistory('{{ $order->phone }}')"
                                                         title="View courier delivery history">
                                                     <i class="fas fa-shipping-fast"></i> History
                                                 </button>
                                             </div>
-                                            
-                                            <!-- Courier Success Rate Card -->
+
                                             <div class="courier-success-card loading" id="courierSuccessCard" data-phone="{{ $order->phone }}">
                                                 <div class="loading-spinner"></div>
                                                 <div class="success-label">Loading...</div>
@@ -627,7 +615,6 @@
                 </div>
             </div>
 
-            <!-- Edit Order Modal -->
             <div class="modal fade" id="editOrderModal" tabindex="-1" role="dialog" aria-labelledby="editOrderModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl" role="document">
                     <div class="modal-content">
@@ -644,84 +631,81 @@
                             @method('PUT')
                             <div class="modal-body">
                                 <div class="row">
-                                    <!-- Customer Information -->
                                     <div class="col-md-6">
                                         <h6 class="text-primary"><i class="fas fa-user"></i> Customer Information</h6>
                                         <hr>
-                                        
+
                                         <div class="form-group">
                                             <label for="first_name">First Name <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="first_name" name="first_name" 
+                                            <input type="text" class="form-control" id="first_name" name="first_name"
                                                    value="{{ old('first_name', $order->first_name) }}" required>
                                         </div>
-                                        
+
                                         <div class="form-group">
                                             <label for="last_name">Last Name</label>
-                                            <input type="text" class="form-control" id="last_name" name="last_name" 
+                                            <input type="text" class="form-control" id="last_name" name="last_name"
                                                    value="{{ old('last_name', $order->last_name) }}">
                                         </div>
-                                        
+
                                         <div class="form-group">
                                             <label for="email">Email</label>
-                                            <input type="email" class="form-control" id="email" name="email" 
+                                            <input type="email" class="form-control" id="email" name="email"
                                                    value="{{ old('email', $order->email) }}">
                                         </div>
-                                        
+
                                         <div class="form-group">
                                             <label for="phone">Phone <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="phone" name="phone" 
+                                            <input type="text" class="form-control" id="phone" name="phone"
                                                    value="{{ old('phone', $order->phone) }}" required>
                                         </div>
                                     </div>
-                                    
-                                    <!-- Address Information -->
+
                                     <div class="col-md-6">
                                         <h6 class="text-success"><i class="fas fa-map-marker-alt"></i> Address Information</h6>
                                         <hr>
-                                        
+
                                         <div class="form-group">
                                             <label for="address">Address <span class="text-danger">*</span></label>
                                             <textarea class="form-control" id="address" name="address" rows="3" required>{{ old('address', $order->address) }}</textarea>
                                         </div>
-                                        
+
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="town">Town/City</label>
-                                                    <input type="text" class="form-control" id="town" name="town" 
+                                                    <input type="text" class="form-control" id="town" name="town"
                                                            value="{{ old('town', $order->town) }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="district">District</label>
-                                                    <input type="text" class="form-control" id="district" name="district" 
+                                                    <input type="text" class="form-control" id="district" name="district"
                                                            value="{{ old('district', $order->district) }}">
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="form-group">
                                             <label for="post_code">Post Code</label>
-                                            <input type="text" class="form-control" id="post_code" name="post_code" 
+                                            <input type="text" class="form-control" id="post_code" name="post_code"
                                                    value="{{ old('post_code', $order->post_code) }}">
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row">
-                                    <!-- Order Details -->
                                     <div class="col-md-8">
                                         <h6 class="text-info"><i class="fas fa-receipt"></i> Order Details</h6>
                                         <hr>
-                                        
+
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="shipping_charge">Shipping Charge</label>
                                                     <div class="input-group">
-                                                        <input type="number" class="form-control" id="shipping_charge" 
-                                                               name="shipping_charge" step="0.01" min="0" 
+                                                        <input type="number" class="form-control" id="shipping_charge"
+                                                               name="shipping_charge" step="0.01" min="0"
                                                                value="{{ old('shipping_charge', $order->shipping_charge) }}">
                                                         <div class="input-group-append">
                                                             <span class="input-group-text">{{ setting('CURRENCY_CODE_MIN') ?? 'TK' }}</span>
@@ -733,8 +717,8 @@
                                                 <div class="form-group">
                                                     <label for="discount">Discount</label>
                                                     <div class="input-group">
-                                                        <input type="number" class="form-control" id="discount" 
-                                                               name="discount" step="0.01" min="0" 
+                                                        <input type="number" class="form-control" id="discount"
+                                                               name="discount" step="0.01" min="0"
                                                                value="{{ old('discount', $order->discount) }}">
                                                         <div class="input-group-append">
                                                             <span class="input-group-text">{{ setting('CURRENCY_CODE_MIN') ?? 'TK' }}</span>
@@ -743,14 +727,13 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="form-group">
                                             <label for="coupon_code">Coupon Code</label>
-                                            <input type="text" class="form-control" id="coupon_code" name="coupon_code" 
+                                            <input type="text" class="form-control" id="coupon_code" name="coupon_code"
                                                    value="{{ old('coupon_code', $order->coupon_code) }}">
                                         </div>
-                                        
-                                        <!-- Order Summary Display -->
+
                                         <div class="card">
                                             <div class="card-body">
                                                 <h6 class="card-title">Order Summary</h6>
@@ -775,22 +758,20 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <!-- Admin Notes -->
+
                                     <div class="col-md-4">
                                         <h6 class="text-secondary"><i class="fas fa-sticky-note"></i> Admin Notes</h6>
                                         <hr>
-                                        
+
                                         <div class="form-group">
                                             <label for="admin_notes">Internal Notes</label>
-                                            <textarea class="form-control" id="admin_notes" name="admin_notes" 
+                                            <textarea class="form-control" id="admin_notes" name="admin_notes"
                                                       rows="8" placeholder="Add internal notes about this order...">{{ old('admin_notes', $order->admin_notes) }}</textarea>
                                             <small class="form-text text-muted">
                                                 These notes are only visible to admin users and won't be shared with customers.
                                             </small>
                                         </div>
-                                        
-                                        <!-- Change Log Preview -->
+
                                         <div class="alert alert-light">
                                             <small>
                                                 <strong>Last Updated:</strong><br>
@@ -813,7 +794,6 @@
                 </div>
             </div>
 
-            <!-- Enhanced Phone History Modal with Courier Integration -->
             <div class="modal fade" id="phoneHistoryModal" tabindex="-1" role="dialog" aria-labelledby="phoneHistoryModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl" role="document">
                     <div class="modal-content">
@@ -826,15 +806,13 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <!-- Loading State -->
                             <div id="historyLoading" class="text-center py-4">
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="sr-only">Loading...</span>
                                 </div>
                                 <p class="mt-2 text-muted">Loading customer history...</p>
                             </div>
-                            
-                            <!-- Risk Assessment Alert -->
+
                             <div id="riskAssessment" style="display: none;" class="mb-3">
                                 <div class="alert risk-indicator" id="riskAlert">
                                     <div class="row align-items-center">
@@ -849,7 +827,6 @@
                                 </div>
                             </div>
 
-                            <!-- Courier History Section -->
                             <div id="courierHistorySection" style="display: none;">
                                 <div class="card mb-4">
                                     <div class="card-header bg-light">
@@ -859,7 +836,6 @@
                                         </h6>
                                     </div>
                                     <div class="card-body">
-                                        <!-- Overall Stats -->
                                         <div class="courier-stats">
                                             <div class="row text-center">
                                                 <div class="col-md-3">
@@ -889,7 +865,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- Courier Details Table -->
                                         <div class="table-responsive">
                                             <table class="table table-sm table-bordered table-hover">
                                                 <thead class="thead-dark">
@@ -902,21 +877,18 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody id="courierDetailsTable">
-                                                    <!-- Courier details will be populated here -->
-                                                </tbody>
+                                                    </tbody>
                                             </table>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- No Courier Data -->
                             <div id="noCourierData" style="display: none;" class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 <strong>No courier data available:</strong> Unable to fetch delivery history from courier services. This might be a new customer or the courier API is temporarily unavailable.
                             </div>
-                            
-                            <!-- Customer Summary (Our Store Orders) -->
+
                             <div id="customerSummary" style="display: none;">
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
@@ -951,7 +923,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="row">
                                             <div class="col-md-3">
                                                 <div class="text-center">
@@ -981,8 +953,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- Orders Table -->
+
                             <div id="ordersContainer" style="display: none;">
                                 <div class="card">
                                     <div class="card-header">
@@ -1003,15 +974,13 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody id="historyOrdersList">
-                                                    <!-- Orders will be populated here -->
-                                                </tbody>
+                                                    </tbody>
                                             </table>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- No Orders Found -->
+
                             <div id="noOrders" style="display: none;" class="text-center py-4">
                                 <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                 <h5 class="text-muted">No orders found</h5>
@@ -1027,7 +996,6 @@
                 </div>
             </div>
 
-            <!-- SMS Modal -->
             <div class="modal fade" id="smsModal" tabindex="-1" role="dialog"
                 aria-labelledby="smsModalTitle" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" role="document">
@@ -1045,7 +1013,7 @@
                             @csrf
                             <div class="modal-body">
                                 <input type="hidden" name="order_id" value="{{ $order->id }}">
-                                
+
                                 <div class="form-group">
                                     <label for="customer_info"><i class="fas fa-info-circle text-info"></i> Customer Info:</label>
                                     <div class="alert alert-info">
@@ -1072,9 +1040,9 @@
 
                                 <div class="form-group">
                                     <label for="message"><i class="fas fa-edit text-primary"></i> SMS Message: <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" name="message" id="message" rows="4" 
-                                              placeholder="Type your custom message here..." 
-                                              maxlength="500" required 
+                                    <textarea class="form-control" name="message" id="message" rows="4"
+                                              placeholder="Type your custom message here..."
+                                              maxlength="500" required
                                               oninput="updateCharCount()"></textarea>
                                     <small class="form-text text-muted">
                                         <span id="charCount">0</span>/500 characters
@@ -1181,7 +1149,8 @@
                         @php($us = App\Models\User::find($vendor->vendor_id))
                         <div class="gx" style="">
                             <div>
-                                Seller:{{ $us->name }}
+                                {{-- FIX: Add null check for vendor user --}}
+                                Seller: {{ $us->name ?? 'N/A (ID: ' . $vendor->vendor_id . ')' }}
                             </div>
                             <div>
                                 Total:{{ $vendor->total }}
@@ -1249,12 +1218,13 @@
                                             <tr>
                                                 <td>{{ $key + 1 }}</td>
                                                 <td>
-                                                    <img src="{{ asset('uploads/product/' . $item->product->image) }}"
+                                                    <img src="{{ asset('uploads/product/' . ($item->product->image ?? 'default.png')) }}" {{-- Add fallback image --}}
                                                         alt="Product Image" width="80px" height="80px">
                                                 </td>
                                                 <td>
-                                                    <a href="{{ route('admin.product.show', $item->product->id) }}"
+                                                    <a href="{{ isset($item->product) ? route('admin.product.show', $item->product->id) : '#' }}" {{-- Check if product exists --}}
                                                         target="_blank">{{ $item->title }}</a>
+                                                        @if(!isset($item->product)) <span class="badge badge-danger">Deleted</span> @endif {{-- Indicate if product deleted --}}
                                                 </td>
                                                 <td><?php
                                                 $data = json_decode($item->size);
@@ -1262,8 +1232,13 @@
                                                     foreach ($data as $key => $attr) {
                                                         $value = DB::table('attribute_values')->where('id', $attr)->first();
                                                         $name = DB::table('attributes')->where('slug', $key)->first();
-                                                        if ($name) {
+                                                        // FIX: Add null checks for both $name and $value
+                                                        if ($name && $value) {
                                                             echo $vl = $name->name . ':' . $value->name . ', ';
+                                                        } elseif ($name) {
+                                                            echo $vl = $name->name . ': N/A, '; // Value deleted
+                                                        } else {
+                                                             echo $vl = 'Attr N/A: ' . ($value->name ?? 'N/A') . ', '; // Attribute deleted
                                                         }
                                                     }
                                                 }
@@ -1288,11 +1263,8 @@
 
             </div>
 
-        </div><!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
-
-@endsection
+        </div></section>
+    @endsection
 
 @push('js')
 <script>
@@ -1311,17 +1283,17 @@ $(document).ready(function() {
     // Edit Order Form Submission with improved feedback
     $('#editOrderForm').on('submit', function(e) {
         e.preventDefault();
-        
+
         const form = $(this);
         const submitBtn = $('#updateOrderBtn');
         const originalText = submitBtn.html();
-        
+
         // Show loading state
         submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Updating...');
-        
+
         // Clear any existing notifications in the modal
         $('.modal-body .alert').remove();
-        
+
         $.ajax({
             url: form.attr('action'),
             type: 'POST',
@@ -1333,10 +1305,10 @@ $(document).ready(function() {
             success: function(response) {
                 // Show success notification
                 showNotification('success', 'Order updated successfully!');
-                
+
                 // Close modal
                 $('#editOrderModal').modal('hide');
-                
+
                 // Reload page to show updated data
                 setTimeout(function() {
                     window.location.reload();
@@ -1344,7 +1316,7 @@ $(document).ready(function() {
             },
             error: function(xhr) {
                 let errorMessage = 'Failed to update order. Please try again.';
-                
+
                 if (xhr.status === 422) {
                     // Validation errors
                     const errors = xhr.responseJSON.errors;
@@ -1355,7 +1327,7 @@ $(document).ready(function() {
                 } else if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
                 }
-                
+
                 // Show error in modal
                 const errorAlert = `
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -1367,7 +1339,7 @@ $(document).ready(function() {
                     </div>
                 `;
                 $('.modal-body').prepend(errorAlert);
-                
+
                 // Scroll to top of modal to show error
                 $('.modal-body').scrollTop(0);
             },
@@ -1383,7 +1355,7 @@ $(document).ready(function() {
 function loadCourierSuccessRate() {
     const phone = $('#courierSuccessCard').data('phone');
     if (!phone) return;
-    
+
     $.ajax({
         url: '{{ route("admin.order.phone-history") }}',
         type: 'GET',
@@ -1404,12 +1376,12 @@ function loadCourierSuccessRate() {
 // Update courier success rate card
 function updateCourierSuccessCard(courierData) {
     const card = $('#courierSuccessCard');
-    
+
     if (courierData && courierData.success && courierData.data) {
         const data = courierData.data;
         const successRate = data.success_rate;
         const totalOrders = data.total_orders;
-        
+
         let rateClass = 'unknown';
         if (totalOrders === 0) {
             rateClass = 'unknown';
@@ -1420,26 +1392,26 @@ function updateCourierSuccessCard(courierData) {
         } else {
             rateClass = 'low';
         }
-        
+
         card.removeClass('loading').html(`
             <div class="success-rate ${rateClass}">${totalOrders > 0 ? successRate + '%' : 'N/A'}</div>
             <div class="success-label">Delivery Rate</div>
             <div class="order-count">${totalOrders} courier orders</div>
         `);
-        
+
         // Add tooltip
-        card.attr('title', 
-            totalOrders > 0 
+        card.attr('title',
+            totalOrders > 0
                 ? `Courier success rate: ${successRate}% (${data.total_successful}/${totalOrders} delivered)`
                 : 'No courier delivery history found'
         ).tooltip();
-        
+
     } else {
         card.removeClass('loading').addClass('unknown').html(`
             <div class="success-rate unknown">N/A</div>
             <div class="success-label">No Data</div>
         `);
-        
+
         card.attr('title', 'No courier delivery data available').tooltip();
     }
 }
@@ -1447,7 +1419,7 @@ function updateCourierSuccessCard(courierData) {
 function showNotification(type, message) {
     const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
     const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
-    
+
     const notification = `
         <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
             <i class="fas ${icon}"></i>
@@ -1457,9 +1429,9 @@ function showNotification(type, message) {
             </button>
         </div>
     `;
-    
+
     $('#notificationContainer').html(notification);
-    
+
     // Auto-dismiss after 5 seconds
     setTimeout(function() {
         $('#notificationContainer .alert').fadeOut('slow', function() {
@@ -1471,7 +1443,7 @@ function showNotification(type, message) {
 function loadTemplate() {
     const template = document.getElementById('sms_templates').value;
     const messageField = document.getElementById('message');
-    
+
     if (template) {
         messageField.value = template;
         updateCharCount();
@@ -1482,9 +1454,9 @@ function updateCharCount() {
     const message = document.getElementById('message').value;
     const charCount = document.getElementById('charCount');
     const sendBtn = document.getElementById('sendSmsBtn');
-    
+
     charCount.textContent = message.length;
-    
+
     if (message.length > 500) {
         charCount.style.color = 'red';
         sendBtn.disabled = true;
@@ -1498,10 +1470,10 @@ function updateCharCount() {
 function showPhoneHistory(phone) {
     // Show modal
     $('#phoneHistoryModal').modal('show');
-    
+
     // Set phone number in modal title
     document.getElementById('historyPhone').textContent = phone;
-    
+
     // Show loading state and hide all sections
     document.getElementById('historyLoading').style.display = 'block';
     document.getElementById('riskAssessment').style.display = 'none';
@@ -1510,7 +1482,7 @@ function showPhoneHistory(phone) {
     document.getElementById('customerSummary').style.display = 'none';
     document.getElementById('ordersContainer').style.display = 'none';
     document.getElementById('noOrders').style.display = 'none';
-    
+
     // Fetch phone history with courier data
     $.ajax({
         url: '{{ route("admin.order.phone-history") }}',
@@ -1522,22 +1494,22 @@ function showPhoneHistory(phone) {
         },
         success: function(response) {
             document.getElementById('historyLoading').style.display = 'none';
-            
+
             // Show risk assessment
             if (response.risk_assessment) {
                 showRiskAssessment(response.risk_assessment);
             }
-            
+
             // Show courier history
             if (response.courier_history) {
                 showCourierHistory(response.courier_history);
             }
-            
+
             // Show order history (existing functionality)
             if (response.success && response.orders && response.orders.length > 0) {
                 document.getElementById('customerSummary').style.display = 'block';
                 document.getElementById('ordersContainer').style.display = 'block';
-                
+
                 // Populate existing order data
                 const summary = response.summary;
                 document.getElementById('customerName').textContent = summary.primary_name || 'N/A';
@@ -1548,11 +1520,11 @@ function showPhoneHistory(phone) {
                 document.getElementById('pendingOrders').textContent = summary.pending_orders;
                 document.getElementById('cancelledOrders').textContent = summary.cancelled_orders;
                 document.getElementById('avgOrderValue').textContent = '৳' + summary.avg_order_value.toLocaleString();
-                
+
                 // Populate orders table
                 const tbody = document.getElementById('historyOrdersList');
                 tbody.innerHTML = '';
-                
+
                 response.orders.forEach(function(order) {
                     const statusBadge = getStatusBadge(order.status);
                     const row = `
@@ -1572,7 +1544,7 @@ function showPhoneHistory(phone) {
                     `;
                     tbody.innerHTML += row;
                 });
-                
+
             } else {
                 document.getElementById('noOrders').style.display = 'block';
             }
@@ -1590,36 +1562,36 @@ function showRiskAssessment(riskData) {
     const riskAlert = document.getElementById('riskAlert');
     const riskRecommendation = document.getElementById('riskRecommendation');
     const riskBadge = document.getElementById('riskBadge');
-    
+
     // Remove existing risk classes
     riskAlert.classList.remove('risk-high', 'risk-medium', 'risk-low', 'risk-new');
-    
+
     // Set alert class based on risk level
     riskAlert.className = `alert alert-${riskData.color} risk-indicator risk-${riskData.risk_level}`;
     riskRecommendation.textContent = riskData.recommendation;
     riskBadge.className = `badge badge-lg badge-${riskData.color}`;
     riskBadge.textContent = riskData.risk_level.toUpperCase() + ' RISK';
-    
+
     riskSection.style.display = 'block';
 }
 
 function showCourierHistory(courierData) {
     if (courierData.success && courierData.data) {
         const data = courierData.data;
-        
+
         // Show courier section
         document.getElementById('courierHistorySection').style.display = 'block';
-        
+
         // Update overall stats
         document.getElementById('courierTotalOrders').textContent = data.total_orders;
         document.getElementById('courierSuccessful').textContent = data.total_successful;
         document.getElementById('courierCancelled').textContent = data.total_cancelled;
         document.getElementById('courierSuccessRate').textContent = data.success_rate + '%';
-        
+
         // Update success rate color
         const successRateElement = document.getElementById('courierSuccessRate');
         successRateElement.classList.remove('success-rate-high', 'success-rate-medium', 'success-rate-low');
-        
+
         if (data.success_rate >= 85) {
             successRateElement.classList.add('success-rate-high');
         } else if (data.success_rate >= 70) {
@@ -1627,11 +1599,11 @@ function showCourierHistory(courierData) {
         } else {
             successRateElement.classList.add('success-rate-low');
         }
-        
+
         // Populate courier details table
         const tbody = document.getElementById('courierDetailsTable');
         tbody.innerHTML = '';
-        
+
         if (data.couriers && data.couriers.length > 0) {
             data.couriers.forEach(function(courier) {
                 let successRateClass = 'text-secondary';
@@ -1642,7 +1614,7 @@ function showCourierHistory(courierData) {
                 } else if (courier.success_rate > 0) {
                     successRateClass = 'text-danger';
                 }
-                
+
                 const row = `
                     <tr>
                         <td><strong><i class="fas fa-truck text-muted mr-2"></i>${courier.name}</strong></td>
@@ -1657,7 +1629,7 @@ function showCourierHistory(courierData) {
         } else {
             tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted"><i class="fas fa-inbox"></i> No courier data available</td></tr>';
         }
-        
+
     } else {
         document.getElementById('noCourierData').style.display = 'block';
     }
@@ -1676,7 +1648,7 @@ function getStatusBadge(status) {
         8: '<span class="badge badge-dark">Returned</span>',
         9: '<span class="badge badge-success">Sent to Courier</span>'
     };
-    
+
     return statusMap[status] || '<span class="badge badge-secondary">Unknown</span>';
 }
 
@@ -1684,13 +1656,13 @@ function getStatusBadge(status) {
 $(document).ready(function() {
     const subtotal = {{ $order->subtotal }};
     const currency = '{{ setting("CURRENCY_CODE_MIN") ?? "TK" }}';
-    
+
     // Update order summary when shipping or discount changes
     $('#shipping_charge, #discount').on('input', function() {
         const shipping = parseFloat($('#shipping_charge').val()) || 0;
         const discount = parseFloat($('#discount').val()) || 0;
         const total = Math.max(0, subtotal + shipping - discount);
-        
+
         $('#summary_shipping').text(shipping.toFixed(2) + ' ' + currency);
         $('#summary_discount').text('-' + discount.toFixed(2) + ' ' + currency);
         $('#summary_total').text(total.toFixed(2) + ' ' + currency);

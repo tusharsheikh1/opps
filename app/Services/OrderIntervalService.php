@@ -14,7 +14,7 @@ class OrderIntervalService
     const INTERVAL_MINUTES = 0;
     const PRODUCT_RESTRICTION_DAYS = 0; // New constant for product restriction
     const CACHE_PREFIX = 'order_interval_';
-    const CACHE_DURATION = 300; // 5 minutes in seconds
+    const CACHE_DURATION =0; // 5 minutes in seconds
 
     /**
      * NEW: Check if the same product was ordered within the last 10 days

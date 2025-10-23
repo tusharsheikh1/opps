@@ -385,28 +385,188 @@ class ProductController extends Controller
 
         return view('frontend.single-product', compact('product', 'attributes', 'variations', 'campaigns_product', 'allSizes'));
     }
-
-    // add to cart product
-    public function addToCart(Request $request)
+    
+    /**
+     * === NEW METHOD: Product Info for Add to Cart Modal ===
+     * This method returns product information for the add to cart modal
+     */
+    public function productInfo($slug)
     {
-        $this->validate($request, [
-            'id'    => 'required|integer',
-            'qty'   => 'required|integer',
-            'color' => 'required|string|max:20',
-            'size'  => 'required|string|max:20'
-        ]);
-        
-        $user = auth()->user();
-        if ($user->role_id == 2 || $user->role_id == 3) {
+        try {
+            $product = Product::with([
+                'brand',
+                'categories', 
+                'attributes_values.attribute',
+                'images'
+            ])
+            ->where('slug', $slug)
+            ->where('status', true)
+            ->firstOrFail();
+            
+            // Get structured variations data
+            $variations = $product->getVariationsWithStock();
+            
+            // Get all active sizes
+            $allSizes = Size::where('status', true)->orderBy('id')->get();
+            
+            // Get only attribute definitions that are actually assigned to this product
+            $productAttributeIds = $product->attributes_values->pluck('attribute.id')->unique()->filter();
+            $attributes = Attribute::whereIn('id', $productAttributeIds)->get();
+            
+            // Prepare response data
+            $response = [
+                'success' => true,
+                'product' => [
+                    'id' => $product->id,
+                    'title' => $product->title,
+                    'slug' => $product->slug,
+                    'image' => asset('uploads/product/' . $product->image),
+                    'regular_price' => $product->regular_price,
+                    'discount_price' => $product->discount_price,
+                    'total_stock' => $product->getTotalStockAttribute(),
+                    'has_variations' => $product->hasVariations(),
+                ],
+                'variations' => $variations,
+                'attributes' => $attributes,
+                'allSizes' => $allSizes,
+                'images' => $product->images->map(function($img) {
+                    return [
+                        'name' => $img->name,
+                        'url' => asset('uploads/product/' . $img->name),
+                        'color_attri' => $img->color_attri
+                    ];
+                })
+            ];
+            
+            return response()->json($response);
+            
+        } catch (\Exception $e) {
             return response()->json([
-                'alert'   => 'success',
-                'message' => 'Product add to cart successfully'
-            ]);
-        } else {
+                'success' => false,
+                'message' => 'Product not found or error occurred: ' . $e->getMessage()
+            ], 404);
+        }
+    }
+    
+    /**
+     * === NEW METHOD: Quick View ===
+     * This method returns the quick view modal content
+     */
+    public function quickView($slug)
+    {
+        try {
+            $product = Product::with([
+                'brand',
+                'categories', 
+                'attributes_values.attribute',
+                'images',
+                'reviews'
+            ])
+            ->where('slug', $slug)
+            ->where('status', true)
+            ->firstOrFail();
+            
+            // Get structured variations data
+            $variations = $product->getVariationsWithStock();
+            
+            // Get all active sizes
+            $allSizes = Size::where('status', true)->orderBy('id')->get();
+            
+            // Get only attribute definitions that are actually assigned to this product
+            $productAttributeIds = $product->attributes_values->pluck('attribute.id')->unique()->filter();
+            $attributes = Attribute::whereIn('id', $productAttributeIds)->get();
+            
+            // If it's an AJAX request, return JSON
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'html' => view('components.quick-view-modal', compact('product', 'variations', 'attributes', 'allSizes'))->render()
+                ]);
+            }
+            
+            // Otherwise, return the view directly (fallback)
+            return view('components.quick-view-modal', compact('product', 'variations', 'attributes', 'allSizes'));
+            
+        } catch (\Exception $e) {
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found: ' . $e->getMessage()
+                ], 404);
+            }
+            abort(404);
+        }
+    }
+    
+    /**
+     * === NEW METHOD: Get Attribute Price ===
+     * Returns price for specific color/size/attribute combination
+     */
+    public function getAttrPrice(Request $request)
+    {
+        try {
+            $product = Product::findOrFail($request->product_id);
+            $basePrice = $product->discount_price > 0 ? $product->discount_price : $product->regular_price;
+            $additionalPrice = 0;
+            $stock = 0;
+            
+            // Check for color-size combination
+            if ($request->filled('color_id') && $request->filled('size_id')) {
+                $result = DB::table('color_size_product')
+                    ->where('product_id', $product->id)
+                    ->where('color_id', $request->color_id)
+                    ->where('size_id', $request->size_id)
+                    ->first();
+                    
+                if ($result) {
+                    $additionalPrice = $result->price ?? 0;
+                    $stock = $result->quantity ?? 0;
+                }
+            }
+            // Check for size-only
+            elseif ($request->filled('size_id') && !$request->filled('color_id')) {
+                $result = DB::table('color_size_product')
+                    ->where('product_id', $product->id)
+                    ->where('size_id', $request->size_id)
+                    ->whereNull('color_id')
+                    ->first();
+                    
+                if ($result) {
+                    $additionalPrice = $result->price ?? 0;
+                    $stock = $result->quantity ?? 0;
+                }
+            }
+            // Check for attribute
+            elseif ($request->filled('attribute_value_id')) {
+                $attrProduct = DB::table('attribute_product')
+                    ->where('product_id', $product->id)
+                    ->where('attribute_value_id', $request->attribute_value_id)
+                    ->first();
+                    
+                if ($attrProduct) {
+                    $additionalPrice = $attrProduct->price ?? 0;
+                    $stock = $attrProduct->qnty ?? 0;
+                }
+            }
+            // Simple product
+            else {
+                $stock = $product->quantity;
+            }
+            
+            $finalPrice = $basePrice + $additionalPrice;
+            
             return response()->json([
-                'alert'   => 'error',
-                'message' => 'Please login your account!!'
+                'success' => true,
+                'price' => $finalPrice,
+                'stock' => $stock,
+                'formatted_price' => number_format($finalPrice, 0)
             ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching price: ' . $e->getMessage()
+            ], 500);
         }
     }
     
@@ -538,12 +698,8 @@ class ProductController extends Controller
             }
         }
         
-        // === MODIFIED START ===
-        // Filter out products with zero stock.
-        // Since the main 'quantity' field now always holds the correct total stock
-        // (whether simple or variable), we only need to check this one field.
+        // Filter out products with zero stock
         $products = $products->where('quantity', '>', 0);
-        // === MODIFIED END ===
 
         // sorting
         $sort = new Sorting();
@@ -567,253 +723,14 @@ class ProductController extends Controller
         return view('frontend.filter-product', compact('products', 'request', 'min', 'max', 'unr'));
     }
     
-    /**
-     * show product details to cart with stock information
-     */
-    public function productInfo($slug)
-    {
-        $product = Product::with(array(
-            'colors' => function ($query) {
-                $query->select('colors.id', 'code', 'name', 'slug')
-                      ->withPivot('qnty', 'price');
-            },
-            'sizes' => function ($query) {
-                $query->select('sizes.id', 'name')
-                      ->withPivot('qnty', 'price');
-            },
-            'attributes_values.attribute' // Eager load attribute
-        ))->where('slug', $slug)->firstOrFail(['id', 'slug', 'regular_price', 'discount_price', 'image', 'quantity']);
-        
-        // Get only attributes that are actually assigned to this product
-        $productAttributeIds = $product->attributes_values->pluck('attributes_id')->unique();
-        $attributes = Attribute::whereIn('id', $productAttributeIds)->get();
-        
-        $attrs = '';
-        $values = '';
-        
-        foreach ($attributes as $attribute) {
-            $attribute_prouct = DB::table('attribute_product')
-                ->select('*')
-                ->join('attribute_values', 'attribute_values.id', '=', 'attribute_product.attribute_value_id')
-                ->addselect('attribute_values.name as vName')
-                ->addselect('attribute_values.id as vid')
-                ->addselect('attribute_product.qnty as stock')
-                ->addselect('attribute_product.price as attr_price')
-                ->join('attributes', 'attributes.id', '=', 'attribute_values.attributes_id')
-                ->where('attribute_product.product_id', $product->id)
-                ->where('attributes.id', $attribute->id)
-                ->get();
-                
-            if ($attribute_prouct->count() > 0) {
-                $attrs .= '<div class="col-12 pl-0 mb-2">
-                                <p><strong>Select ' . $attribute->name . ':</strong></p>
-                            </div>';
-                            
-                foreach ($attribute_prouct as $attr) {
-                    $stockStatus = $attr->stock > 0 ? '' : ' (Out of Stock)';
-                    $disabled = $attr->stock > 0 ? '' : ' disabled';
-                    $stockInfo = $attr->stock > 0 ? ' data-stock="' . $attr->stock . '"' : '';
-                    $priceInfo = ' data-price="' . $attr->attr_price . '"';
-                    
-                    $attrs .= '<div class="form-check col-2 col-sm-2"><input id="' . $attr->vName . '" class="form-check-input get_attri_price pp' . $attribute->slug . '" type="radio" name="' . $attribute->slug . '" value="' . $attr->vid . '"' . $disabled . $stockInfo . $priceInfo . '><label class="form-check-label" for="' . $attr->vName . '">' . $attr->vName . $stockStatus . '</label></div>';
-                    $attrs .= "<script>
-                        $(document).on('click', '.pp" . $attribute->slug . "', function(e) {
-                            $('input#" . $attribute->slug . "').val(this->value);
-                        })
-                    </script>";
-                }
-                
-                foreach ($attribute_prouct as $vattr) {
-                    $vid = $vattr->vid;
-                }
-                $values .= '<input type="hidden" name="' . $attribute->slug . '" id="' . $attribute->slug . '" value="blank">';
-            }
-        }
-        
-        // Add stock information for colors
-        $colorStocks = [];
-        foreach ($product->colors as $color) {
-            $colorStocks[$color->id] = [
-                'stock' => $color->pivot->qnty,
-                'price' => $color->pivot->price
-            ];
-        }
-        
-        // Get color-specific images
-        $colorImages = [];
-        foreach ($product->colors as $color) {
-            $images = $product->getColorImages($color->id);
-            if ($images->count() > 0) {
-                $colorImages[$color->id] = $images->pluck('name')->toArray();
-            }
-        }
-        
-        return response()->json(array(
-            'product' => $product, 
-            'attrs' => $attrs, 
-            'values' => $values, 
-            'colorStocks' => $colorStocks,
-            'colorImages' => $colorImages
-        ));
-    }
-    
-    public function productInfo1($id)
-    {
-        $camp = CampaingProduct::find($id);
-        $slug = $camp->product_id;
-        $product = Product::with(array(
-            'colors' => function ($query) {
-                $query->select('colors.id', 'code', 'name', 'slug')
-                      ->withPivot('qnty', 'price');
-            },
-            'sizes' => function ($query) {
-                $query->select('sizes.id', 'name')
-                      ->withPivot('qnty', 'price');
-            },
-            'attributes_values.attribute' // Eager load attribute
-        ))->where('id', $slug)->firstOrFail(['id', 'slug', 'regular_price', 'discount_price', 'image', 'quantity']);
-        
-        // Get only attributes that are actually assigned to this product
-        $productAttributeIds = $product->attributes_values->pluck('attributes_id')->unique();
-        $attributes = Attribute::whereIn('id', $productAttributeIds)->get();
-        
-        $attrs = '';
-        $values = '';
-        
-        foreach ($attributes as $attribute) {
-            $attribute_prouct = DB::table('attribute_product')
-                ->select('*')
-                ->join('attribute_values', 'attribute_values.id', '=', 'attribute_product.attribute_value_id')
-                ->addselect('attribute_values.name as vName')
-                ->addselect('attribute_values.id as vid')
-                ->addselect('attribute_product.qnty as stock')
-                ->addselect('attribute_product.price as attr_price')
-                ->join('attributes', 'attributes.id', '=', 'attribute_values.attributes_id')
-                ->where('attribute_product.product_id', $product->id)
-                ->where('attributes.id', $attribute->id)
-                ->get();
-                
-            if($attribute_prouct->count() > 0) {
-                $attrs .= '<div class="col-12 pl-0 mb-2">
-                                <p><strong>Select '.$attribute->name.':</strong></p>
-                            </div>';
-                            
-                foreach ($attribute_prouct as $attr) {
-                    $stockStatus = $attr->stock > 0 ? '' : ' (Out of Stock)';
-                    $disabled = $attr->stock > 0 ? '' : ' disabled';
-                    $stockInfo = $attr->stock > 0 ? ' data-stock="' . $attr->stock . '"' : '';
-                    $priceInfo = ' data-price="' . $attr->attr_price . '"';
-                    
-                    $attrs .= '<div class="form-check col-2 col-sm-2"><input id="'.$attr->vName.'" class="form-check-input get_attri_price pp'.$attribute->slug.'" type="radio" name="'.$attribute->slug.'" value="'.$attr->vid.'"'.$disabled.$stockInfo.$priceInfo.'><label class="form-check-label" for="'.$attr->vName.'">'.$attr->vName.$stockStatus.'</label></div>';
-                    $attrs .= "<script>
-                        $(document).on('click', '.pp".$attribute->slug."', function(e) {
-                            $('input#".$attribute->slug."').val(this->value);
-                        })
-                    </script>";
-                }
-                
-                foreach ($attribute_prouct as $vattr) {
-                    $vid = $vattr->vid;
-                }
-                $values .= '<input type="hidden" name="'.$attribute->slug.'" id="'.$attribute->slug.'" value="blank">';
-            }
-        }
-        
-        // Add stock information for colors
-        $colorStocks = [];
-        foreach ($product->colors as $color) {
-            $colorStocks[$color->id] = [
-                'stock' => $color->pivot->qnty,
-                'price' => $color->pivot->price
-            ];
-        }
-        
-        // Get color-specific images
-        $colorImages = [];
-        foreach ($product->colors as $color) {
-            $images = $product->getColorImages($color->id);
-            if ($images->count() > 0) {
-                $colorImages[$color->id] = $images->pluck('name')->toArray();
-            }
-        }
-        
-        return response()->json(array(
-            'product' => $product, 
-            'attrs' => $attrs, 
-            'values' => $values, 
-            'camp' => $camp,
-            'colorStocks' => $colorStocks,
-            'colorImages' => $colorImages
-        ));
-    }
-    
-    /**
-     * Get price based on selected attributes and color
-     */
-    public function getAttrPrice(Request $request)
-    {
-        // Get only attributes that are actually assigned to this product
-        $product = Product::with('attributes_values.attribute')->find($request->id);
-        $productAttributeIds = $product->attributes_values->pluck('attributes_id')->unique();
-        $attributes = Attribute::whereIn('id', $productAttributeIds)->get();
-        
-        $price = 0;
-        
-        foreach ($attributes as $attribute) {
-            $attribute_prouct = DB::table('attribute_product')
-                ->select('*')
-                ->join('attribute_values', 'attribute_values.id', '=', 'attribute_product.attribute_value_id')
-                ->addselect('attribute_values.name as vName')
-                ->addselect('attribute_product.id as vid')
-                ->join('attributes', 'attributes.id', '=', 'attribute_values.attributes_id')
-                ->where('attribute_product.product_id', $request->id)
-                ->where('attributes.id', $attribute->id)
-                ->get();
-                
-            if($attribute_prouct->count() > 0) {
-                $slug = $attribute->slug;
-                $id = $request->$slug;
-                if($id > 0) {
-                    $attr_pro = DB::table('attribute_product')->where('product_id', $request->id)->where('attribute_value_id', $id)->first();
-                    $price += $attr_pro->price;
-                }
-            }
-        }
-
-        $c = Color::where('slug', $request->color)->first();
-        if(!empty($c)) {
-            $color = DB::table('color_product')->where('product_id', $request->id)->where('color_id', $c->id)->first();
-        }
-        
-        if(isset($request->camp)) {
-            $camp = CampaingProduct::find($request->camp);
-            $op = $camp->price;
-        } elseif(empty($product->discount_price)) {
-            $op = $product->regular_price;
-        } else {
-            $op = $product->discount_price;
-        }
-        
-        if(!empty($color)) {
-            $price += $op + $color->price;
-        } else {
-            $price += $op;
-        }
-        
-        return response()->json($price);
-    }
-    
     public function allBrand()
     {
         $brands = Brand::where('status', '1')->get();
         return view('frontend.brands', compact('brands'));
     }
     
-    // === MODIFIED START ===
     /**
      * Check stock availability for a specific variation
-     * Modified to check for color-size, size-only, attributes, 
-     * and finally simple product stock.
      */
     public function checkStock(Request $request)
     {
@@ -832,7 +749,6 @@ class ProductController extends Controller
         }
         // Check for Size-Only Variation
         else if ($request->filled('size_id') && !$request->filled('color_id')) {
-            // Need to query the pivot table directly for size-only stock
             $result = DB::table('color_size_product')
                         ->where('product_id', $product->id)
                         ->where('size_id', $request->size_id)
@@ -844,13 +760,10 @@ class ProductController extends Controller
         else if ($request->filled('attribute_value_id')) {
             $availableStock = $product->getAttributeStock($request->attribute_value_id);
         }
-        // Check for Simple Product Stock (no variations selected)
+        // Check for Simple Product Stock
         else if (!$request->filled('color_id') && !$request->filled('size_id') && !$request->filled('attribute_value_id')) {
-            // This is a simple product, check the main quantity field
             $availableStock = $product->quantity;
         }
-        // Fallback: This condition might happen if only a color is selected but not a size.
-        // In this case, we can't determine specific stock, so we'll report 0.
         else {
             $availableStock = 0; 
             return response()->json([
@@ -868,5 +781,4 @@ class ProductController extends Controller
                 : ($availableStock > 0 ? "Only $availableStock available" : 'Out of stock')
         ]);
     }
-    // === MODIFIED END ===
 }
