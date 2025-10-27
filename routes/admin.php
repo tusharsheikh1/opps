@@ -125,6 +125,19 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('get/mini-categories', [ProductController::class, 'miniCategory']);
     Route::post('get/extra-categories', [ProductController::class, 'extraCategory']);
 
+    // --- START: DYNAMIC CATEGORY FETCH ROUTES (Fix for form.blade.php) ---
+
+    // Route for fetching Sub Categories (Needed by form.blade.php)
+    Route::get('fetch-sub-categories/{id}', [SubCategoryController::class, 'fetchSubCategories'])->name('fetch.sub.categories');
+
+    // Route for fetching Mini Categories (THIS WAS MISSING)
+    Route::get('fetch-mini-categories/{id}', [SubCategoryController::class, 'fetchMiniCategories'])->name('fetch.mini.categories');
+
+    // Route for fetching Extra Mini Categories (THIS WAS MISSING)
+    Route::get('fetch-extra-mini-categories/{id}', [SubCategoryController::class, 'fetchExtraMiniCategories'])->name('fetch.extra.mini.categories');
+
+    // --- END: DYNAMIC CATEGORY FETCH ROUTES ---
+
     Route::get('admin/product/color/{cc}/{pp}', [ProductController::class, 'nColorDelete'])->name('color.delete.n2');
     Route::get('admin/product/size/{ss}/{pp}', [ProductController::class, 'nSizeDelete'])->name('size.delete.n2');
     Route::get('admin/product/attr/{cc}', [ProductController::class, 'nattrDelete'])->name('attr.delete.n2');
@@ -333,7 +346,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
             
             return response()->json([
                 'configured' => $service->isConfigured(),
-                'test_connection' => $service->testConnection(),
+                'connection_test' => $service->testConnection(),
                 'sample_data' => $service->getCourierHistory($phone)
             ]);
         })->name('bd-courier.test');

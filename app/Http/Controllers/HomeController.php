@@ -29,8 +29,6 @@ class HomeController extends Controller
     {
         $users = Campaign::where([['is_flash', 1], ['end', '<', date('Y-m-d h-m-s')]])->get();
         foreach ($users as $user) {
-
-
             $user->is_flash = 0;
             $user->end = Null;
             $user->update();
@@ -52,6 +50,12 @@ class HomeController extends Controller
 
         $collections    = Collection::where('status', true)->latest('id')->get();
 
+        // Fetch category settings for homepage display
+        $mega_cat_setting = setting('mega_cat');
+        $sub_cat_setting = setting('sub_cat');
+        $mini_cat_setting = setting('mini_cat');
+        $extra_cat_setting = setting('extra_cat');
+
         return view('frontend.index', compact(
             'sliders',
             'unproducts',
@@ -61,7 +65,11 @@ class HomeController extends Controller
             'shops',
             'products',
             'randomProducts',
-            'campaigns_product'
+            'campaigns_product',
+            'mega_cat_setting',
+            'sub_cat_setting',
+            'mini_cat_setting',
+            'extra_cat_setting'
         ));
     }
     

@@ -2,13 +2,13 @@
 
 @push('meta')
 <meta name='description' content="Cart Products"/>
-{{-- <meta name'keywords' content="@foreach(\App\Models\Tag::all() as $tag){{$tag->name.', '}}@endforeach" /> --}}
 @endpush
 
 @section('title', 'Cart Products')
 
 @push('css')
     <style>
+        /* --- (CSS STYLES) --- */
         .disable {
             color: currentColor;
             cursor: not-allowed;
@@ -19,7 +19,7 @@
 
         /* --- Page Layout --- */
         .checkout-right {
-            background-color: #f9fafb; /* Lighter, cleaner background */
+            background-color: #f9fafb;
             padding-top: 2rem;
             padding-bottom: 4rem;
         }
@@ -28,15 +28,15 @@
         }
         
         .h1.cart-title {
-            font-size: 2rem; /* Larger title */
+            font-size: 2rem;
             font-weight: 600;
             margin-bottom: 2rem;
-            color: #111827; /* Darker text */
+            color: #111827;
         }
         
         .cart-layout {
             display: flex;
-            flex-direction: column; /* Mobile-first */
+            flex-direction: column;
         }
         
         .shopping-cart-list {
@@ -51,26 +51,26 @@
         /* --- Product Card (Left Side) --- */
         .product-card {
             display: flex;
-            flex-direction: column; /* Mobile */
+            flex-direction: column;
             background: #ffffff;
-            border-radius: 12px; /* Softer corners */
-            padding: 1.5rem; /* More whitespace */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); /* Softer shadow */
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
             margin-bottom: 1.5rem;
             transition: box-shadow 0.2s ease-in-out;
         }
         .product-card:hover {
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06); /* Subtle hover */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
         }
         
         .product-info {
             display: flex;
             align-items: center;
             flex-grow: 1;
-            margin-bottom: 1rem; /* Mobile */
+            margin-bottom: 1rem;
         }
         .product-image {
-            width: 72px; /* Slightly larger image */
+            width: 72px;
             min-width: 72px;
             height: 72px;
             margin-right: 1.25rem;
@@ -79,7 +79,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 10px; /* Softer corners */
+            border-radius: 10px;
             border: 1px solid #f3f4f6;
         }
 
@@ -93,11 +93,29 @@
             color: #111827;
             text-decoration: none;
             line-height: 1.4;
+            margin-bottom: 0.25rem;
         }
+        .product-title:hover {
+            color: #0d4f6b;
+        }
+        
+        /* IMPROVED: Style for attributes display */
+        .product-attributes {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+            margin-bottom: 0.25rem;
+            line-height: 1.5;
+        }
+        .product-attributes strong {
+            color: #374151;
+            font-weight: 500;
+        }
+        
         .product-unit-price {
             font-size: 0.95rem;
-            color: #6b7280; /* Softer gray */
-            margin-top: 0.25rem;
+            color: #6b7280;
+            margin-top: 0.35rem;
         }
 
         /* Actions on the right */
@@ -105,7 +123,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            width: 100%; /* Mobile */
+            width: 100%;
         }
         .product-line-total {
             font-weight: 600;
@@ -120,13 +138,13 @@
             align-items: center;
             margin-right: 1.5rem;
             border: 1px solid #e5e7eb;
-            border-radius: 8px; /* Rounded container */
-            overflow: hidden; /* Clip button corners */
+            border-radius: 8px;
+            overflow: hidden;
         }
         .quantity-select .btn-qty {
             width: 32px;
             height: 32px;
-            background-color: #f9fafb; /* Light bg */
+            background-color: #f9fafb;
             border: none;
             cursor: pointer;
             font-size: 1.2rem;
@@ -145,9 +163,9 @@
             width: 40px;
             height: 32px;
             border: none;
-            border-left: 1px solid #e5e7eb; /* Divider */
-            border-right: 1px solid #e5e7eb; /* Divider */
-            background-color: #ffffff; /* White input bg */
+            border-left: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+            background-color: #ffffff;
             text-align: center;
             font-size: 1.05rem;
             font-weight: 600;
@@ -160,83 +178,95 @@
         .btn-remove {
             border: 0;
             background: none;
-            color: #9ca3af; /* Lighter default color */
+            color: #9ca3af;
             font-size: 1.3rem;
             cursor: pointer;
             padding: 5px;
-            border-radius: 50%; /* Circular */
+            border-radius: 50%;
             width: 34px;
             height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: auto; /* Push to far right */
+            margin-left: auto;
             transition: color 0.2s ease, background-color 0.2s ease;
         }
         .btn-remove:hover {
-            color: #ef4444; /* Red on hover */
-            background-color: #fef2f2; /* Light red bg */
+            color: #ef4444;
+            background-color: #fef2f2;
         }
 
         /* --- Order Summary Card (Right Side) --- */
         .order-summary-card {
             background: #ffffff;
             border-radius: 12px;
-            padding: 1.5rem 2rem; /* More padding */
+            padding: 1.5rem 2rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
             position: sticky;
-            top: 20px;
+            top: 2rem;
         }
         .order-summary-card h4 {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
             font-weight: 600;
-            margin-bottom: 1.5rem;
             color: #111827;
+            margin-bottom: 1.5rem;
         }
-        .summary-item, .summary-total {
+        
+        .summary-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 1rem;
-            font-size: 1rem; /* Slightly larger base text */
+            align-items: center;
+            padding: 0.85rem 0;
+            font-size: 0.95rem;
+            color: #374151;
         }
-        .summary-item span:first-child {
-            color: #4b5563;
-        }
-        .summary-item span:last-child {
+        .summary-item strong {
+            font-weight: 600;
             color: #111827;
-            font-weight: 500;
         }
+        
         .summary-divider {
-            margin: 1.5rem 0;
-            border-color: #f3f4f6; /* Lighter divider */
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 1rem 0;
         }
+        
         .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
             font-size: 1.15rem;
             font-weight: 600;
             color: #111827;
         }
+        
         .btn-checkout {
             width: 100%;
-            padding: 0.85rem; /* Taller button */
-            font-size: 1rem;
-            font-weight: 600;
-            background-color: #0d4f6b;
-            border-color: #0d4f6b;
             margin-top: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-radius: 8px; /* Softer corners */
+            background-color: #0d4f6b;
+            border: 2px solid #0d4f6b;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.85rem 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
             transition: background-color 0.2s ease, box-shadow 0.2s ease;
         }
-        .btn-checkout:hover:not(.disabled) {
+        .btn-checkout:hover {
+            color: #ffffff;
             background-color: #093c52;
             border-color: #093c52;
-            box-shadow: 0 4px 12px rgba(13, 79, 107, 0.15); /* Add a glow */
+            box-shadow: 0 4px 12px rgba(13, 79, 107, 0.15);
         }
         .btn-checkout.disabled {
             background-color: #9ca3af;
             border-color: #9ca3af;
             opacity: 0.7;
+            cursor: not-allowed;
         }
         .btn-checkout .icofont {
             margin-right: 0.5rem;
@@ -245,9 +275,9 @@
         /* Desktop View */
         @media screen and (min-width: 992px) {
             .cart-layout {
-                flex-direction: row; /* Two columns */
+                flex-direction: row;
                 align-items: flex-start;
-                gap: 2.5rem; /* More space between columns */
+                gap: 2.5rem;
             }
             
             .shopping-cart-list {
@@ -284,14 +314,14 @@
                 padding: 1rem;
             }
             .product-actions {
-                flex-wrap: wrap; /* Allow wrapping on tiny screens */
+                flex-wrap: wrap;
                 gap: 1rem;
             }
             .quantity-select {
-                margin-right: auto; /* Push to left */
+                margin-right: auto;
             }
             .product-line-total {
-                order: 1; /* Move total before remove button */
+                order: 1;
                 margin-left: 1rem;
             }
             .btn-remove {
@@ -300,7 +330,7 @@
             }
         }
 
-        /* --- NEW: EMPTY CART STYLES --- */
+        /* --- EMPTY CART STYLES --- */
         .empty-cart-container {
             text-align: center;
             padding: 5rem 2rem;
@@ -310,8 +340,8 @@
             margin-top: 1rem;
         }
         .empty-cart-icon .icofont-bag-alt {
-            font-size: 5rem; /* Large icon */
-            color: #22c55e; /* Green color from image */
+            font-size: 5rem;
+            color: #22c55e;
             margin-bottom: 1.5rem;
         }
         .empty-cart-container h2 {
@@ -326,13 +356,13 @@
             margin-bottom: 2.5rem;
         }
         .btn-continue-shopping {
-            background-color: #263238; /* Dark color from image */
+            background-color: #263238;
             color: #ffffff;
             border: none;
             padding: 0.8rem 2rem;
             font-size: 1rem;
             font-weight: 600;
-            border-radius: 50px; /* Fully rounded */
+            border-radius: 50px;
             text-decoration: none;
             transition: background-color 0.2s ease, box-shadow 0.2s ease;
         }
@@ -349,15 +379,77 @@
 
 @php
     $currency = setting('CURRENCY_CODE_MIN') ?? 'TK';
+    
+    /**
+     * Helper function to get attribute value name from ID
+     * Used for displaying size and other attributes
+     */
+    function getAttributeName($id) {
+        try {
+            $attributeValue = \App\Models\AttributeValue::find($id);
+            return $attributeValue ? $attributeValue->value : 'N/A';
+        } catch (\Exception $e) {
+            return 'N/A';
+        }
+    }
+    
+    /**
+     * Helper function to get Color name from slug
+     */
+    function getColorName($slug) {
+        try {
+            $color = \App\Models\Color::where('slug', $slug)->first();
+            return $color ? $color->name : 'N/A';
+        } catch (\Exception $e) {
+            return 'N/A';
+        }
+    }
+
+    /**
+     * IMPROVED: Helper function to format all attributes for display
+     * This creates a consistent display format for Color, Size, and other attributes
+     */
+    function getFormattedAttributes($cartItem) {
+        $attributesToDisplay = [];
+
+        // 1. Display Color (if available)
+        if (!empty($cartItem->options->color) && $cartItem->options->color != 'blank') {
+            $attributesToDisplay['Color'] = getColorName($cartItem->options->color);
+        }
+
+        // 2. Display Size and Other Attributes
+        if (isset($cartItem->options->attributes) && is_array($cartItem->options->attributes)) {
+            foreach ($cartItem->options->attributes as $slug => $attributeId) {
+                $attributeValueName = getAttributeName($attributeId);
+                
+                if ($slug === 'size') {
+                    // Display Size with capital 'S'
+                    $attributesToDisplay['Size'] = $attributeValueName;
+                } else {
+                    // For other attributes, get the friendly name (e.g., 'Material', 'Style')
+                    try {
+                        $attributeValue = \App\Models\AttributeValue::find($attributeId);
+                        if ($attributeValue && $attributeValue->attribute) {
+                            $attributeName = $attributeValue->attribute->name;
+                        } else {
+                            $attributeName = ucfirst($slug);
+                        }
+                    } catch (\Exception $e) {
+                        $attributeName = ucfirst($slug);
+                    }
+                    $attributesToDisplay[$attributeName] = $attributeValueName;
+                }
+            }
+        }
+        
+        return $attributesToDisplay;
+    }
 @endphp
 
 <div class="checkout-right">
     <div class="container">
         
-        {{-- --- START: CONDITIONAL RENDER --- --}}
         @if ($count > 0)
-            {{-- --- START: CART NOT EMPTY --- --}}
-
             <h1 class="cart-title">Shopping Cart</h1>
 
             <div class="cart-layout">
@@ -365,36 +457,53 @@
                 <div class="shopping-cart-list">
                     <div class="product-all">
                         
-                        {{-- This block renders the cart on page load for speed --}}
+                        {{-- This block renders the cart on initial page load --}}
                         @forelse ($carts as $rowId => $cart)
                             <div class="product-card">
                                 
                                 <div class="product-info">
                                     <div class="product-image">
                                         <a href="{{ route('product.details', $cart->options->slug) }}">
-                                            {{-- --- THIS IS THE CORRECTED LINE --- --}}
                                             <img src="{{ asset('uploads/product/' . $cart->options->image) }}" alt="Product Image">
                                         </a>
-                                    </div> <div class="product-details">
+                                    </div> 
+                                    <div class="product-details">
                                         <a href="{{ route('product.details', $cart->options->slug) }}" class="product-title">{{ $cart->name }}</a>
+                                        
+                                        {{-- IMPROVED: Display Color, Size, and All Attributes --}}
+                                        @php
+                                            $attributesToDisplay = getFormattedAttributes($cart);
+                                        @endphp
+
+                                        @if (count($attributesToDisplay) > 0)
+                                            <span class="product-attributes">
+                                                @foreach ($attributesToDisplay as $key => $value)
+                                                    <strong>{{ $key }}:</strong> {{ $value }}@if (!$loop->last), @endif
+                                                @endforeach
+                                            </span>
+                                        @endif
+                                        
                                         <span class="product-unit-price">{{ number_format($cart->price, 2, '.', ',') . ' ' . $currency }}</span>
-                                    </div> </div> <div class="product-actions">
+                                    </div> 
+                                </div> 
+                                
+                                <div class="product-actions">
                                     <div class="quantity-select">
                                         <button class="btn-qty btn-qty-minus" data-id="{{ $rowId }}" {{ $cart->qty <= 1 ? 'disabled' : '' }}>-</button>
                                         <input type="text" class="value" value="{{ $cart->qty }}" readonly>
                                         <button class="btn-qty btn-qty-plus" data-id="{{ $rowId }}">+</button>
-                                    </div> <span class="product-line-total">{{ number_format($cart->subtotal, 2, '.', ',') . ' ' . $currency }}</span>
+                                    </div> 
+                                    <span class="product-line-total">{{ number_format($cart->subtotal, 2, '.', ',') . ' ' . $currency }}</span>
                                     <button class="btn-remove" id="remove-product" data-id="{{ $rowId }}" title="Remove product">
                                         <i class="icofont icofont-trash"></i>
                                     </button>
-                                </div> </div> @empty
-                            {{-- This fallback should no longer be reached due to the @if($count > 0) check --}}
+                                </div> 
+                            </div> 
+                        @empty
                             <div class="product-card" style="text-align: center; color: #6b7280; padding: 2rem;">
-                                Your cart is empty. (Fallback)
+                                Your cart is empty.
                             </div>
                         @endforelse
-                        {{-- --- END: SERVER-SIDE RENDER --- --}}
-
                     </div>
                 </div>
 
@@ -402,7 +511,6 @@
                     <div class="order-summary-card">
                         <h4>Order Summary</h4>
                         
-                        {{-- Use the variables from the controller for the initial state --}}
                         <div class="summary-item">
                             <span>Subtotal (<span id="summary-item-count">{{ $count }} {{ $count == 1 ? 'item' : 'items' }}</span>)</span>
                             <strong id="summary-subtotal">{{ number_format($subtotal, 2, '.', ',') . ' ' . $currency }}</strong>
@@ -429,26 +537,16 @@
                 </div>
 
             </div>
-            {{-- --- END: CART NOT EMPTY --- --}}
-
         @else
-            {{-- --- START: CART IS EMPTY (NEW) --- --}}
-
             <div class="empty-cart-container">
                 <div class="empty-cart-icon">
-                    {{-- This icon matches the style from your image --}}
                     <i class="icofont-bag-alt"></i> 
                 </div>
                 <h2>Your Cart is Empty</h2>
                 <p>Looks like you haven't added anything to your cart yet.</p>
-                {{-- This button links to your main product page (from web.php) --}}
                 <a href="{{ route('product') }}" class="btn btn-continue-shopping">Continue Shopping</a>
             </div>
-
-            {{-- --- END: CART IS EMPTY (NEW) --- --}}
         @endif
-        {{-- --- END: CONDITIONAL RENDER --- --}}
-
     </div>
 </div>
 
@@ -456,31 +554,39 @@
 
 @push('js')
     <script>
-        $(document).ready(function () {
-            
-            // --- Quantity Plus ---
+        $(document).ready(function() {
+
+            // --- Quantity Increase ---
             $(document).on('click', '.btn-qty-plus', function(e) {
+                e.preventDefault();
                 let id  = $(this).data('id');
                 let btn = $(this);
-                var divUpd = $(this).closest('.quantity-select').find('.value'),
-                newVal = parseInt(divUpd.val(), 10) + 1;
+                let qtyInput = $(this).siblings('.value');
+                let currentVal = parseInt(qtyInput.val(), 10);
                 
-                // Enable minus button
-                $(this).closest('.quantity-select').find('.btn-qty-minus').prop('disabled', false);
-                
-                updateCartAjax(id, newVal, btn);
+                if (!isNaN(currentVal)) {
+                    let newVal = currentVal + 1;
+                    qtyInput.val(newVal);
+                    
+                    // Enable minus button since qty > 1
+                    $(this).siblings('.btn-qty-minus').prop('disabled', false);
+                    
+                    updateCartAjax(id, newVal, btn);
+                }
             });
 
-            // --- Quantity Minus ---
+            // --- Quantity Decrease ---
             $(document).on('click', '.btn-qty-minus', function(e) {
-                var divUpd = $(this).closest('.quantity-select').find('.value'),
-                newVal = parseInt(divUpd.val(), 10) - 1;
-
-                if (newVal >= 1) {
-                    let id  = $(this).data('id');
-                    let btn = $(this);
+                e.preventDefault();
+                let id  = $(this).data('id');
+                let btn = $(this);
+                let qtyInput = $(this).siblings('.value');
+                let currentVal = parseInt(qtyInput.val(), 10);
+                
+                if (!isNaN(currentVal) && currentVal > 1) {
+                    let newVal = currentVal - 1;
+                    qtyInput.val(newVal);
                     
-                    // Disable minus button if qty hits 1
                     if (newVal === 1) {
                         $(btn).prop('disabled', true);
                     }
@@ -503,18 +609,16 @@
                         $(btn).closest('.product-card').css('opacity', '0.5');
                     },
                     success: function (response) { 
-                        // Call getCart() to rebuild the list after removal
                         getCart(); 
                     },
                     complete: function() { 
-                        // The card will be removed by getCart(), so no need to remove 'disable'
+                        // Handled by getCart()
                     }
                 });
             });
 
             // --- Reusable AJAX function for quantity update ---
             function updateCartAjax(id, qty, btn) {
-                // Find related elements
                 var card = $(btn).closest('.product-card');
                 var qtySelect = $(btn).closest('.quantity-select');
                 
@@ -523,33 +627,29 @@
                     url: '/update/cart/'+id+'/'+qty,
                     dataType: "JSON",
                     beforeSend: function() {
-                        // Disable all buttons in this selector
                         qtySelect.find('.btn-qty').prop('disabled', true);
                         card.css('opacity', '0.7');
                     },
                     success: function (response) {
-                        // Call getCart() to rebuild the list after update
-                        // getCart() will re-enable buttons by re-rendering
                         getCart();
                     },
                     error: function() {
-                        // On error, re-enable buttons and restore opacity
                         qtySelect.find('.btn-qty').prop('disabled', false);
-                        // Re-check minus button status
                         var currentVal = parseInt(qtySelect.find('.value').val(), 10);
                         qtySelect.find('.btn-qty-minus').prop('disabled', currentVal <= 1);
                         card.css('opacity', '1');
                     },
                     complete: function() {
-                        // On success, getCart() handles everything.
-                        // On error, we've reset the state.
+                        // Handled by getCart()
                     }
                 });
             }
        
   
-            // --- getCart() function ---
-            // This function is now ONLY used to update the cart after an AJAX action
+            /**
+             * IMPROVED: getCart() function
+             * Fetches cart data via AJAX and displays formatted attributes
+             */
             function getCart() {
                 $.ajax({
                     type: "GET",
@@ -557,44 +657,54 @@
                     dataType: "JSON",
                     success: function (response) {
                         
-                        // --- UPDATED LOGIC ---
-                        // If the cart is now empty, just reload the page
-                        // to show the new server-rendered "Empty Cart" view.
                         if (response.count == 0) {
                             window.location.reload();
-                            return; // Stop processing
+                            return; 
                         }
-                        // --- END UPDATED LOGIC ---
-
 
                         var total_qty = 0;
                         var total = 0;
                         let html = '';
-                        var currency = ' {{ $currency }}'; // Add space for formatting
-                        
-                        // We no longer need an 'if(response.count > 0)' here
-                        // because the logic above handles the '0' case.
+                        var currency = ' {{ $currency }}'; 
                         
                         $.each(response.carts, function (key, val) {
                             total_qty += parseInt(val.qty);
-                            total     += parseInt(val.subtotal);
+                            total     += parseFloat(val.subtotal); 
                             var isQtyOne = parseInt(val.qty) <= 1 ? 'disabled' : '';
+                            
+                            // --- IMPROVED: Build Attributes HTML ---
+                            var attributesHtml = '';
+                            var displayAttributes = val.options.formatted_attributes || {};
+                            
+                            if (Object.keys(displayAttributes).length > 0) {
+                                attributesHtml += '<span class="product-attributes">';
+                                var attrArray = [];
+                                for (var keyName in displayAttributes) {
+                                    if (displayAttributes.hasOwnProperty(keyName)) {
+                                        attrArray.push('<strong>' + keyName + ':</strong> ' + displayAttributes[keyName]);
+                                    }
+                                }
+                                attributesHtml += attrArray.join(', ');
+                                attributesHtml += '</span>';
+                            }
 
                             // --- Start Product Card ---
                             html += '<div class="product-card">';
                             
-                            // 1. Product Info (Image + Title/Price)
+                            // 1. Product Info (Image + Title/Attributes/Price)
                             html += '<div class="product-info">';
                             html += '<div class="product-image">';
                             html += '<a href="/product/'+val.options.slug+'">';
                             html += '<img src="/uploads/product/'+val.options.image+'" alt="Product Image">';
                             html += '</a>';
-                            html += '</div>'; // end product-image
+                            html += '</div>';
                             html += '<div class="product-details">';
                             html += '<a href="/product/'+val.options.slug+'" class="product-title">'+val.name+'</a>';
+                            // Insert Attributes (Color, Size, etc.)
+                            html += attributesHtml;
                             html += '<span class="product-unit-price">'+number_format(val.price, 2, '.', ',') + currency +'</span>';
-                            html += '</div>'; // end product-details
-                            html += '</div>'; // end product-info
+                            html += '</div>';
+                            html += '</div>';
                             
                             // 2. Product Actions (Qty, Total, Remove)
                             html += '<div class="product-actions">';
@@ -603,19 +713,17 @@
                             html += '<button class="btn-qty btn-qty-minus" data-id="'+key+'" '+isQtyOne+'>-</button>';
                             html += '<input type="text" class="value" value="'+val.qty+'" readonly>';
                             html += '<button class="btn-qty btn-qty-plus" data-id="'+key+'">+</button>';
-                            html += '</div>'; // end quantity-select
+                            html += '</div>';
                             // Line Total
                             html += '<span class="product-line-total">'+number_format(val.subtotal, 2, '.', ',') + currency +'</span>';
                             // Removal
                             html += '<button class="btn-remove" id="remove-product" data-id="'+key+'" title="Remove product">';
                             html += '<i class="icofont icofont-trash"></i>';
                             html += '</button>';
-                            html += '</div>'; // end product-actions
+                            html += '</div>';
 
-                            html += '</div>'; // end product-card
+                            html += '</div>';
                         });
-                        
-                        // The 'else' block for an empty cart is no longer needed here.
                         
                         // Inject the built HTML
                         $('.product-all').html(html);
@@ -628,8 +736,6 @@
                         $('#summary-total').text(formatted_total + currency);
                         
                         // --- Update Checkout Button State ---
-                        // This logic is still fine, as it will never be 'disabled'
-                        // if the 'response.count == 0' reload logic works.
                         var checkoutBtn = $('.btn-checkout');
                         if (response.count > 0) {
                             checkoutBtn.removeClass('disabled');
@@ -648,10 +754,7 @@
                 });
             }
             
-            // --- NO LONGER NEEDED ON INITIAL LOAD ---
-            // getCart();
-
-            // --- number_format function (no change needed) ---
+            // --- number_format function ---
             function number_format(number, decimals, dec_point, thousands_sep) {
                 var n = !isFinite(+number) ? 0 : +number, 
                 prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),

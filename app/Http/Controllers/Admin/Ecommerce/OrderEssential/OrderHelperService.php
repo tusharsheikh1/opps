@@ -23,12 +23,12 @@ class OrderHelperService
             $product = Product::find($item->product_id);
             if ($product) {
                 $vendor = User::find($product->user_id);
-                if ($vendor->role_id == 1) {
+                if ($vendor && $vendor->role_id == 1) {
                     $amount = $vendor->vendorAccount->pending_amount;
                     $vendor->vendorAccount()->update([
                         'pending_amount' => $amount + $item->g_total
                     ]);
-                } else {
+                } elseif ($vendor) {
                     $grand_total = $item->g_total;
                     $admin_amount = Commission::where('order_id', $order->id)->first();
                     $adminAccount = VendorAccount::where('vendor_id', 1)->first();
@@ -74,7 +74,7 @@ class OrderHelperService
             $product = Product::find($item->product_id);
             if ($product) {
                 $vendor = User::find($product->user_id);
-                if ($vendor->role_id == 1) {
+                if ($vendor && $vendor->role_id == 1) {
                     $amount = $vendor->vendorAccount->pending_amount;
                     $vendor->vendorAccount()->update([
                         'pending_amount' => $amount + 0
@@ -117,12 +117,12 @@ class OrderHelperService
             $product = Product::find($item->product_id);
             if ($product) {
                 $vendor = User::find($product->user_id);
-                if ($vendor->role_id == 1) {
+                if ($vendor && $vendor->role_id == 1) {
                     $amount = $vendor->vendorAccount->pending_amount;
                     $vendor->vendorAccount()->update([
                         'pending_amount' => $amount - $item->g_total
                     ]);
-                } else {
+                } elseif ($vendor) {
                     $grand_total = $item->g_total;
                     $admin_amount = Commission::where('order_id', $order->id)->first();
                     $adminAccount = VendorAccount::where('vendor_id', 1)->first();

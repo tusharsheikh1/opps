@@ -728,6 +728,17 @@ class ProductController extends Controller
         $brands = Brand::where('status', '1')->get();
         return view('frontend.brands', compact('brands'));
     }
+
+    /**
+     * Show all available collections (for route 'collection.list').
+     */
+    public function allCollection()
+    {
+        // Fetch all active collections
+        $collections = Collection::where('status', true)->get();
+        // Return a view to display them, similar to 'frontend.brands'
+        return view('frontend.collections', compact('collections'));
+    }
     
     /**
      * Check stock availability for a specific variation

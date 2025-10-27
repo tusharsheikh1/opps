@@ -479,30 +479,25 @@ $(document).ready(function() {
         allSizes: @json($allSizes ?? []),
         hasColorSize: {{ !empty($variations['color_size']) ? 'true' : 'false' }},
         hasAttributes: {{ !empty($variations['attributes']) && empty($variations['color_size']) ? 'true' : 'false' }},
-        // NEW: Check for size-only variations (assuming they don't coexist with color/attribute variations)
         hasSizeOnly: {{ !empty($variations['size_only']) && empty($variations['color_size']) && empty($variations['attributes']) ? 'true' : 'false' }},
         totalInitialStock: {{ $totalStock }}
     };
 
     let selection = {
         color: null,
-        size: null, // Used for both color-size and size-only selections
+        size: null,
         attribute: null
     };
 
     // --- INITIALIZATION ---
     function initialize() {
         if (config.hasColorSize) {
-            // Priority 1: Color-Size
             $('.color-option:not(.disabled):first').trigger('click');
         } else if (config.hasSizeOnly) {
-            // Priority 2: Size-Only
             $('#sizeOnlyOptionsContainer input[type="radio"]:not(:disabled):first').prop('checked', true).trigger('change');
         } else if (config.hasAttributes) {
-            // Priority 3: Generic Attributes
             $('.attribute-option input[type="radio"]:not(:disabled):first').prop('checked', true).trigger('change');
         } else {
-            // Simple product
             updateUI();
         }
     }
@@ -520,7 +515,6 @@ $(document).ready(function() {
         const colorId = $(this).data('color-id');
         let colorImages;
         try {
-            // Ensure JSON parsing for the images data attribute
             colorImages = JSON.parse($(this).attr('data-color-images'));
         } catch (e) {
             console.error("Failed to parse color images JSON:", e);
@@ -545,7 +539,7 @@ $(document).ready(function() {
 
         $('.color-option').removeClass('active');
         $(this).addClass('active');
-        $('#selectedColor').val(selection.color.id);
+        $('#selectedColor').val(selection.color.id);  // Store color ID, not slug
         $('#selectedSize').val('');
         $('#selectedColorName').text(selection.color.name);
         $('#selectedSizeName').text('');
@@ -555,7 +549,6 @@ $(document).ready(function() {
         updateUI();
     });
 
-    // Handles both Color-Size and Size-Only radio buttons, as both use name="size_radio"
     $(document).on('change', 'input[name="size_radio"]', function() {
         if ($(this).is(':disabled')) return;
 
@@ -569,7 +562,6 @@ $(document).ready(function() {
         $('#selectedSize').val(selection.size.id);
         $('#selectedSizeName').text(selection.size.name);
         
-        // If it's a size-only product, clear color and attribute selections just in case
         if (config.hasSizeOnly) {
             selection.color = null;
             selection.attribute = null;
@@ -589,7 +581,7 @@ $(document).ready(function() {
         };
 
         $('#selectedAttrName').text(selection.attribute.name);
-        $('#selectedSize').val(selection.attribute.id); // Storing attribute ID in size field for form submission consistency
+        $('#selectedSize').val(selection.attribute.id);
         updateUI();
     });
 
@@ -629,7 +621,7 @@ $(document).ready(function() {
             if (selection.attribute) isValid = true;
             else showNotification('Error', 'Please select an option.', 'error');
         } else {
-            isValid = true; // Simple product
+            isValid = true;
         }
 
         if(isValid) {
@@ -640,7 +632,6 @@ $(document).ready(function() {
 
     // --- UI & LOGIC FUNCTIONS ---
     function populateSizeOptions(colorId) {
-        // Function only runs for Color-Size variations
         const productVariationSizes = config.variations.color_size[colorId]?.sizes || [];
         const sizeMap = new Map(productVariationSizes.map(s => [s.size_id, s]));
 
@@ -666,7 +657,6 @@ $(document).ready(function() {
             container.html(html);
             $('.size-selection').slideDown();
 
-            // Auto-select logic for color-size
             const previouslySelected = container.find(`input[value="${selection.size?.id}"]`);
             const firstAvailable = container.find('input[type="radio"]:not(:disabled):first');
             
@@ -723,7 +713,6 @@ $(document).ready(function() {
                 stock = selection.size.stock;
                 selectionComplete = true;
             } else if (selection.color) {
-                // Show total stock for the selected color
                 stock = config.variations.color_size[selection.color.id]?.total_stock || 0;
             }
         } else if (config.hasSizeOnly) {
@@ -739,7 +728,6 @@ $(document).ready(function() {
                 selectionComplete = true;
             }
         } else {
-             // Simple product
             selectionComplete = true;
         }
 
@@ -800,17 +788,25 @@ $(document).ready(function() {
                 method: 'POST',
                 data: $('#productForm').serialize(),
                 success: function(response) {
-                    showNotification('Success!', 'Product added to cart', 'success');
-                    
-                    // --- THIS IS THE CORRECTED LINE ---
-                    if (response && typeof response.count !== 'undefined') {
-                        $('.cart-count-badge').text(response.count);
+                    if (response.alert === 'Success') {
+                        showNotification('Success!', response.message, 'success');
+                        
+                        if (response && typeof response.count !== 'undefined') {
+                            $('.cart-count-badge').text(response.count);
+                        }
+                    } else {
+                        showNotification(response.alert || 'Warning', response.message, 'error');
                     }
-                    // --- END OF CORRECTION ---
-                    
                 },
                 error: function(xhr) {
-                    showNotification('Error!', xhr.responseJSON?.message || 'Failed to add to cart', 'error');
+                    let message = 'Failed to add to cart';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        message = response.message || message;
+                    } catch (e) {
+                        // Use default message
+                    }
+                    showNotification('Error!', message, 'error');
                 }
             }).always(function() {
                 btn.prop('disabled', false).html(originalText);
@@ -829,7 +825,7 @@ $(document).ready(function() {
     function showNotification(title, message, type) {
         const notification = $('#notification');
         notification.removeClass('success error').addClass(type).html(`<strong>${title}</strong><br>${message}`).addClass('show');
-        setTimeout(() => notification.removeClass('show'), 3000);
+        setTimeout(() => notification.removeClass('show'), 4000);
     }
 
     // --- RUN ---

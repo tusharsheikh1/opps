@@ -53,6 +53,8 @@ Route::get('brand/{slug}', [ProductController::class, 'showProductByBrand'])->na
 Route::get('brands/list', [ProductController::class, 'allBrand'])->name('brand.list');
 
 Route::get('category/{slug}', [ProductController::class, 'showProductByCategory'])->name('category.product');
+// +++ ADDED NEW ROUTE TO LIST ALL COLLECTIONS +++
+Route::get('collections/list', [ProductController::class, 'allCollection'])->name('collection.list');
 Route::get('collection/{slug}', [ProductController::class, 'showProductByCollection'])->name('collection.product');
 Route::get('sub-category/{slug}', [ProductController::class, 'showProductBySubCategory'])->name('subCategory.product');
 Route::get('mini-category/{slug}', [ProductController::class, 'showProductByMiniCategory'])->name('miniCategory.product');
@@ -73,7 +75,10 @@ Route::get('campaing/product/{slug}', [ProductController::class, 'productDetails
 Route::get('/blogs', [ablogController::class, 'getAllBlogs'])->name('blogs');
 Route::get('/blog/ceo', [ablogController::class, 'getAllCeoBlogs'])->name('blog.ceo');
 Route::get('/blog/show/{blog}', [ablogController::class, 'getBlogByID'])->name('blog.show');
-Route::get('Campaign', [campaingController::class, 'allCampaing'])->name('campaing');
+
+// FIX: Renamed the main campaigns route to 'campaing.index' to resolve the RouteNotFoundException in the header
+Route::get('Campaign', [campaingController::class, 'allCampaing'])->name('campaing.index'); 
+
 Route::Post('Campaign/comments', [campaingController::class, 'comment'])->name('campaing.comment');
 Route::get('Campaign/product/{slug}', [campaingController::class, 'campaignProduct'])->name('campaing.product');
 
@@ -259,4 +264,3 @@ Route::get('/cache', function () {
 })->name('system.cache.clear');
 
 Route::get('/{slug}', [pageController::class, 'pageshow'])->name('page');
-

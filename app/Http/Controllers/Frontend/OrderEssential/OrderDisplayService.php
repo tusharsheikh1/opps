@@ -58,7 +58,7 @@ class OrderDisplayService
                 $product = Product::find($item->product_id);
                 if ($product) {
                     $vendor = User::find($product->user_id);
-                    if ($vendor->role_id == 1) {
+                    if ($vendor && $vendor->role_id == 1) {
                         $amount = $vendor->vendorAccount->pending_amount;
                         $vendor->vendorAccount()->update([
                             'pending_amount' => $amount - $item->g_total
@@ -114,7 +114,7 @@ class OrderDisplayService
                 $product = Product::find($item->product_id);
                 if ($product) {
                     $vendor = User::find($product->user_id);
-                    if ($vendor->role_id == 1) {
+                    if ($vendor && $vendor->role_id == 1) {
                         $amount = $vendor->vendorAccount->pending_amount;
                         $vendor->vendorAccount()->update([
                             'pending_amount' => $amount - $item->g_total

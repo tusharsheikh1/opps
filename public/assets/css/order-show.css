@@ -1,0 +1,291 @@
+/* Purple Theme */
+.btn-purple {
+    background-color: #6f42c1;
+    border-color: #6f42c1;
+    color: white;
+}
+
+.btn-purple:hover {
+    background-color: #5a359e;
+    border-color: #5a359e;
+    color: white;
+}
+
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+/* Grid Layout */
+.gx {
+    display: flex;
+    background: #6dca6d24;
+    padding: 5px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.gx div {
+    flex: 1;
+}
+
+/* Notification Container */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: 350px;
+}
+
+.alert-dismissible {
+    position: relative;
+    padding-right: 4rem;
+}
+
+.alert-dismissible .close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.75rem 1.25rem;
+    color: inherit;
+}
+
+/* Courier Success Rate Card Styles */
+.courier-success-card {
+    display: inline-block;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-left: 10px;
+    min-width: 120px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.courier-success-card.loading {
+    background: #f8f9fa;
+    border-color: #6c757d;
+}
+
+.courier-success-card .success-rate {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.courier-success-card .success-rate.high {
+    color: #28a745;
+}
+
+.courier-success-card .success-rate.medium {
+    color: #ffc107;
+}
+
+.courier-success-card .success-rate.low {
+    color: #dc3545;
+}
+
+.courier-success-card .success-rate.unknown {
+    color: #6c757d;
+}
+
+.courier-success-card .success-label {
+    font-size: 11px;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.courier-success-card .loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.courier-success-card .order-count {
+    font-size: 10px;
+    color: #6c757d;
+    margin-top: 2px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Courier History Styles */
+.courier-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin-right: 10px;
+}
+
+.risk-indicator {
+    border-left: 4px solid;
+    padding-left: 15px;
+}
+
+.risk-high {
+    border-color: #dc3545;
+}
+
+.risk-medium {
+    border-color: #ffc107;
+}
+
+.risk-low {
+    border-color: #28a745;
+}
+
+.risk-new {
+    border-color: #17a2b8;
+}
+
+.courier-stats {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.success-rate-high {
+    color: #28a745 !important;
+    font-weight: bold;
+}
+
+.success-rate-medium {
+    color: #ffc107 !important;
+    font-weight: bold;
+}
+
+.success-rate-low {
+    color: #dc3545 !important;
+    font-weight: bold;
+}
+
+/* Phone number container */
+.phone-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.phone-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+/* Product Variation Badges - Enhanced */
+.badge {
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.4em 0.8em;
+    margin: 2px;
+    display: inline-block;
+    border-radius: 0.25rem;
+    line-height: 1.4;
+}
+
+.badge-info {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+.badge-primary {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.badge-secondary {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* Order Products Table Improvements */
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+.table-bordered td,
+.table-bordered th {
+    border: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Product Image Styling */
+.table img {
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    object-fit: cover;
+}
+
+/* Card Enhancements */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    padding: 1rem 1.25rem;
+}
+
+.card-title {
+    font-weight: 600;
+    margin-bottom: 0;
+    color: #495057;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.3em 0.6em;
+    }
+    
+    .table {
+        font-size: 0.85rem;
+    }
+}

@@ -52,7 +52,11 @@ class Order extends Model
         'admin_notes',
         'refund_amount',
         'refund_method',
-        // Tracking fields
+        // Removed tracking fields from $fillable to prevent mass assignment error during update.
+    ];
+
+    // Tracking fields are set on creation, so they should be guarded from mass assignment during update.
+    protected $guarded = [
         'ip_address',
         'ip_subnet',
         'browser_fingerprint',

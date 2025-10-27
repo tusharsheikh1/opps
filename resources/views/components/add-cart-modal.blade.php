@@ -11,65 +11,56 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <div id="cart-img">
-                            </div>
+                        <div id="cart-img"></div>
                     </div>
                     <div class="col-md-6">
-                        <div class="row ml-1">
-                            <div class="col-12 pl-0 mb-2" id="nhide">
-                                <p><strong>Regular Price: </strong><span id="item_price"></span> {{ setting('CURRENCY_CODE_MIN') ?? 'TK' }}</p>
-                            </div>
-                            <div class="col-12 pl-0 mb-2">
-                                <p><strong id="nprice">Price: </strong><span id="del_price"></span> {{ setting('CURRENCY_CODE_MIN') ?? 'TK' }}</p>
-                            </div>
-                            <div class="col-12 pl-0 mb-2">
-                                <p><strong>Stock: </strong><span id="stock_info">Loading...</span></p>
-                            </div>
-                        </div>
-                        
-                        <div class="row ml-1 mb-3" id="color_section" style="display:none;">
-                            <div class="col-12 pl-0 mb-2">
-                                <p><strong>Select Color: <span id="selected_color_name" class="text-primary"></span></strong></p>
-                            </div>
-                            <div class="col-12 pl-0">
-                                <div class="btn-group-toggle" data-toggle="buttons" id="colors">
-                                    </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row ml-1 mb-3" id="size_section" style="display:none;">
-                            <div class="col-12 pl-0 mb-2">
-                                <p><strong>Select Size: <span id="selected_size_name" class="text-primary"></span></strong></p>
-                            </div>
-                            <div class="col-12 pl-0">
-                                <div id="sizes" class="d-flex flex-wrap gap-2">
-                                    </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row ml-1 mb-3" id="attributes_all">
-                            </div>
-                        
-                        <div class="row ml-1 mb-3">
-                            <div class="col-12 pl-0 mb-2">
-                                <p><strong>Quantity:</strong></p>
-                            </div>
-                            <div class="col-12 pl-0">
-                                <div class="quantity">
-                                    <div class="quantity-select">
-                                        <div class="entry value-minus">&nbsp;</div>
-                                        <input type="text" class="entry value" value="1" min="1" max="1" id="modal_qty">
-                                        <div class="entry value-plus active">&nbsp;</div>
-                                    </div>
+                        <div class="product-info-section">
+                            <h3 id="product-modal-title" class="product-modal-title"></h3>
+                            
+                            <div class="price-wrapper">
+                                <div class="current-price">
+                                    <span class="price-amount" id="del_price"></span>
+                                    <span class="currency-code">{{ setting('CURRENCY_CODE_MIN') ?? 'TK' }}</span>
+                                </div>
+                                <div class="original-price" id="nhide" style="display: none;">
+                                    <span class="strike-price" id="item_price"></span>
+                                    <span class="currency-code">{{ setting('CURRENCY_CODE_MIN') ?? 'TK' }}</span>
                                 </div>
                             </div>
+                            
+                            <div class="stock-badge" id="stock_badge">
+                                <svg class="stock-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M13.5 5.5L6.5 12.5L2.5 8.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span id="stock_info">Loading...</span>
+                            </div>
+                            
+                            <div class="section-divider"></div>
+                            
+                            <div class="selection-section" id="color_section" style="display:none;">
+                                <div class="section-header">
+                                    <span class="section-label">Color</span>
+                                    <span class="selected-value" id="selected_color_name"></span>
+                                </div>
+                                <div class="options-container" id="colors"></div>
+                            </div>
+                            
+                            <div class="selection-section" id="size_section" style="display:none;">
+                                <div class="section-header">
+                                    <span class="section-label">Size</span>
+                                    <span class="selected-value" id="selected_size_name"></span>
+                                </div>
+                                <div class="options-container" id="sizes"></div>
+                            </div>
+                            
+                            <div class="selection-section" id="attributes_all"></div>
                         </div>
                     </div>
                 </div>
             </div>
     
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn-cancel" data-dismiss="modal">Cancel</button>
                 <form action="{{route('add.cart')}}" method="post" id="addToCart">
                     @csrf
                     <fieldset>
@@ -78,8 +69,13 @@
                         <input type="hidden" value="" name="color" id="modal_color_id">
                         <input type="hidden" value="" name="size" id="modal_size_id">
                         <div id="attr_values"></div>
-                        <button type="submit" class="btn btn-success" id="modal_submit_btn" disabled>
-                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        <button type="submit" class="btn-add-cart" id="modal_submit_btn" disabled>
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M6.5 16.5C6.91421 16.5 7.25 16.1642 7.25 15.75C7.25 15.3358 6.91421 15 6.5 15C6.08579 15 5.75 15.3358 5.75 15.75C5.75 16.1642 6.08579 16.5 6.5 16.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14.75 16.5C15.1642 16.5 15.5 16.1642 15.5 15.75C15.5 15.3358 15.1642 15 14.75 15C14.3358 15 14 15.3358 14 15.75C14 16.1642 14.3358 16.5 14.75 16.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M1.25 1.25H4.25L6.14 11.51C6.20671 11.8504 6.38426 12.1583 6.64326 12.3857C6.90226 12.6131 7.22767 12.7467 7.565 12.765H14.3C14.6373 12.7467 14.9627 12.6131 15.2217 12.3857C15.4807 12.1583 15.6583 11.8504 15.725 11.51L17 5H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Add to Cart
                         </button>
                     </fieldset>
                 </form>
@@ -89,161 +85,391 @@
 </div>
 
 <style>
-/* --- FIXES: Button and Header CSS --- */
-/* Enforce black button background and white text for all states */
-#modal_submit_btn,
-#modal_submit_btn:hover,
-#modal_submit_btn:focus,
-#modal_submit_btn:active,
-#modal_submit_btn:disabled {
-    background-color: black !important;
-    border-color: black !important;
-    color: white !important;
+/* --- NEW: Product Title Style --- */
+.product-modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1F2937;
+    margin-top: 0; /* Remove default h3 top margin */
+    margin-bottom: 16px; /* Spacing between title and price */
+    line-height: 1.3;
 }
 
-/* Fix: Remove the blue header completely. Note: The HTML is left as is, this CSS hides it. */
+/* --- Modal Header Hide --- */
 #cart-modal .modal-header {
     background-color: white !important;
     color: black !important;
     border-bottom: none !important;
-    /* Reduce height and padding, then hide children content */
     padding: 0 !important;
     height: 0 !important;
     overflow: hidden !important; 
-    border-top-left-radius: .3rem !important; /* Ensure modal corner shape is correct */
+    border-top-left-radius: .3rem !important;
     border-top-right-radius: .3rem !important;
 }
 
 #cart-modal .modal-header * {
-    display: none !important; /* Force hide all children */
+    display: none !important;
 }
-/* --- EXISTING STYLES --- */
-    .color-option-btn {
-        width: 60px;
-        height: 60px;
-        border: 2px solid #ddd;
-        border-radius: 8px;
-        margin: 5px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
+
+/* --- Product Info Section --- */
+.product-info-section {
+    padding: 0;
+}
+
+/* --- Price Wrapper --- */
+.price-wrapper {
+    margin-bottom: 16px;
+}
+
+.current-price {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.price-amount {
+    font-size: 32px;
+    font-weight: 700;
+    color: #000000;
+    line-height: 1;
+}
+
+.currency-code {
+    font-size: 18px;
+    font-weight: 600;
+    color: #666666;
+}
+
+.original-price {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.strike-price {
+    font-size: 18px;
+    font-weight: 500;
+    color: #999999;
+    text-decoration: line-through;
+    line-height: 1;
+}
+
+/* --- Stock Badge --- */
+.stock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background-color: #F0F9F4;
+    border-radius: 20px;
+    margin-bottom: 24px;
+}
+
+.stock-icon {
+    color: #10B981;
+    flex-shrink: 0;
+}
+
+.stock-badge span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #059669;
+}
+
+/* --- Section Divider --- */
+.section-divider {
+    height: 1px;
+    background-color: #E5E7EB;
+    margin: 20px 0;
+}
+
+/* --- Selection Section --- */
+.selection-section {
+    margin-bottom: 24px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.section-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.selected-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000000;
+}
+
+.options-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* --- Color Options --- */
+.color-option-btn {
+    width: 56px;
+    height: 56px;
+    border: 2px solid #E5E7EB;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+    background: white;
+}
+
+.color-option-btn:hover:not(.disabled) {
+    border-color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.color-option-btn.active {
+    border-color: #000000;
+    border-width: 2.5px;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.color-option-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    position: relative;
+}
+
+.color-option-btn.disabled::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: #EF4444;
+    transform: translateY(-50%) rotate(-45deg);
+}
+
+.color-option-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* --- Size & Attribute Options --- */
+.size-option-btn, 
+.attribute-option-btn {
+    padding: 10px 20px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.size-option-btn:hover:not(.disabled), 
+.attribute-option-btn:hover:not(.disabled) {
+    border-color: #000000;
+    background: #F9FAFB;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.size-option-btn.active, 
+.attribute-option-btn.active {
+    border-color: #000000;
+    background: #000000;
+    color: white;
+    font-weight: 600;
+}
+
+.size-option-btn.disabled, 
+.attribute-option-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+/* --- Modal Footer --- */
+#cart-modal .modal-footer {
+    border-top: 1px solid #E5E7EB;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.btn-cancel {
+    padding: 12px 24px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 8px;
+    background: white;
+    color: #6B7280;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+    border-color: #D1D5DB;
+    background: #F9FAFB;
+    color: #374151;
+}
+
+.btn-add-cart {
+    padding: 12px 32px;
+    border: none;
+    border-radius: 8px;
+    background: #000000;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-add-cart:hover:not(:disabled) {
+    background: #1F2937;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn-add-cart:disabled {
+    background: #D1D5DB;
+    color: #9CA3AF;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-add-cart svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* --- Modal Body Spacing --- */
+#cart-modal .modal-body {
+    padding: 24px;
+}
+
+#cart-modal .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+/* --- Image Container --- */
+#cart-img {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #F9FAFB;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#cart-img img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+    .product-modal-title {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    .price-amount {
+        font-size: 28px;
     }
     
-    .color-option-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    
-    .color-option-btn.active {
-        border-color: #007bff;
-        border-width: 3px;
-        box-shadow: 0 0 0 3px rgba(0,123,255,0.2);
-    }
-    
-    .color-option-btn.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-    
-    .color-option-btn img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .size-option-btn, .attribute-option-btn {
-        padding: 8px 16px;
-        margin: 5px;
-        border: 2px solid #ddd;
-        border-radius: 6px;
-        background: white;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-weight: 500;
-    }
-    
-    .size-option-btn:hover, .attribute-option-btn:hover {
-        border-color: #007bff;
-        background: #f8f9fa;
-    }
-    
-    .size-option-btn.active, .attribute-option-btn.active {
-        border-color: #007bff;
-        background: #007bff;
-        color: white;
-    }
-    
-    .size-option-btn.disabled, .attribute-option-btn.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        text-decoration: line-through;
-    }
-    
-    .quantity-select {
-        display: inline-flex;
-        align-items: center;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        overflow: hidden;
-    }
-    
-    .quantity-select .entry {
-        padding: 8px 15px;
-        border: none;
-        text-align: center;
+    .currency-code {
         font-size: 16px;
-        font-weight: 500;
     }
     
-    .quantity-select .value-minus,
-    .quantity-select .value-plus {
-        background: #f8f9fa;
-        cursor: pointer;
-        user-select: none;
-        font-size: 18px;
-        font-weight: bold;
-        transition: background 0.3s ease;
-        width: 40px;
+    .strike-price {
+        font-size: 16px;
     }
     
-    .quantity-select .value-minus:hover,
-    .quantity-select .value-plus:hover {
-        background: #e9ecef;
+    #cart-modal .modal-footer {
+        flex-direction: column;
     }
     
-    .quantity-select .value {
-        width: 60px;
-        background: white;
+    .btn-cancel,
+    .btn-add-cart {
+        width: 100%;
+        justify-content: center;
     }
     
-    .gap-2 {
-        gap: 0.5rem;
+    .color-option-btn {
+        width: 48px;
+        height: 48px;
     }
+}
+
+/* --- Loading State --- */
+.btn-add-cart .fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
 </style>
 
 @push('js')
 <script>
-$(document).ready(function() {
+(function() {
+    'use strict';
+    
+    // Prevent multiple initializations
+    if (window.cartModalInitialized) {
+        console.log('Cart modal already initialized, skipping...');
+        return;
+    }
+    window.cartModalInitialized = true;
+
     let productData = null;
     let selectedColor = null;
     let selectedSize = null;
     let selectedAttribute = null;
     let maxStock = 1;
+    let isSubmitting = false;
     
-    // When "Add to Cart" button is clicked on product card
-    $(document).on('click', '#productInfo', function(e) {
+    // ===== PRODUCT INFO BUTTON CLICK =====
+    $(document).off('click.productinfo').on('click.productinfo', '#productInfo', function(e) {
         e.preventDefault();
         const url = $(this).data('url');
         
-        // Reset modal
         resetModal();
-        
-        // Show loading state
         $('#cart-modal').modal('show');
         $('#cart-img').html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div>');
         
-        // Fetch product info
         $.ajax({
             url: url,
             type: 'GET',
@@ -266,60 +492,50 @@ $(document).ready(function() {
         selectedColor = null;
         selectedSize = null;
         selectedAttribute = null;
+        isSubmitting = false;
+        
         $('#modal_product_id').val('');
         $('#modal_qty_hidden').val(1);
         $('#modal_color_id').val('');
         $('#modal_size_id').val('');
-        $('#modal_qty').val(1).attr('max', 1);
         $('#attr_values').empty();
         $('#modal_submit_btn').prop('disabled', true);
         $('#selected_color_name').text('');
         $('#selected_size_name').text('');
+        // Reset product title
+        $('#product-modal-title').text('');
+        
+        console.log('Modal reset');
     }
     
     function loadProductToModal(data) {
         const product = data.product;
         
-        // Set product ID
         $('#modal_product_id').val(product.id);
-        
-        // Set product image
-        $('#cart-img').html(`<img src="${product.image}" alt="${product.title}" class="img-fluid rounded">`);
-        
-        // Set prices
+        // Populate product title
+        $('#product-modal-title').text(product.title);
+        $('#cart-img').html(`<img src="${product.image}" alt="${product.title}" class="img-fluid">`);
         $('#item_price').text(product.regular_price);
         
         if (product.discount_price > 0) {
             $('#del_price').text(product.discount_price);
-            $('#nprice').text('Discount Price:');
             $('#nhide').show();
         } else {
             $('#del_price').text(product.regular_price);
-            $('#nprice').text('Price:');
             $('#nhide').hide();
         }
         
-        // Set initial stock
-        $('#stock_info').text(product.total_stock + ' available');
+        $('#stock_info').text(product.total_stock + ' in stock');
         maxStock = product.total_stock;
-        $('#modal_qty').attr('max', maxStock);
         
-        // Handle variations
         if (data.variations) {
-            // Priority 1: Color-Size variations
             if (data.variations.color_size && Object.keys(data.variations.color_size).length > 0) {
                 loadColorSizeVariations(data.variations.color_size, data.allSizes);
-            }
-            // Priority 2: Size-only variations
-            else if (data.variations.size_only && data.variations.size_only.length > 0) {
+            } else if (data.variations.size_only && data.variations.size_only.length > 0) {
                 loadSizeOnlyVariations(data.variations.size_only);
-            }
-            // Priority 3: Attribute variations
-            else if (data.variations.attributes && data.variations.attributes.length > 0) {
+            } else if (data.variations.attributes && data.variations.attributes.length > 0) {
                 loadAttributeVariations(data.variations.attributes);
-            }
-            // Simple product
-            else {
+            } else {
                 enableSubmitButton();
             }
         } else {
@@ -332,8 +548,6 @@ $(document).ready(function() {
         $('#size_section').show();
         
         let colorsHtml = '';
-        
-        // Convert object to array for iteration
         const colors = Object.values(colorSizeData);
         
         colors.forEach(function(colorData) {
@@ -351,7 +565,6 @@ $(document).ready(function() {
                         data-sizes='${JSON.stringify(colorData.sizes)}'
                         ${isOutOfStock ? 'disabled' : ''}>
                         <img src="${imageUrl}" alt="${colorData.color_name}">
-                        <div class="text-center small mt-1">${colorData.color_name}</div>
                     </button>
                 `;
             } else {
@@ -363,15 +576,12 @@ $(document).ready(function() {
                         data-sizes='${JSON.stringify(colorData.sizes)}'
                         ${isOutOfStock ? 'disabled' : ''}>
                         <div style="width:100%;height:100%;background-color:${colorData.color_code}"></div>
-                        <div class="text-center small mt-1">${colorData.color_name}</div>
                     </button>
                 `;
             }
         });
         
         $('#colors').html(colorsHtml);
-        
-        // Auto-select first available color
         $('.color-option-btn:not(.disabled):first').trigger('click');
     }
     
@@ -398,8 +608,6 @@ $(document).ready(function() {
         });
         
         $('#sizes').html(sizesHtml);
-        
-        // Auto-select first available size
         $('.size-option-btn:not(.disabled):first').trigger('click');
     }
     
@@ -408,7 +616,6 @@ $(document).ready(function() {
         $('#color_section').hide();
         $('#size_section').hide();
         
-        // Group attributes by attribute name
         const grouped = {};
         attributesData.forEach(function(attr) {
             if (!grouped[attr.attribute_name]) {
@@ -421,9 +628,12 @@ $(document).ready(function() {
         
         Object.keys(grouped).forEach(function(attrName) {
             attrsHtml += `
-                <div class="col-12 pl-0 mb-3">
-                    <p><strong>Select ${attrName}: <span id="selected_attr_name" class="text-primary"></span></strong></p>
-                    <div class="d-flex flex-wrap gap-2">
+                <div class="selection-section">
+                    <div class="section-header">
+                        <span class="section-label">${attrName}</span>
+                        <span class="selected-value" id="selected_attr_name"></span>
+                    </div>
+                    <div class="options-container">
             `;
             
             grouped[attrName].forEach(function(attr) {
@@ -442,20 +652,15 @@ $(document).ready(function() {
                 `;
             });
             
-            attrsHtml += `
-                    </div>
-                </div>
-            `;
+            attrsHtml += `</div></div>`;
         });
         
         $('#attributes_all').html(attrsHtml);
-        
-        // Auto-select first available attribute
         $('.attribute-option-btn:not(.disabled):first').trigger('click');
     }
     
-    // Color selection handler
-    $(document).on('click', '.color-option-btn', function() {
+    // Color selection
+    $(document).off('click.colorselect').on('click.colorselect', '.color-option-btn', function() {
         if ($(this).hasClass('disabled')) return;
         
         $('.color-option-btn').removeClass('active');
@@ -470,10 +675,8 @@ $(document).ready(function() {
         $('#modal_color_id').val(selectedColor.id);
         $('#selected_color_name').text(selectedColor.name);
         
-        // Load sizes for this color
         loadSizesForColor(selectedColor.sizes);
         
-        // Reset size selection
         selectedSize = null;
         $('#modal_size_id').val('');
         $('#selected_size_name').text('');
@@ -501,13 +704,11 @@ $(document).ready(function() {
         });
         
         $('#sizes').html(sizesHtml);
-        
-        // Auto-select first available size
         $('.size-option-btn:not(.disabled):first').trigger('click');
     }
     
-    // Size selection handler (works for both color-size and size-only)
-    $(document).on('click', '.size-option-btn', function() {
+    // Size selection
+    $(document).off('click.sizeselect').on('click.sizeselect', '.size-option-btn', function() {
         if ($(this).hasClass('disabled')) return;
         
         $('.size-option-btn').removeClass('active');
@@ -527,8 +728,8 @@ $(document).ready(function() {
         checkCanSubmit();
     });
     
-    // Attribute selection handler
-    $(document).on('click', '.attribute-option-btn', function() {
+    // Attribute selection
+    $(document).off('click.attrselect').on('click.attrselect', '.attribute-option-btn', function() {
         if ($(this).hasClass('disabled')) return;
         
         $('.attribute-option-btn').removeClass('active');
@@ -556,36 +757,21 @@ $(document).ready(function() {
         const finalPrice = basePrice + (additionalPrice || 0);
         
         $('#del_price').text(finalPrice);
-        $('#stock_info').text(stock + ' available');
+        $('#stock_info').text(stock + ' in stock');
         
         maxStock = stock;
-        $('#modal_qty').attr('max', maxStock);
-        
-        // Reset quantity if it exceeds new max
-        const currentQty = parseInt($('#modal_qty').val());
-        if (currentQty > maxStock) {
-            $('#modal_qty').val(maxStock);
-            $('#modal_qty_hidden').val(maxStock);
-        }
     }
     
     function checkCanSubmit() {
         let canSubmit = false;
         
-        // Check if we have color-size product
         if ($('#color_section').is(':visible') && $('#size_section').is(':visible')) {
             canSubmit = selectedColor !== null && selectedSize !== null && maxStock > 0;
-        }
-        // Check if we have size-only product
-        else if ($('#size_section').is(':visible') && !$('#color_section').is(':visible')) {
+        } else if ($('#size_section').is(':visible') && !$('#color_section').is(':visible')) {
             canSubmit = selectedSize !== null && maxStock > 0;
-        }
-        // Check if we have attribute product
-        else if ($('#attributes_all').is(':visible')) {
+        } else if ($('#attributes_all').is(':visible')) {
             canSubmit = selectedAttribute !== null && maxStock > 0;
-        }
-        // Simple product
-        else {
+        } else {
             canSubmit = maxStock > 0;
         }
         
@@ -598,58 +784,25 @@ $(document).ready(function() {
         }
     }
     
-    // --- FINAL FIX: UNBINDING AND REBINDING EVENTS ---
-    
-    // Safely remove any existing 'click' handlers on the document specifically targeting '.value-minus'
-    $(document).off('click', '.value-minus').on('click', '.value-minus', function(e) {
-        e.stopImmediatePropagation(); 
-        const input = $('#modal_qty');
-        let value = parseInt(input.val());
-        if (value > 1) {
-            // Update visible input and hidden input directly
-            value = value - 1;
-            input.val(value);
-            $('#modal_qty_hidden').val(value);
-        }
-    });
-    
-    // Safely remove any existing 'click' handlers on the document specifically targeting '.value-plus'
-    $(document).off('click', '.value-plus').on('click', '.value-plus', function(e) {
-        e.stopImmediatePropagation(); 
-        const input = $('#modal_qty');
-        let value = parseInt(input.val());
-        const max = parseInt(input.attr('max'));
-        if (value < max) {
-            // Update visible input and hidden input directly
-            value = value + 1;
-            input.val(value);
-            $('#modal_qty_hidden').val(value);
-        }
-    });
-    // --- END FINAL FIX ---
-    
-    // Centralized change handler for validation and hidden input update
-    $('#modal_qty').on('change', function() {
-        let value = parseInt($(this).val());
-        const max = parseInt($(this).attr('max'));
-        
-        // Validation and Clamping
-        if (isNaN(value) || value < 1) value = 1;
-        if (value > max) value = max;
-        
-        $(this).val(value);
-        // Single source of truth for the hidden input
-        $('#modal_qty_hidden').val(value);
-    });
-    
     // Form submission
-    $('#addToCart').on('submit', function(e) {
+    $('#addToCart').off('submit.cartform').on('submit.cartform', function(e) {
         e.preventDefault();
+        e.stopImmediatePropagation();
         
         const submitBtn = $('#modal_submit_btn');
         const originalText = submitBtn.html();
         
+        if (isSubmitting || submitBtn.prop('disabled')) {
+            console.log('Submission blocked - already in progress');
+            return false;
+        }
+        
+        isSubmitting = true;
         submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Adding...');
+        
+        console.log('=== SUBMITTING TO CART ===');
+        console.log('Quantity: 1 (default)');
+        console.log('Form Data:', $(this).serialize());
         
         $.ajax({
             url: $(this).attr('action'),
@@ -657,10 +810,8 @@ $(document).ready(function() {
             data: $(this).serialize(),
             dataType: 'json',
             success: function(response) {
-                // Restore button state here
-                submitBtn.html(originalText);
-                checkCanSubmit(); 
-
+                console.log('Server Response:', response);
+                
                 if (response.alert === 'Success') {
                     $.toast({
                         heading: 'Success',
@@ -668,21 +819,23 @@ $(document).ready(function() {
                         icon: 'success',
                         position: 'top-right',
                         stack: false,
-                        // Removed afterHidden callback for reload
                     });
                     
-                    // Update cart count visually
                     if (response.count) {
                         $('.cart-count-badge').text(response.count);
                     }
                     
-                    // ⭐ NEW: Wait for 3 seconds before reloading the page to give time to see the success state
                     setTimeout(function() {
+                        $('#cart-modal').modal('hide');
                         window.location.reload();
-                    }, 3000); 
+                    }, 1500);
+                } else {
+                    submitBtn.html(originalText).prop('disabled', false);
+                    isSubmitting = false;
                 }
             },
             error: function(xhr) {
+                console.error('AJAX Error:', xhr);
                 $.toast({
                     heading: 'Error',
                     text: xhr.responseJSON?.message || 'Failed to add to cart',
@@ -690,24 +843,23 @@ $(document).ready(function() {
                     position: 'top-right',
                     stack: false
                 });
-            },
-            complete: function() {
-                // Ensure button is re-enabled/restored on failure or when no success action is taken
-                // This is also a fallback for the success block's restoration if the flow is interrupted
-                submitBtn.prop('disabled', false).html(originalText);
-                checkCanSubmit();
+                submitBtn.html(originalText).prop('disabled', false);
+                isSubmitting = false;
             }
         });
+        
+        return false;
     });
     
     function showError(message) {
         $('#cart-img').html(`<div class="alert alert-danger">${message}</div>`);
     }
     
-    // Reset modal when closed
     $('#cart-modal').on('hidden.bs.modal', function() {
         resetModal();
     });
-});
+    
+    console.log('Cart modal initialized successfully');
+})();
 </script>
 @endpush

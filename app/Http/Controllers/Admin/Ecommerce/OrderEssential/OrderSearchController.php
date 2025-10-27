@@ -202,38 +202,51 @@ class OrderSearchController
             ->orderBy('created_at', 'desc')
             ->get();
 
-            if ($orders->isEmpty()) {
-                return response()->json([
-                    'success' => true,
-                    'orders' => [],
-                    'message' => 'No orders found for this phone number',
-                    'summary' => $this->getEmptyOrderSummary()
-                ]);
-            }
-
-            // Calculate summary statistics
-            $summary = $this->calculateOrderSummary($orders);
+            // Calculate summary statistics (whether orders are empty or not)
+            $summary = $orders->isEmpty() ? $this->getEmptyOrderSummary() : $this->calculateOrderSummary($orders);
 
             // Format orders for response
             $formattedOrders = $this->formatOrdersForResponse($orders);
+
+            // Get courier history and risk assessment using BdCourierService
+            $courierHistory = null;
+            $riskAssessment = null;
+            
+            try {
+                $courierService = new \App\Services\BdCourierService();
+                $courierHistory = $courierService->getCourierHistory($phone);
+                $riskAssessment = $courierService->getRiskAssessment($phone);
+                
+                Log::info('Courier data fetched successfully', [
+                    'phone' => $phone,
+                    'has_courier_data' => !empty($courierHistory),
+                    'has_risk_data' => !empty($riskAssessment)
+                ]);
+            } catch (\Exception $e) {
+                Log::warning('Failed to fetch courier data: ' . $e->getMessage());
+                // Continue without courier data - it's not critical
+            }
 
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
                     'orders' => $formattedOrders,
                     'summary' => $summary,
-                    'phone' => $phone
+                    'phone' => $phone,
+                    'courier_history' => $courierHistory,
+                    'risk_assessment' => $riskAssessment
                 ]);
             }
 
-            return view('admin.e-commerce.order.phone-history', compact('orders', 'summary', 'phone'));
+            return view('admin.e-commerce.order.phone-history', compact('orders', 'summary', 'phone', 'courierHistory', 'riskAssessment'));
 
         } catch (\Exception $e) {
             Log::error('Phone history fetch failed: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch order history'
+                'message' => 'Failed to fetch order history',
+                'error' => $e->getMessage()
             ], 500);
         }
     }

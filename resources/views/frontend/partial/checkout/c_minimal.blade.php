@@ -127,25 +127,19 @@
 
     <div class="checkout-container">
         <div class="checkout-header">
-            <h1>অর্ডার সম্পন্ন করুন</h1>
-            <p>মাত্র কয়েকটি ধাপে আপনার অর্ডার সম্পন্ন করুন</p>
+            <h1>Complete Your Order</h1>
+            <p>Complete your order in just a few steps</p>
         </div>
 
         <div class="order-interval-warning" id="order-interval-warning">
             <div class="warning-header">
                 <div class="warning-icon">⚠️</div>
-                <h4 class="warning-title">অর্ডার সীমাবদ্ধতা</h4>
+                <h4 class="warning-title">Order Restriction</h4>
             </div>
             <p class="warning-text" id="warning-message">
-                অপেক্ষা করুন! আপনি ইতিমধ্যে একটা অর্ডার করেছেন। আপনি <span class="countdown-timer" id="countdown-timer">--</span> পর আবার অর্ডার করতে পারবেন। এটি ভুয়া অর্ডার প্রতিরোধের জন্য। অর্ডারের যেকোন পরিবর্তনের জন্য আমাদের WhatsApp <a href="#" id="whatsapp-link" class="whatsapp-link" target="_blank">
+                Wait! You have already placed an order. You can order again after <span class="countdown-timer" id="countdown-timer">--</span>. This is to prevent fake orders. For any changes to the order, please contact us on WhatsApp <a href="#" id="whatsapp-link" class="whatsapp-link" target="_blank">
                     <strong id="whatsapp-number">{{ setting('whatsapp') ?? setting('phone') ?? '01XXXXXXXXX' }}</strong>
-                </a> এ নক করুন।
-            </p>
-        </div>
-
-        <div class="order-notice">
-            <p class="notice-text">
-                প্রিয় ভাই, অনুগ্রহ করে নিশ্চিত হয়ে "অর্ডার কনফর্ম" বাটনে ক্লিক করুন। আমাদের পক্ষ থেকে ফোন করা হবে না। ফেইক অর্ডারের বিরুদ্ধে আইনগত ব্যবস্থা নেওয়া হবে।
+                </a>.
             </p>
         </div>
 
@@ -171,7 +165,7 @@
 
                         <div class="form-group">
                             <label class="form-label" for="first_name">
-                                পূর্ণ নাম <span class="required">*</span>
+                                Full Name <span class="required">*</span>
                             </label>
                             <input 
                                 type="text" 
@@ -188,7 +182,7 @@
 
                         <div class="form-group">
                             <label class="form-label" for="phone">
-                                ফোন নম্বর <span class="required">*</span>
+                                Phone Number <span class="required">*</span>
                             </label>
                             <input 
                                 type="tel" 
@@ -203,9 +197,10 @@
                             @enderror
                         </div>
 
-                        <div class="form-group" id="email_wrap" style="display: none;">
+                        {{-- START: Updated Email Field (Always visible) --}}
+                        <div class="form-group" id="email_wrap"> 
                             <label class="form-label" for="email">
-                                ইমেইল ঠিকানা <span class="required">*</span>
+                                Email Address
                             </label>
                             <input 
                                 type="email" 
@@ -217,14 +212,15 @@
                                 <span class="error-message">{{ $message }}</span>
                             @enderror
                         </div>
+                        {{-- END: Updated Email Field --}}
 
                         <div class="form-group">
-                            <label class="form-label" for="address">সম্পূর্ণ ঠিকানা</label>
+                            <label class="form-label" for="address">Full Address</label>
                             <textarea 
                                 id="address" 
                                 name="address" 
                                 class="form-textarea @error('address') error @enderror"
-                                placeholder="আপনার সম্পূর্ণ ঠিকানা লিখুন..."
+                                placeholder="Write your full address..."
                             ></textarea>
                             @error('address')
                                 <span class="error-message">{{ $message }}</span>
@@ -234,7 +230,7 @@
                         {{-- Check if $product is set before accessing its properties --}}
                         @if (isset($product) && $product->sheba == 1)
                         <div class="form-group">
-                            <label class="form-label" for="meet">সেবা গ্রহণের তারিখ</label>
+                            <label class="form-label" for="meet">Service Date</label>
                             <input 
                                 type="date" 
                                 id="meet" 
@@ -252,8 +248,8 @@
                                     <label for="dhaka_inside" class="shipping-label">
                                         <div class="shipping-icon">🏙️</div>
                                         <div class="shipping-info">
-                                            <div class="shipping-title">ঢাকার সিটি</div>
-                                            <div class="shipping-charge">{{ setting('shipping_charge') }} {{ setting('CURRENCY_CODE_MIN') ?? 'টাকা' }}</div>
+                                            <div class="shipping-title">Inside Dhaka City</div>
+                                            <div class="shipping-charge">{{ setting('shipping_charge') }} {{ setting('CURRENCY_CODE_MIN') ?? 'Taka' }}</div>
                                         </div>
                                     </label>
                                 </div>
@@ -263,8 +259,8 @@
                                     <label for="dhaka_outside" class="shipping-label">
                                         <div class="shipping-icon">🏘️</div>
                                         <div class="shipping-info">
-                                            <div class="shipping-title">ঢাকা সিটির বাহিরে</div>
-                                            <div class="shipping-charge">{{ setting('shipping_charge_out_of_range') }} {{ setting('CURRENCY_CODE_MIN') ?? 'টাকা' }}</div>
+                                            <div class="shipping-title">Outside Dhaka City</div>
+                                            <div class="shipping-charge">{{ setting('shipping_charge_out_of_range') }} {{ setting('CURRENCY_CODE_MIN') ?? 'Taka' }}</div>
                                         </div>
                                     </label>
                                 </div>
@@ -291,7 +287,7 @@
                                 <input type="radio" name="payment_method" value="Cash on Delivery" id="cod" checked>
                                 <label for="cod" class="payment-label">
                                     <img src="{{ asset('/') }}icon/delivery-man.png" alt="COD" class="payment-icon">
-                                    <span class="payment-text">ক্যাশ অন ডেলিভারি</span>
+                                    <span class="payment-text">Cash on Delivery</span>
                                 </label>
                             </div>
                             @endif
@@ -301,13 +297,13 @@
                                 <input type="radio" name="payment_method" value="Bkash" id="Bkash">
                                 <label for="Bkash" class="payment-label">
                                     <img src="{{ asset('/') }}icon/bkash.png" alt="bKash" class="payment-icon">
-                                    <span class="payment-text">বিকাশ</span>
+                                    <span class="payment-text">bKash</span>
                                 </label>
                             </div>
                             @endif
 
                             <div class="see-more-toggle" onclick="toggleMorePayments()">
-                                <span class="see-more-text">আরো পেমেন্ট অপশন দেখুন</span>
+                                <span class="see-more-text">See more payment options</span>
                                 <svg class="see-more-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
                                     <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
@@ -319,7 +315,7 @@
                                     <input type="radio" name="payment_method" value="aamarpay" id="aamarpay">
                                     <label for="aamarpay" class="payment-label">
                                         <img src="{{ asset('/') }}icon/aamarpay_logo.png" alt="Aamarpay" class="payment-icon">
-                                        <span class="payment-text">আমারপে</span>
+                                        <span class="payment-text">Aamarpay</span>
                                     </label>
                                 </div>
                                 @endif
@@ -329,7 +325,7 @@
                                     <input type="radio" name="payment_method" value="uddoktapay" id="uddoktapay">
                                     <label for="uddoktapay" class="payment-label">
                                         <img src="{{ asset('/') }}icon/uddoktapay.png" alt="Uddoktapay" class="payment-icon">
-                                        <span class="payment-text">উদ্দোক্তাপে</span>
+                                        <span class="payment-text">Uddoktapay</span>
                                     </label>
                                 </div>
                                 @endif
@@ -339,7 +335,7 @@
                                     <input type="radio" name="payment_method" value="Nagad" id="Nagad">
                                     <label for="Nagad" class="payment-label">
                                         <img src="{{ asset('/') }}icon/nagad.png" alt="Nagad" class="payment-icon">
-                                        <span class="payment-text">নগদ</span>
+                                        <span class="payment-text">Nagad</span>
                                     </label>
                                 </div>
                                 @endif
@@ -349,7 +345,7 @@
                                     <input type="radio" name="payment_method" value="Rocket" id="Rocket">
                                     <label for="Rocket" class="payment-label">
                                         <img src="{{ asset('/') }}icon/rocket.png" alt="Rocket" class="payment-icon">
-                                        <span class="payment-text">রকেট</span>
+                                        <span class="payment-text">Rocket</span>
                                     </label>
                                 </div>
                                 @endif
@@ -359,7 +355,7 @@
                                     <input type="radio" name="payment_method" value="Bank" id="Bank">
                                     <label for="Bank" class="payment-label">
                                         <img src="{{ asset('/') }}icon/bank.png" alt="Bank Transfer" class="payment-icon">
-                                        <span class="payment-text">ব্যাংক ট্রান্সফার</span>
+                                        <span class="payment-text">Bank Transfer</span>
                                     </label>
                                 </div>
                                 @endif
@@ -371,7 +367,7 @@
                         @enderror
 
                         <div id="payment-instructions" class="payment-details">
-                            <p>💵 পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।</p>
+                            <p>💵 Pay upon receiving the product.</p>
                         </div>
 
                         <div id="payment-details"></div>
@@ -392,19 +388,74 @@
                         @isset($product)
                             {{-- START: BUY NOW (SINGLE PRODUCT) LOGIC --}}
                             <?php
-                            if (isset($request) && $request->qty >= 6 && $product->whole_price > 0) {
-                                $sub_total = $product->whole_price * $request->qty;
-                            } elseif (isset($request)) {
-                                $sub_total = $request->dynamic_price * $request->qty;
+                            // Use $request?? for safe access with default values
+                            $req_qty = $request->qty ?? 1;
+                            $req_dynamic_price = $request->dynamic_price ?? $product->price; 
+
+                            if ($req_qty >= 6 && $product->whole_price > 0) {
+                                $sub_total = $product->whole_price * $req_qty;
                             } else {
-                                $sub_total = 0;
+                                $sub_total = $req_dynamic_price * $req_qty;
+                            }
+                            
+                            // IMPROVED: Build attributes display for Buy Now
+                            $buyNowAttributes = [];
+                            
+                            // Get color if selected
+                            if (isset($request->color) && $request->color != 'blank') {
+                                try {
+                                    $color = \App\Models\Color::where('slug', $request->color)->first();
+                                    if ($color) {
+                                        $buyNowAttributes['Color'] = $color->name;
+                                    }
+                                } catch (\Exception $e) {
+                                    // Silently fail
+                                }
+                            }
+                            
+                            // Get size and other attributes
+                            if (isset($request->size) && $request->size != 'blank') {
+                                try {
+                                    $sizeAttr = \App\Models\AttributeValue::find($request->size);
+                                    if ($sizeAttr) {
+                                        $buyNowAttributes['Size'] = $sizeAttr->value;
+                                    }
+                                } catch (\Exception $e) {
+                                    // Silently fail
+                                }
+                            }
+                            
+                            // Get other attributes from request
+                            $allAttributes = DB::table('attributes')->get();
+                            foreach ($allAttributes as $attr) {
+                                $slug = $attr->slug;
+                                if ($slug !== 'size' && isset($request->$slug) && $request->$slug != 'blank') {
+                                    try {
+                                        $attrValue = \App\Models\AttributeValue::find($request->$slug);
+                                        if ($attrValue) {
+                                            $buyNowAttributes[$attr->name] = $attrValue->value;
+                                        }
+                                    } catch (\Exception $e) {
+                                        // Silently fail
+                                    }
+                                }
                             }
                             ?>
                             <div class="product-item">
                                 <img src="{{ asset('uploads/product/' . $product->image) }}" alt="{{ $product->title }}" class="product-image">
                                 <div class="product-info">
-                                    <h4 class="product-title">{{ $product->title }} (x{{ $request->qty ?? 1 }})</h4>
-                                    <div class="product-price">{{ number_format($sub_total, 2) }} {{ setting('CURRENCY_CODE_MIN') ?? 'টাকা' }}</div>
+                                    <h4 class="product-title">{{ $product->title }} (x{{ $req_qty }})</h4>
+                                    
+                                    {{-- IMPROVED: Display attributes for Buy Now --}}
+                                    @if (count($buyNowAttributes) > 0)
+                                        <div class="product-attributes" style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">
+                                            @foreach ($buyNowAttributes as $attrName => $attrValue)
+                                                <strong>{{ $attrName }}:</strong> {{ $attrValue }}@if (!$loop->last), @endif
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                    
+                                    <div class="product-price">{{ number_format($sub_total, 2) }} {{ setting('CURRENCY_CODE_MIN') ?? 'Taka' }}</div>
                                 </div>
                             </div>
                             {{-- END: BUY NOW (SINGLE PRODUCT) LOGIC --}}
@@ -424,11 +475,71 @@
                             <input type="hidden" name="stotal" value="{{ $sub_total }}">
 
                             @foreach ($cartItems as $item)
+                                @php
+                                    // IMPROVED: Format attributes for each cart item
+                                    $itemAttributes = [];
+                                    
+                                    // Convert options to array for easier access
+                                    $options = $item->options;
+                                    if (is_object($options)) {
+                                        $options = $options->toArray();
+                                    }
+                                    
+                                    // Get Color
+                                    if (!empty($options['color']) && $options['color'] != 'blank') {
+                                        try {
+                                            $color = \App\Models\Color::where('slug', $options['color'])->first();
+                                            if ($color) {
+                                                $itemAttributes['Color'] = $color->name;
+                                            }
+                                        } catch (\Exception $e) {
+                                            // Silently fail
+                                        }
+                                    }
+                                    
+                                    // Get Size and other attributes
+                                    if (isset($options['attributes'])) {
+                                        $attributes = $options['attributes'];
+                                        // Convert to array if it's an object
+                                        if (is_object($attributes)) {
+                                            $attributes = (array) $attributes;
+                                        }
+                                        
+                                        if (is_array($attributes) && !empty($attributes)) {
+                                            foreach ($attributes as $slug => $attrId) {
+                                                try {
+                                                    $attrValue = \App\Models\AttributeValue::find($attrId);
+                                                    if ($attrValue) {
+                                                        if ($slug === 'size') {
+                                                            $itemAttributes['Size'] = $attrValue->value;
+                                                        } else {
+                                                            $attrName = $attrValue->attribute->name ?? ucfirst($slug);
+                                                            $itemAttributes[$attrName] = $attrValue->value;
+                                                        }
+                                                    }
+                                                } catch (\Exception $e) {
+                                                    // Silently fail
+                                                }
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                
                                 <div class="product-item">
                                     <img src="{{ $item->options->image ? asset('uploads/product/' . $item->options->image) : asset('path/to/default-image.png') }}" alt="{{ $item->name }}" class="product-image">
                                     <div class="product-info">
                                         <h4 class="product-title">{{ $item->name }} (x{{ $item->qty }})</h4>
-                                        <div class="product-price">{{ number_format($item->price * $item->qty, 2) }} {{ setting('CURRENCY_CODE_MIN') ?? 'টাকা' }}</div>
+                                        
+                                        {{-- IMPROVED: Display attributes for Cart items --}}
+                                        @if (count($itemAttributes) > 0)
+                                            <div class="product-attributes" style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">
+                                                @foreach ($itemAttributes as $attrName => $attrValue)
+                                                    <strong>{{ $attrName }}:</strong> {{ $attrValue }}@if (!$loop->last), @endif
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                        
+                                        <div class="product-price">{{ number_format($item->price * $item->qty, 2) }} {{ setting('CURRENCY_CODE_MIN') ?? 'Taka' }}</div>
                                     </div>
                                 </div>
                             @endforeach
@@ -440,23 +551,27 @@
                         <input type="hidden" name="id" value="{{ $request->id ?? null }}">
                         <input type="hidden" name="qty" value="{{ $request->qty ?? 1 }}">
                         <?php
+                        // FIX: Ensure $request and $product are available before trying to access properties
                         $attr = [];
-                        // Add check for $product and $request before running the query
                         if (isset($product) && isset($request)) { 
                             $attributes = DB::table('attributes')->get();
                             foreach ($attributes as $attribute) {
-                                $attribute_prouct = DB::table('attribute_product')
-                                    ->select('*')
-                                    ->join('attribute_values', 'attribute_values.id', '=', 'attribute_product.attribute_value_id')
-                                    ->addselect('attribute_values.name as vName')
-                                    ->addselect('attribute_product.id as vid')
-                                    ->join('attributes', 'attributes.id', '=', 'attribute_values.attributes_id')
-                                    ->where('attribute_product.product_id', $product->id) // This line caused the error
-                                    ->where('attributes.id', $attribute->id)
-                                    ->get();
-                                if ($attribute_prouct->count() > 0) {
-                                    $slug = $attribute->slug;
-                                    $attr[$slug] = $request->$slug;
+                                // Check for attribute value in request
+                                $slug = $attribute->slug;
+                                if (isset($request->$slug)) {
+                                    $attribute_prouct = DB::table('attribute_product')
+                                        ->select('*')
+                                        ->join('attribute_values', 'attribute_values.id', '=', 'attribute_product.attribute_value_id')
+                                        ->addselect('attribute_values.name as vName')
+                                        ->addselect('attribute_product.id as vid')
+                                        ->join('attributes', 'attributes.id', '=', 'attribute_values.attributes_id')
+                                        ->where('attribute_product.product_id', $product->id)
+                                        ->where('attributes.id', $attribute->id)
+                                        ->get();
+                                    
+                                    if ($attribute_prouct->count() > 0) {
+                                        $attr[$slug] = $request->$slug;
+                                    }
                                 }
                             }
                         }
@@ -466,42 +581,42 @@
 
                         <div class="coupon-section">
                             <div class="coupon-toggle" onclick="toggleCoupon()">
-                                <span class="form-label">কুপন আছে?</span>
+                                <span class="form-label">Have a coupon?</span>
                                 <span id="coupon-arrow">+</span>
                             </div>
                             <div id="coupon-form" style="display: none;">
                                 <div class="coupon-input-group">
-                                    <input type="text" id="coupon" class="form-input coupon-input" placeholder="কুপন কোড লিখুন">
-                                    <button type="button" class="btn-apply" onclick="applyCoupon()">প্রয়োগ করুন</button>
+                                    <input type="text" id="coupon" class="form-input coupon-input" placeholder="Enter coupon code">
+                                    <button type="button" class="btn-apply" onclick="applyCoupon()">Apply</button>
                                 </div>
                             </div>
                         </div>
 
                         <div class="summary-row">
-                            <span>উপমোট</span>
+                            <span>Subtotal</span>
                             {{-- This $sub_total variable is now set correctly for both cart and buy-now --}}
-                            <span id="sub-total">{{ number_format($sub_total, 2) }} {{ setting('CURRENCY_CODE_MIN') ?? 'টাকা' }}</span>
+                            <span id="sub-total">{{ number_format($sub_total, 2) }} {{ setting('CURRENCY_CODE_MIN') ?? 'Taka' }}</span>
                         </div>
 
                         <div class="summary-row">
-                            <span>ডেলিভারি চার্জ</span>
+                            <span>Delivery Charge</span>
                             <span id="ship-charge">
                                 @if (isset($order->shipping_charge))
                                     {{ number_format($order->shipping_charge, 2) }}
                                 @else
                                     0.00
                                 @endif
-                                {{ setting('CURRENCY_CODE_MIN') ?? 'টাকা' }}
+                                {{ setting('CURRENCY_CODE_MIN') ?? 'Taka' }}
                             </span>
                         </div>
 
                         <div class="summary-row" id="coupon-row" style="display: none;">
-                            <span>কুপন <span id="coupon-name"></span></span>
-                            <span style="color: #10b981;">-<span id="coupon-discount">0.00</span> {{ setting('CURRENCY_CODE_MIN') ?? 'টাকা' }}</span>
+                            <span>Coupon <span id="coupon-name"></span></span>
+                            <span style="color: #10b981;">-<span id="coupon-discount">0.00</span> {{ setting('CURRENCY_CODE_MIN') ?? 'Taka' }}</span>
                         </div>
 
                         <div class="summary-row total">
-                            <span>মোট</span>
+                            <span>Total</span>
                             <span id="total">
                                 @if (Session::has('coupon'))
                                     @php
@@ -512,7 +627,7 @@
                                 @else
                                     {{ number_format($sub_total, 2) }}
                                 @endif
-                                {{ setting('CURRENCY_CODE_MIN') ?? 'টাকা' }}
+                                {{ setting('CURRENCY_CODE_MIN') ?? 'Taka' }}
                             </span>
                         </div>
 
@@ -520,23 +635,8 @@
                             <div class="btn-content">
                                 <div class="btn-action">
                                     <span class="btn-icon">🛒</span>
-                                    <span id="btn-text">অর্ডার কনফর্ম - মোট: <span id="btn-total-value">
-                                        @if (Session::has('coupon'))
-                                            @php
-                                                $discount = Session::get('coupon')['discount'];
-                                                $shipping_charge = isset($order->shipping_charge) ? $order->shipping_charge : setting('shipping_charge_out_of_range');
-                                                $final_total = $sub_total + $shipping_charge - $discount;
-                                            @endphp
-                                            {{ number_format($final_total, 2) }}
-                                        @else
-                                            @php
-                                                $shipping_charge = isset($order->shipping_charge) ? $order->shipping_charge : setting('shipping_charge_out_of_range');
-                                                $final_total = $sub_total + $shipping_charge;
-                                            @endphp
-                                            {{ number_format($final_total, 2) }}
-                                        @endif
-                                        {{ setting('CURRENCY_CODE_MIN') ?? 'টাকা' }}
-                                    </span></span>
+                                    {{-- UPDATED: Removed total amount and currency from button text --}}
+                                    <span id="btn-text">Place Order</span>
                                     <span id="btn-spinner" class="spinner" style="display: none;"></span>
                                     <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
                                         <path d="M5 12h14m-7-7l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -558,7 +658,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize
     updateShippingCharge();
-    updateButtonTotal();
+    // Removed: updateButtonTotal(); 
     
     // Initialize device tracking for guest users
     if (!{{ auth()->check() ? 'true' : 'false' }}) {
@@ -592,9 +692,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (window.deviceRestrictionActive || window.productRestrictionActive) {
             e.preventDefault();
             if (window.productRestrictionActive) {
-                showAlert('দুঃখিত! আপনি এই পণ্যটি সম্প্রতি অর্ডার করেছেন। নির্ধারিত সময় পর আবার অর্ডার করতে পারবেন।', 'danger');
+                showAlert('Sorry! You have recently ordered this product. You can order again after the specified time.', 'danger');
             } else {
-                showAlert('অপেক্ষা করুন! এই ডিভাইস থেকে অর্ডার ইন্টারভ্যাল এখনো শেষ হয়নি।', 'danger');
+                showAlert('Wait! The order interval for this device is not over yet.', 'danger');
             }
             return false;
         }
@@ -803,7 +903,7 @@ function checkDeviceRestriction() {
     // Prepare request data
     const requestData = {
         phone: phone || 'temp_phone_check',
-        email: email || 'noreply@lems.shop'
+        email: email // FIX: Removed default email, now uses user input or empty string
     };
     
     // Add product ID if available for product restriction check
@@ -865,25 +965,25 @@ function showProductRestrictionWarning(data) {
     const warningMessage = document.getElementById('warning-message');
     
     // Create enhanced product-specific warning message based on restriction reason
-    let customMessage = "দুঃখিত! ";
+    let customMessage = "Sorry! ";
     
     switch (data.restriction_reason) {
         case 'device':
             if (data.last_order_phone && data.last_order_phone !== (document.getElementById('phone')?.value || '')) {
-                customMessage += `এই ডিভাইস থেকে <strong>${data.last_order_phone}</strong> নম্বর দিয়ে এই পণ্যটি <strong>${data.last_order_date}</strong> তারিখে অর্ডার করা হয়েছে। ফোন নম্বর পরিবর্তন করেও একই পণ্য অর্ডার করা যাবে না।`;
+                customMessage += `This product was ordered from this device with the number **${data.last_order_phone}** on **${data.last_order_date}**. You cannot order the same product by changing the phone number.`;
             } else {
-                customMessage += `আপনি এই পণ্যটি <strong>${data.last_order_date}</strong> তারিখে অর্ডার করেছেন।`;
+                customMessage += `You ordered this product on **${data.last_order_date}**.`;
             }
-            customMessage += ` <span class="restriction-tag">ডিভাইস শনাক্ত</span>`;
+            customMessage += ` <span class="restriction-tag">Device Detected</span>`;
             break;
         case 'ip':
-            customMessage += `এই নেটওয়ার্ক থেকে এই পণ্যটি <strong>${data.last_order_date}</strong> তারিখে অর্ডার করা হয়েছে। <span class="restriction-tag">IP ঠিকানা শনাক্ত</span>`;
+            customMessage += `This product was ordered from this network on **${data.last_order_date}**. <span class="restriction-tag">IP Address Detected</span>`;
             break;
         default: // phone
-            customMessage += `আপনি এই পণ্যটি <strong>${data.last_order_date}</strong> তারিখে অর্ডার করেছেন।`;
+            customMessage += `You ordered this product on **${data.last_order_date}**.`;
     }
     
-    customMessage += ` একই পণ্য আরো <strong>${data.remaining_days} দিন</strong> পর অর্ডার করতে পারবেন। নতুন অর্ডারের জন্য আমাদের WhatsApp <a href="#" id="whatsapp-link" class="whatsapp-link" target="_blank"><strong id="whatsapp-number">${data.whatsapp_number || '01XXXXXXXXX'}</strong></a> এ যোগাযোগ করুন।`;
+    customMessage += ` You can order the same product again after **${data.remaining_days} days**. For new orders, please contact us on WhatsApp <a href="#" id="whatsapp-link" class="whatsapp-link" target="_blank"><strong id="whatsapp-number">${data.whatsapp_number || '01XXXXXXXXX'}</strong></a>.`;
     
     if (warningMessage) {
         warningMessage.innerHTML = customMessage;
@@ -946,13 +1046,13 @@ function showDeviceRestrictionWarning(remainingSeconds, whatsappNumber = null, p
     
     // Update warning message based on phone change
     if (phoneChanged && lastPhone && currentPhone) {
-        const customMessage = `অপেক্ষা করুন! এই ডিভাইস থেকে সম্প্রতি ${lastPhone} নম্বর দিয়ে অর্ডার করা হয়েছে। ফোন নম্বর পরিবর্তন করে অর্ডার করা যাবে না। আপনি <span class="countdown-timer" id="countdown-timer">--</span> পর আবার অর্ডার করতে পারবেন। অর্ডারের যেকোন পরিবর্তনের জন্য আমাদের WhatsApp <a href="#" id="whatsapp-link" class="whatsapp-link" target="_blank"><strong id="whatsapp-number">${whatsappNumber || '01XXXXXXXXX'}</strong></a> এ নক করুন।`;
+        const customMessage = `Wait! An order was recently placed from this device with the number ${lastPhone}. You cannot place an order by changing the phone number. You can order again after <span class="countdown-timer" id="countdown-timer">--</span>. For any changes to the order, please contact us on WhatsApp <a href="#" id="whatsapp-link" class="whatsapp-link" target="_blank"><strong id="whatsapp-number">${whatsappNumber || '01XXXXXXXXX'}</strong></a>.`;
         
         if (warningMessage) {
             warningMessage.innerHTML = customMessage;
         }
     } else {
-        const defaultMessage = `অপেক্ষা করুন! এই ডিভাইস থেকে ইতিমধ্যে একটা অর্ডার করা হয়েছে। আপনি <span class="countdown-timer" id="countdown-timer">--</span> পর আবার অর্ডার করতে পারবেন। এটি ভুয়া অর্ডার প্রতিরোধের জন্য। অর্ডারের যেকোন পরিবর্তনের জন্য আমাদের WhatsApp <a href="#" id="whatsapp-link" class="whatsapp-link" target="_blank"><strong id="whatsapp-number">${whatsappNumber || '01XXXXXXXXX'}</strong></a> এ নক করুন।`;
+        const defaultMessage = `Wait! You have already placed an order from this device. You can order again after <span class="countdown-timer" id="countdown-timer">--</span>. This is to prevent fake orders. For any changes to the order, please contact us on WhatsApp <a href="#" id="whatsapp-link" class="whatsapp-link" target="_blank"><strong id="whatsapp-number">${whatsappNumber || '01XXXXXXXXX'}</strong></a>.`;
         
         if (warningMessage) {
             warningMessage.innerHTML = defaultMessage;
@@ -1063,7 +1163,7 @@ function updateWhatsAppLink(phoneNumber) {
             formattedNumber = '880' + cleanNumber.substring(1);
         }
         
-        const message = encodeURIComponent('আসসালামু আলাইকুম। আমি আমার অর্ডার সম্পর্কে জানতে চাই।');
+        const message = encodeURIComponent('Assalamu Alaikum. I want to inquire about my order.');
         const whatsappUrl = `https://wa.me/${formattedNumber}?text=${message}`;
         
         whatsappLink.href = whatsappUrl;
@@ -1092,34 +1192,34 @@ function updatePaymentInstructions(method) {
     
     switch(method) {
         case 'Cash on Delivery':
-            instructions = '💵 পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।';
+            instructions = '💵 Pay upon receiving the product.';
             break;
         case 'Bkash':
-            instructions = `📱 <strong>${bkash}</strong> নম্বরে টাকা পাঠান এবং নিচে ট্রানজেকশনের বিবরণ দিন।`;
+            instructions = `📱 Send money to **${bkash}** and provide transaction details below.`;
             details = getMobilePaymentForm();
             break;
         case 'Nagad':
-            instructions = `📱 <strong>${nagad}</strong> নম্বরে টাকা পাঠান এবং নিচে ট্রানজেকশনের বিবরণ দিন।`;
+            instructions = `📱 Send money to **${nagad}** and provide transaction details below.`;
             details = getMobilePaymentForm();
             break;
         case 'Rocket':
-            instructions = `📱 <strong>${rocket}</strong> নম্বরে টাকা পাঠান এবং নিচে ট্রানজেকশনের বিবরণ দিন।`;
+            instructions = `📱 Send money to **${rocket}** and provide transaction details below.`;
             details = getMobilePaymentForm();
             break;
         case 'Bank':
-            instructions = `🏦 নিচের ব্যাংক অ্যাকাউন্টে টাকা পাঠান এবং ট্রানজেকশনের বিবরণ দিন।<br>
-                           <strong>ব্যাংক:</strong> ${bank}<br>
-                           <strong>শাখা:</strong> ${branch}<br>
-                           <strong>অ্যাকাউন্ট হোল্ডার:</strong> ${holder}<br>
-                           <strong>অ্যাকাউন্ট নম্বর:</strong> ${account}`;
+            instructions = `🏦 Send money to the bank account below and provide transaction details.<br>
+                           **Bank:** ${bank}<br>
+                           **Branch:** ${branch}<br>
+                           **Account Holder:** ${holder}<br>
+                           **Account Number:** ${account}`;
             details = getBankTransferForm();
             break;
         case 'aamarpay':
         case 'uddoktapay':
-            instructions = '🌐 নিরাপদে অনলাইন পেমেন্ট সম্পন্ন করতে আপনাকে রিডিরেক্ট করা হবে।';
+            instructions = '🌐 You will be redirected to complete the online payment securely.';
             break;
         default:
-            instructions = '💵 পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।';
+            instructions = '💵 Pay upon receiving the product.';
     }
     
     instructionsDiv.innerHTML = `<p>${instructions}</p>`;
@@ -1129,12 +1229,12 @@ function updatePaymentInstructions(method) {
 function getMobilePaymentForm() {
     return `
         <div class="form-group">
-            <label class="form-label" for="mobile_number">আপনার মোবাইল নম্বর</label>
-            <input type="text" name="mobile_number" id="mobile_number" class="form-input" placeholder="যেমন: ০১৭১২৩৪৫৬৭৮" required>
+            <label class="form-label" for="mobile_number">Your Mobile Number</label>
+            <input type="text" name="mobile_number" id="mobile_number" class="form-input" placeholder="e.g. 01712345678" required>
         </div>
         <div class="form-group">
-            <label class="form-label" for="transaction_id">ট্রানজেকশন আইডি</label>
-            <input type="text" name="transaction_id" id="transaction_id" class="form-input" placeholder="ট্রানজেকশন আইডি লিখুন" required>
+            <label class="form-label" for="transaction_id">Transaction ID</label>
+            <input type="text" name="transaction_id" id="transaction_id" class="form-input" placeholder="Enter Transaction ID" required>
         </div>
     `;
 }
@@ -1142,42 +1242,50 @@ function getMobilePaymentForm() {
 function getBankTransferForm() {
     return `
         <div class="form-group">
-            <label class="form-label" for="bank_name">ব্যাংকের নাম</label>
-            <input type="text" name="bank_name" id="bank_name" class="form-input" placeholder="ব্যাংকের নাম লিখুন" required>
+            <label class="form-label" for="bank_name">Bank Name</label>
+            <input type="text" name="bank_name" id="bank_name" class="form-input" placeholder="Enter Bank Name" required>
         </div>
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label" for="account_number">অ্যাকাউন্ট নম্বর</label>
-                <input type="text" name="account_number" id="account_number" class="form-input" placeholder="অ্যাকাউন্ট নম্বর" required>
+                <label class="form-label" for="account_number">Account Number</label>
+                <input type="text" name="account_number" id="account_number" class="form-input" placeholder="Account Number" required>
             </div>
             <div class="form-group">
-                <label class="form-label" for="routing">রাউটিং নম্বর</label>
-                <input type="text" name="routing" id="routing" class="form-input" placeholder="রাউটিং নম্বর" required>
+                <label class="form-label" for="routing">Routing Number</label>
+                <input type="text" name="routing" id="routing" class="form-input" placeholder="Routing Number" required>
             </div>
         </div>
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label" for="holder_name">অ্যাকাউন্ট হোল্ডার</label>
-                <input type="text" name="holder_name" id="holder_name" class="form-input" placeholder="অ্যাকাউন্ট হোল্ডারের নাম" required>
+                <label class="form-label" for="holder_name">Account Holder</label>
+                <input type="text" name="holder_name" id="holder_name" class="form-input" placeholder="Account Holder's Name" required>
             </div>
             <div class="form-group">
-                <label class="form-label" for="branch">শাখার নাম</label>
-                <input type="text" name="branch" id="branch" class="form-input" placeholder="শাখার নাম" required>
+                <label class="form-label" for="branch">Branch Name</label>
+                <input type="text" name="branch" id="branch" class="form-input" placeholder="Branch Name" required>
             </div>
         </div>
     `;
 }
 
 function toggleEmailField(method) {
-    const emailWrap = document.getElementById('email_wrap');
     const emailInput = document.getElementById('email');
+    const emailLabel = document.querySelector('#email_wrap label');
     
+    // Only manage the required state for specific payment methods
     if (method === 'uddoktapay') {
-        emailWrap.style.display = 'block';
         emailInput.required = true;
+        // Add required mark to label
+        if (emailLabel && !emailLabel.querySelector('.required')) {
+            emailLabel.innerHTML = emailLabel.textContent.trim() + ' <span class="required">*</span>';
+        }
     } else {
-        emailWrap.style.display = 'none';
         emailInput.required = false;
+        // Remove required mark from label
+        const requiredMark = emailLabel?.querySelector('.required');
+        if (requiredMark) {
+             requiredMark.remove();
+        }
     }
 }
 
@@ -1195,24 +1303,15 @@ function updateShippingCharge() {
         }
     }
     
-    // FIX: In Cart mode, shipping charge might be multiplied by seller count.
-    // The orderStore_minimal route calculates this on the backend.
-    // For Buy Now mode, this is correct.
-    // For Cart mode, this is just a base estimate, the backend will confirm.
     @unless(isset($product))
-        // If we are in cart mode, get the seller count from the hidden field
         const sellerCount = parseInt(document.querySelector('input[name="seller_count"]').value) || 1;
-        // Only multiply if setting is not single charge
-        // This logic is complex, for now, we'll let the backend handle the final charge.
-        // The JS will just show the base rate.
-        // shippingCharge = shippingCharge * sellerCount; // This might be wrong, let's just show base
     @endunless
 
     document.getElementById('ship-charge').textContent = 
-        formatNumber(shippingCharge, 2) + ' {{ setting('CURRENCY_CODE_MIN') ?? 'টাকা' }}';
+        formatNumber(shippingCharge, 2) + ' {{ setting('CURRENCY_CODE_MIN') ?? 'Taka' }}';
     
     updateTotal();
-    updateButtonTotal();
+    // Removed: updateButtonTotal(); 
 }
 
 function updateTotal() {
@@ -1221,23 +1320,13 @@ function updateTotal() {
     const coupon = parseFloat(document.getElementById('coupon-discount').textContent.replace(/[^0-9.-]+/g, '')) || 0;
     
     const total = subtotal + shipping - coupon;
-    const formattedTotal = `${formatNumber(total, 2)} {{ setting('CURRENCY_CODE_MIN') ?? 'টাকা' }}`;
+    const formattedTotal = `${formatNumber(total, 2)} {{ setting('CURRENCY_CODE_MIN') ?? 'Taka' }}`;
     
     // Update summary total
     document.getElementById('total').innerHTML = formattedTotal;
 }
 
-function updateButtonTotal() {
-    const subtotal = parseFloat(document.getElementById('sub-total').textContent.replace(/[^0-9.-]+/g, ''));
-    const shipping = parseFloat(document.getElementById('ship-charge').textContent.replace(/[^0-9.-]+/g, ''));
-    const coupon = parseFloat(document.getElementById('coupon-discount').textContent.replace(/[^0-9.-]+/g, '')) || 0;
-    
-    const total = subtotal + shipping - coupon;
-    const formattedTotal = `${formatNumber(total, 2)} {{ setting('CURRENCY_CODE_MIN') ?? 'টাকা' }}`;
-    
-    // Update button total
-    document.getElementById('btn-total-value').innerHTML = formattedTotal;
-}
+// Removed: function updateButtonTotal() {}
 
 function toggleCoupon() {
     const couponForm = document.getElementById('coupon-form');
@@ -1261,19 +1350,21 @@ function applyCoupon() {
     let url = '';
     
     if (isBuyNow) {
-        // Add default values for $request properties
-        const id = "{!! $request->id ?? null !!}";
-        const qty = "{!! $request->qty ?? 1 !!}";
-        const dynamicPrice = "{!! $request->dynamic_price ?? 0 !!}";
+        // FIX: Safely retrieve all necessary data from hidden fields in the form
+        const id = document.querySelector('input[name="id"]').value || 'null';
+        const qty = document.querySelector('input[name="qty"]').value || '1';
+        const dynamicPrice = document.querySelector('input[name="dynamic_prices"]').value || '0';
+        // Note: The /apply/coupon/buy-now/{code}/{id}/{qty}/{price} route needs to be available
         url = `/apply/coupon/buy-now/${code}/${id}/${qty}/${dynamicPrice}`;
     } else {
         // Cart mode
         const subtotal = parseFloat(document.getElementById('sub-total').textContent.replace(/[^0-9.-]+/g, ''));
+        // Note: The /apply/coupon/{code}/{subtotal} route needs to be available
         url = `/apply/coupon/${code}/${subtotal}`;
     }
 
     if (!code) {
-        showAlert('দয়া করে একটি কুপন কোড লিখুন', 'danger');
+        showAlert('Please enter a coupon code', 'danger');
         return;
     }
     
@@ -1293,13 +1384,13 @@ function applyCoupon() {
                 document.getElementById('coupon-row').style.display = 'flex';
                 document.getElementById('coupon').value = '';
                 updateTotal();
-                updateButtonTotal();
+                // Removed: updateButtonTotal(); 
             } else {
                 showAlert(data.message, 'danger');
             }
         })
         .catch(error => {
-            showAlert('একটি ত্রুটি ঘটেছে। অনুগ্রহ করে আবার চেষ্টা করুন।', 'danger');
+            showAlert('An error occurred. Please try again.', 'danger');
         })
         .finally(() => {
             applyBtn.disabled = false;
@@ -1342,11 +1433,11 @@ function toggleMorePayments() {
             additionalPayments.classList.add('show');
         }, 10);
         toggle.classList.add('expanded');
-        toggleText.textContent = 'কম অপশন দেখুন';
+        toggleText.textContent = 'See fewer options';
     } else {
         additionalPayments.classList.remove('show');
         toggle.classList.remove('expanded');
-        toggleText.textContent = 'আরো পেমেন্ট অপশন দেখুন';
+        toggleText.textContent = 'See more payment options';
         setTimeout(() => {
             additionalPayments.style.display = 'none';
         }, 300);
@@ -1376,9 +1467,9 @@ function handleNetworkError(error) {
     
     // Show user-friendly message for network issues
     if (!navigator.onLine) {
-        showAlert('ইন্টারনেট সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।', 'danger');
+        showAlert('Check your internet connection and try again.', 'danger');
     } else {
-        showAlert('সার্ভার সংযোগে সমস্যা। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।', 'danger');
+        showAlert('Server connection issue. Please try again in a moment.', 'danger');
     }
 }
 </script>

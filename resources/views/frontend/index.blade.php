@@ -1,8 +1,8 @@
 @extends('layouts.frontend.app')
 @push('meta')
 <meta property="og:image" content="{{asset('uploads/setting/'.setting('auth_logo'))}}" />
-<meta name="description" content="Discover thousands of books - novels, textbooks, children's books, and more at the best prices. Shop online for your favorite authors and genres.">
-<meta name="keywords" content="books, novels, textbooks, children books, online bookstore, buy books online">
+<meta name="description" content="Explore the latest in modern fashion, apparel, and accessories. Shop online for trendy clothing, designer collaborations, and seasonal lookbooks.">
+<meta name="keywords" content="clothing, fashion, apparel, shop online, designer wear, trendy outfits, brand store, accessories">
 @endpush
 
 @section('content')
@@ -12,10 +12,11 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 
 @push('css')
 <style>
-/* Modern Book Store Styles */
+/* Modern Clothing Brand Styles */
+/* COLOR PALETTE UPDATE: Changed gradient from book-ish blue/purple to more modern gray/navy or white/light blue for a clean fashion look */
 .modern-section {
     padding: 40px 0;
-    background: linear-gradient(135deg, #f8fafc 0%, #e3f2fd 100%);
+    background: linear-gradient(135deg, #f7f7f7 0%, #e6f0f3 100%); /* Light, clean background */
 }
 
 .modern-section:nth-child(even) {
@@ -32,7 +33,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 .section-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1a202c;
+    color: #1a202c; /* Deep Gray for strong title */
     margin: 0;
     position: relative;
     display: inline-block;
@@ -45,7 +46,8 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     left: 0;
     width: 30px;
     height: 2px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Updated accent color to deep navy/charcoal for premium feel */
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     border-radius: 1px;
 }
 
@@ -57,7 +59,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     display: inline-flex;
     align-items: center;
     gap: 3px;
-    background: #f8f9fa;
+    background: #ffffff;
     color: #495057;
     padding: 4px 8px;
     border: 1px solid #dee2e6;
@@ -75,7 +77,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     border-color: #adb5bd;
 }
 
-/* Modern Category Cards */
+/* Modern Style Categories */
 .book-genres {
     padding: 40px 0;
 }
@@ -96,7 +98,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     transition: all 0.3s ease;
     text-decoration: none;
     color: inherit;
-    border: 1px solid rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(44, 62, 80, 0.1); /* Updated border color */
     position: relative;
     overflow: hidden;
     min-height: 60px;
@@ -112,7 +114,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     left: 0;
     width: 100%;
     height: 2px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); /* Updated accent */
     transform: scaleX(0);
     transition: transform 0.3s ease;
 }
@@ -123,10 +125,10 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 
 .genre-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 6px 20px rgba(44, 62, 80, 0.15); /* Updated shadow */
     text-decoration: none;
     color: inherit;
-    border-color: rgba(102, 126, 234, 0.2);
+    border-color: rgba(44, 62, 80, 0.2); /* Updated border color */
 }
 
 .genre-card h3 {
@@ -139,16 +141,16 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 }
 
 .genre-card:hover h3 {
-    color: #667eea;
+    color: #2c3e50; /* Updated hover color */
 }
 
-/* Book Announcement */
+/* Fashion Announcement */
 .book-announcement {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); /* Updated accent */
     border: none;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 20px rgba(44, 62, 80, 0.3);
 }
 
 .book-announcement .card-header {
@@ -166,7 +168,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     font-size: 0.8rem;
 }
 
-/* Product Grid Layouts */
+/* Product Grid Layouts (No change needed to grid logic) */
 .products-section {
     padding: 40px 0;
 }
@@ -184,28 +186,28 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     align-items: stretch;
 }
 
-/* Responsive Product Columns */
+/* Responsive Product Columns (No change needed) */
 .modern-product-col {
-    padding: 8px; /* Gutter spacing */
-    flex: 0 0 50%;   /* 2 columns on mobile */
+    padding: 8px;
+    flex: 0 0 50%;
     max-width: 50%;
 }
 
 @media (min-width: 768px) {
     .modern-product-col {
-        flex: 0 0 33.3333%; /* 3 columns on tablet */
+        flex: 0 0 33.3333%;
         max-width: 33.3333%;
     }
 }
 
 @media (min-width: 992px) {
     .modern-product-col {
-        flex: 0 0 25%; /* 4 columns on desktop */
+        flex: 0 0 25%;
         max-width: 25%;
     }
 }
 
-/* Product Card Height Consistency */
+/* Product Card Height Consistency (No change needed) */
 .products-row > * {
     display: flex;
     flex-direction: column;
@@ -243,7 +245,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     margin-top: auto;
 }
 
-/* Force minimum height for consistency */
+/* Force minimum height for consistency (No change needed) */
 .products-row .card,
 .products-row .product-card {
     min-height: 350px;
@@ -253,7 +255,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     width: 100%;
 }
 
-/* Slick Slider Overrides (for publishers and featured collections only) */
+/* Slick Slider Overrides (No change needed) */
 .slick-slide {
     padding: 0 6px;
 }
@@ -267,7 +269,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     height: 100%;
 }
 
-/* Publishers Section */
+/* Designers/Vendors Section */
 .publishers-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -292,7 +294,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 
 .publisher-card .cover-image {
     height: 80px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); /* Updated accent */
     position: relative;
 }
 
@@ -326,7 +328,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 
 /* Newsletter Section */
 .newsletter-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); /* Updated accent */
     color: white;
     padding: 40px 0;
 }
@@ -366,7 +368,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 
 .newsletter-btn {
     background: white;
-    color: #667eea;
+    color: #2c3e50; /* Updated button color */
     padding: 8px 15px;
     border: none;
     border-radius: 15px;
@@ -426,7 +428,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     font-size: 0.65rem;
 }
 
-/* Empty State */
+/* Empty State - Icon change */
 .empty-state {
     text-align: center;
     padding: 40px 15px;
@@ -434,6 +436,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 }
 
 .empty-state i {
+    /* Changed to a shopping bag/hanger icon */
     font-size: 2.5rem;
     margin-bottom: 15px;
     opacity: 0.5;
@@ -451,8 +454,8 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 /* Category Toggle - Enhanced for categories section */
 .category-toggle {
     background: none;
-    border: 2px solid #667eea;
-    color: #667eea;
+    border: 2px solid #2c3e50; /* Updated accent */
+    color: #2c3e50; /* Updated accent */
     padding: 10px 20px;
     border-radius: 20px;
     font-weight: 600;
@@ -463,10 +466,10 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 }
 
 .category-toggle:hover {
-    background: #667eea;
+    background: #2c3e50; /* Updated accent */
     color: white;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3); /* Updated shadow */
 }
 
 .categories-container {
@@ -482,8 +485,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     display: block;
 }
 
-/* Responsive Design */
-/* See More Button - Mobile positioning */
+/* Responsive Design (No change needed) */
 .mobile-see-more {
     display: none;
     text-align: center;
@@ -606,7 +608,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     }
 }
 
-/* Slick Slider Overrides */
+/* Slick Slider Overrides (No change needed) */
 .slick-slide {
     padding: 0 6px;
 }
@@ -645,10 +647,10 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     <div class="container">
         <div class="section-header">
             <div>
-                <h2 class="section-title">New Arrivals</h2>
+                <h2 class="section-title">New Collection Arrivals</h2>
             </div>
             <a href="{{route('product')}}" class="view-all-btn">
-                <span>See More</span>
+                <span>Shop All</span>
                 <i class="fas fa-arrow-right"></i>
             </a>
         </div>
@@ -661,15 +663,14 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
             </div>
             <div class="mobile-see-more">
                 <a href="{{route('product')}}" class="view-all-btn">
-                    <span>See More</span>
+                    <span>Shop All</span>
                     <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
         @else
             <div class="empty-state">
-                <i class="fas fa-book-open"></i>
-                <h4>No books available</h4>
-                <p>Check back soon for new arrivals!</p>
+                <i class="fas fa-tshirt"></i> <h4>No clothing available</h4>
+                <p>Check back soon for new style drops!</p>
             </div>
         @endif
     </div>
@@ -681,7 +682,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     <div class="container">
         <div class="card book-announcement">
             <div class="card-header">
-                Latest Book Updates & Offers
+                Latest Style Updates & Limited Offers
             </div>
             <div class="card-body">
                 @php
@@ -699,14 +700,14 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     <div class="container">
         <div class="section-header">
             <div>
-                <h2 class="section-title"> {{ setting('HERO_SLIDER_1_TEXT') ?: 'Featured Book Collections' }}</h2>
+                <h2 class="section-title"> {{ setting('HERO_SLIDER_1_TEXT') ?: 'Featured Styles' }}</h2>
             </div>
         </div>
         <div class="autoplay2 slick-slides">
             @foreach ($sliders_f as $key => $slider_f)
             <div>
                 <a href="{{$slider_f->url}}">
-                    <img src="{{asset('uploads/slider/'.$slider_f->image)}}" alt="Book Collection" style="width: 100%; border-radius: 8px;">
+                    <img src="{{asset('uploads/slider/'.$slider_f->image)}}" alt="Featured Style" style="width: 100%; border-radius: 8px;">
                 </a>
             </div>
             @endforeach
@@ -721,8 +722,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     <div class="container">
         <div class="section-header">
             <div>
-                <h2 class="section-title">🏢 Featured Publishers</h2>
-            </div>
+                <h2 class="section-title">ðŸ‘‘ Featured Designers</h2> </div>
             <a href="{{route('vendors')}}" class="view-all-btn">
                 <span>See More</span>
                 <i class="fas fa-arrow-right"></i>
@@ -736,8 +736,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
                     <div class="profile-section">
                         <img src="{{asset('uploads/shop/profile/'.$shop->profile)}}" alt="{{$shop->name}}" class="profile-image">
                         <h4>{{$shop->name}}</h4>
-                        <p class="publisher-label">Publisher</p>
-                    </div>
+                        <p class="publisher-label">Designer</p> </div>
                 </a>
             </div>
             @endforeach
@@ -757,10 +756,9 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
     <div class="container">
         <div class="section-header">
             <div>
-                <h2 class="section-title">Top Selling Products</h2>
-            </div>
+                <h2 class="section-title">Best Selling Items</h2> </div>
             <a href="{{route('product')}}" class="view-all-btn">
-                <span>See More</span>
+                <span>Shop All</span>
                 <i class="fas fa-arrow-right"></i>
             </a>
         </div>
@@ -773,14 +771,14 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
             </div>
             <div class="mobile-see-more">
                 <a href="{{route('product')}}" class="view-all-btn">
-                    <span>See More</span>
+                    <span>Shop All</span>
                     <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
         @else
             <div class="empty-state">
                 <i class="fas fa-star"></i>
-                <h4>No bestsellers available</h4>
+                <h4>No best selling items available</h4>
             </div>
         @endif
     </div>
@@ -795,7 +793,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
                 @foreach (App\Models\Slider::where('status',1)->where('is_sub',1)->take(2)->get() as $key => $slider)
                 <div class="mb-3">
                     <a href="{{$slider->url}}">
-                        <img src="{{asset('uploads/slider/'.$slider->image)}}" alt="Book Promotion" style="width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <img src="{{asset('uploads/slider/'.$slider->image)}}" alt="Promotion" style="width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                     </a>
                 </div>
                 @endforeach
@@ -804,7 +802,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
                 @foreach (App\Models\Slider::where('status',1)->where('is_sub',1)->skip(2)->take(1)->get() as $key => $slider)
                 <div class="mb-3">
                     <a href="{{$slider->url}}">
-                        <img src="{{asset('uploads/slider/'.$slider->image)}}" alt="Featured Book Promotion" style="width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <img src="{{asset('uploads/slider/'.$slider->image)}}" alt="Featured Promotion" style="width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                     </a>
                 </div>
                 @endforeach
@@ -813,7 +811,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
                 @foreach (App\Models\Slider::where('status',1)->where('is_sub',1)->skip(3)->take(2)->get() as $key => $slider)
                 <div class="mb-3">
                     <a href="{{$slider->url}}">
-                        <img src="{{asset('uploads/slider/'.$slider->image)}}" alt="Book Offer" style="width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <img src="{{asset('uploads/slider/'.$slider->image)}}" alt="Offer" style="width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                     </a>
                 </div>
                 @endforeach
@@ -836,10 +834,9 @@ $products = \App\Models\Product::whereIn('id', $productIds)->take(12)->where('st
     <div class="container">
         <div class="section-header">
             <div>
-                <h2 class="section-title"> {{$cat->name}}</h2>
-            </div>
+                <h2 class="section-title"> {{$cat->name}}</h2> </div>
             <a href="{{route('category.product',$cat->slug)}}" class="view-all-btn">
-                <span>See More</span>
+                <span>Shop {{ $cat->name }}</span>
                 <i class="fas fa-arrow-right"></i>
             </a>
         </div>
@@ -850,7 +847,118 @@ $products = \App\Models\Product::whereIn('id', $productIds)->take(12)->where('st
         </div>
         <div class="mobile-see-more">
             <a href="{{route('category.product',$cat->slug)}}" class="view-all-btn">
-                <span>See More</span>
+                <span>Shop {{ $cat->name }}</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+@endif
+@endforeach
+@endif
+@endif
+
+@if (setting('SUB_CAT_PRODUCT_STATUS') != 0 || setting('SUB_CAT_PRODUCT_STATUS') == "")
+@if(!empty($sub_cat_setting))
+@foreach(json_decode($sub_cat_setting) as $sc)
+@php
+$subcat = DB::table('sub_categories')->where('id',$sc)->first();
+$productIds = DB::table('product_sub_category')->where('sub_category_id', $sc)->get()->pluck('product_id');
+$products = \App\Models\Product::whereIn('id', $productIds)->take(12)->where('status',1)->get();
+@endphp
+@if($subcat && $products->count() > 0)
+<div class="products-section modern-section">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">{{$subcat->name}}</h2> </div>
+            <a href="{{route('subCategory.product',$subcat->slug)}}" class="view-all-btn">
+                <span>Shop {{$subcat->name}}</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="products-row">
+            @foreach ($products->take(4) as $product)
+            <x-product-grid-view :product="$product" classes="modern-product-col" />
+            @endforeach
+        </div>
+        <div class="mobile-see-more">
+            <a href="{{route('subCategory.product',$subcat->slug)}}" class="view-all-btn">
+                <span>Shop {{$subcat->name}}</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+@endif
+@endforeach
+@endif
+@endif
+
+@if (setting('MINI_CAT_PRODUCT_STATUS') != 0 || setting('MINI_CAT_PRODUCT_STATUS') == "")
+@if(!empty($mini_cat_setting))
+@foreach(json_decode($mini_cat_setting) as $mc)
+@php
+$minicat = DB::table('mini_categories')->where('id',$mc)->first();
+$productIds = DB::table('mini_category_product')->where('mini_category_id', $mc)->get()->pluck('product_id');
+$products = \App\Models\Product::whereIn('id', $productIds)->take(12)->where('status',1)->get();
+@endphp
+@if($minicat && $products->count() > 0)
+<div class="products-section modern-section">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">{{$minicat->name}}</h2> </div>
+            <a href="{{route('miniCategory.product',$minicat->slug)}}" class="view-all-btn">
+                <span>Shop {{$minicat->name}}</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="products-row">
+            @foreach ($products->take(4) as $product)
+            <x-product-grid-view :product="$product" classes="modern-product-col" />
+            @endforeach
+        </div>
+        <div class="mobile-see-more">
+            <a href="{{route('miniCategory.product',$minicat->slug)}}" class="view-all-btn">
+                <span>Shop {{$minicat->name}}</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+@endif
+@endforeach
+@endif
+@endif
+
+@if (setting('EXTRA_CAT_PRODUCT_STATUS') != 0 || setting('EXTRA_CAT_PRODUCT_STATUS') == "")
+@if(!empty($extra_cat_setting))
+@foreach(json_decode($extra_cat_setting) as $ec)
+@php
+$extracat = DB::table('extra_mini_categories')->where('id',$ec)->first();
+$productIds = DB::table('extra_mini_category_product')->where('extra_mini_category_id', $ec)->get()->pluck('product_id');
+$products = \App\Models\Product::whereIn('id', $productIds)->take(12)->where('status',1)->get();
+@endphp
+@if($extracat && $products->count() > 0)
+<div class="products-section modern-section">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">{{$extracat->name}}</h2> </div>
+            <a href="{{route('extraCategory.product',$extracat->slug)}}" class="view-all-btn">
+                <span>Shop {{$extracat->name}}</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="products-row">
+            @foreach ($products->take(4) as $product)
+            <x-product-grid-view :product="$product" classes="modern-product-col" />
+            @endforeach
+        </div>
+        <div class="mobile-see-more">
+            <a href="{{route('extraCategory.product',$extracat->slug)}}" class="view-all-btn">
+                <span>Shop {{$extracat->name}}</span>
                 <i class="fas fa-arrow-right"></i>
             </a>
         </div>
@@ -866,23 +974,20 @@ $products = \App\Models\Product::whereIn('id', $productIds)->take(12)->where('st
     <div class="container">
         <div class="section-header">
             <div>
-                <h2 class="section-title">📖 Book Collections</h2>
-            </div>
+                <h2 class="section-title">Collections</h2> </div>
         </div>
         <div class="collections-grid">
             @foreach ($collections as $key => $collection)
             <div class="collection-card">
                 <a href="{{route('collection.product', $collection->slug)}}">
-                    <img src="{{asset('uploads/collection/'.$collection->cover_photo)}}" alt="{{$collection->name}} Book Collection">
-                    <div class="content">
+                    <img src="{{asset('uploads/collection/'.$collection->cover_photo)}}" alt="{{$collection->name}} Collection"> <div class="content">
                         <h4>{{$collection->name}}</h4>
                         @php
                         $categoryIds = $collection->categories->pluck('id');
                         $productIds = DB::table('category_product')->whereIn('category_id', $categoryIds)->get()->pluck('product_id');
                         $products = \App\Models\Product::whereIn('id', $productIds)->where('status',1)->count();
                         @endphp
-                        <p class="book-count">{{$products}} books available</p>
-                    </div>
+                        <p class="book-count">{{$products}} styles available</p> </div>
                 </a>
             </div>
             @endforeach
@@ -895,12 +1000,9 @@ $products = \App\Models\Product::whereIn('id', $productIds)->take(12)->where('st
 <div class="newsletter-section">
     <div class="container">
         <div class="newsletter-content">
-            <h2> Stay Updated with New Book Releases</h2>
-            <p>Get notified about new arrivals, bestsellers, and exclusive book deals. We respect your privacy and won't spam your inbox.</p>
-            <form action="{{route('subscription')}}" method="Post" id="newsletter-form" class="newsletter-form">
+            <h2> Get Exclusive Style Drops & VIP Access</h2> <p>Be the first to know about new collection launches, designer collaborations, and exclusive discounts. Your inbox will thank you.</p> <form action="{{route('subscription')}}" method="Post" id="newsletter-form" class="newsletter-form">
                 @csrf
-                <input type="email" name="subscription" placeholder="Enter Your Email for Book Updates" class="newsletter-input" required>
-                <button type="submit" class="newsletter-btn">Subscribe</button>
+                <input type="email" name="subscription" placeholder="Enter Your Email for Style Updates" class="newsletter-input" required> <button type="submit" class="newsletter-btn">Subscribe</button>
             </form>
         </div>
     </div>
@@ -915,7 +1017,7 @@ $products = \App\Models\Product::whereIn('id', $productIds)->take(12)->where('st
 @push('js')
 <script>
 $(document).ready(function () {
-    // Category progressive loading functionality
+    // Category progressive loading functionality (no changes needed)
     let currentlyShowing = 0;
     const totalCategories = $('.category-item').length;
     
@@ -961,7 +1063,7 @@ $(document).ready(function () {
         initializeCategories();
     });
 
-    // Cart quantity controls
+    // Cart quantity controls (no changes needed)
     $('.value-plus').on('click', function () {
         var divUpd = $(this).parent().find('.value'),
             newVal = parseInt(divUpd.val(), 10) + 1;
@@ -978,7 +1080,7 @@ $(document).ready(function () {
         }
     });
 
-    // Add to cart form submission
+    // Add to cart form submission (no changes needed to logic, only success message updated)
     $(document).on('submit', '#addToCart', function (e) {
         e.preventDefault();
         let url = $(this).attr('action');
@@ -999,7 +1101,7 @@ $(document).ready(function () {
                     showToast('Warning', response.message, 'warning');
                 } else {
                     $('span#total-cart-amount').text(response.subtotal);
-                    showToast('Book Added!', response.message, 'success');
+                    showToast('Item Added!', response.message, 'success'); // Changed 'Book Added!'
                     $('#cart-modal').modal('hide');
                 }
             },
@@ -1012,7 +1114,7 @@ $(document).ready(function () {
         });
     });
 
-    // Newsletter subscription
+    // Newsletter subscription (success message updated)
     $(document).on('submit', '#newsletter-form', function (e) {
         e.preventDefault();
         let url = $(this).attr('action');
@@ -1029,7 +1131,7 @@ $(document).ready(function () {
                 btn.find('button').attr('disabled', true).text('Subscribing...');
             },
             success: function (response) {
-                showToast('Success!', 'You have been subscribed to book updates!', 'success');
+                showToast('Success!', 'You have been subscribed to style updates!', 'success'); // Changed 'book updates!'
                 btn[0].reset();
             },
             complete: function () {
@@ -1041,7 +1143,7 @@ $(document).ready(function () {
         });
     });
 
-    // Toast notification function
+    // Toast notification function (no changes needed)
     function showToast(heading, message, icon) {
         if (typeof $.toast === 'function') {
             $.toast({
@@ -1058,7 +1160,7 @@ $(document).ready(function () {
     }
 });
 
-// Slick sliders initialization
+// Slick sliders initialization (no changes needed)
 $(document).ready(function() {
     // Main slider
     $('.slider').slick({

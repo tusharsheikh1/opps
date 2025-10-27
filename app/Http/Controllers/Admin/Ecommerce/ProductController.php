@@ -969,10 +969,13 @@ class ProductController extends Controller
         return response()->json($data);
     }
     
-    // get mini category by category
+    // ========================================
+    // FIXED: Get mini category by SUB category
+    // ========================================
     public function miniCategory(Request $request)
     {
-        $data = miniCategory::whereIn('category_id', $request->ids)->get(['id', 'name']);
+        // CHANGED FROM 'category_id' TO 'sub_category_id'
+        $data = miniCategory::whereIn('sub_category_id', $request->ids)->get(['id', 'name']);
         return response()->json($data);
     }
 
@@ -1009,5 +1012,16 @@ class ProductController extends Controller
             ->paginate(50);
         
         return view('admin.e-commerce.product.low-stock', compact('products'));
+    }
+    
+    public function approveProduct($id)
+    {
+        $product = Product::findOrFail($id);
+        $product->update([
+            'is_aproved' => true,
+            'status' => true,
+        ]);
+        notify()->success("Product approved successfully", "Approved");
+        return back();
     }
 }

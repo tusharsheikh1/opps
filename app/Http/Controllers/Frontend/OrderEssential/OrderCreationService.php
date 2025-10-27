@@ -113,7 +113,7 @@ class OrderCreationService
                 $remainingMinutes = ceil($remainingSeconds / 60);
                 $whatsappNumber = setting('whatsapp') ?? setting('phone') ?? '01XXXXXXXXX';
 
-                notify()->warning("অপেক্ষা করুন! আপনি ইতিমধ্যে একটা অর্ডার করেছেন। আপনি {$remainingMinutes} মিনিট পর আবার অর্ডার করতে পারবেন। এটি ভুয়া অর্ডার প্রতিরোধের জন্য। অর্ডারের যেকোন পরিবর্তনের জন্য আমাদের WhatsApp {$whatsappNumber} এ নক করুন।", "অর্ডার সীমাবদ্ধতা");
+                notify()->warning("à¦…à¦ªà§‡à¦•à§à¦·à¦¾ à¦•à¦°à§à¦¨! à¦†à¦ªà¦¨à¦¿ à¦‡à¦¤à¦¿à¦®à¦§à§à¦¯à§‡ à¦à¦•à¦Ÿà¦¾ à¦…à¦°à§à¦¡à¦¾à¦° à¦•à¦°à§‡à¦›à§‡à¦¨à¥¤ à¦†à¦ªà¦¨à¦¿ {$remainingMinutes} à¦®à¦¿à¦¨à¦¿à¦Ÿ à¦ªà¦° à¦†à¦¬à¦¾à¦° à¦…à¦°à§à¦¡à¦¾à¦° à¦•à¦°à¦¤à§‡ à¦ªà¦¾à¦°à¦¬à§‡à¦¨à¥¤ à¦à¦Ÿà¦¿ à¦­à§à¦¯à¦¼à¦¾ à¦…à¦°à§à¦¡à¦¾à¦° à¦ªà§à¦°à¦¤à¦¿à¦°à§‹à¦§à§‡à¦° à¦œà¦¨à§à¦¯à¥¤ à¦…à¦°à§à¦¡à¦¾à¦°à§‡à¦° à¦¯à§‡à¦•à§‹à¦¨ à¦ªà¦°à¦¿à¦¬à¦°à§à¦¤à¦¨à§‡à¦° à¦œà¦¨à§à¦¯ à¦†à¦®à¦¾à¦¦à§‡à¦° WhatsApp {$whatsappNumber} à¦ à¦¨à¦• à¦•à¦°à§à¦¨à¥¤", "à¦…à¦°à§à¦¡à¦¾à¦° à¦¸à§€à¦®à¦¾à¦¬à¦¦à§à¦§à¦¤à¦¾");
                 return redirect()->back();
             }
         }
@@ -160,12 +160,33 @@ class OrderCreationService
             $vp = $price * $item->qty;
             $gt = $this->calculateGrandTotal($vendor, $vp); // Pass null-safe vendor
 
+            // --- START: VARIATION DATA FIX (Location 1: orderStore_minimal) ---
+            $attributes = $item->options->attributes ?? [];
+            $colorValue = $item->options->color ?? 'blank';
+            $sizeJsonData = null;
+
+            if (!empty($attributes) && is_array($attributes)) {
+                if (isset($attributes['size'])) {
+                    $sizeId = $attributes['size'];
+                    $sizeJsonData = json_encode(['size_id' => $sizeId]);
+                } else {
+                    $attributeData = [];
+                    foreach ($attributes as $attrSlug => $attrValueId) {
+                        $attributeData[] = ['attribute_value_id' => $attrValueId];
+                    }
+                    $sizeJsonData = json_encode($attributeData);
+                }
+            } else {
+                $sizeJsonData = json_encode([]);
+            }
+            // --- END: VARIATION DATA FIX ---
+
             $order->orderDetails()->create([
                 'product_id'  => $item->id,
                 'seller_id'   => $pp->user_id, // Can be null
                 'title'       => $item->name,
-                'color'       => $item->options->color ?? 'blank',
-                'size'        => json_encode($item->options->attributes), // Keep json_encode here
+                'color'       => $colorValue,
+                'size'        => $sizeJsonData, // CORRECTED: Use transformed JSON data
                 'qty'         => $item->qty,
                 'price'       => $price,
                 'total_price' => $price * $item->qty,
@@ -492,7 +513,7 @@ class OrderCreationService
         }
 
         // If vendor exists and is admin, no commission deducted for seller
-        if ($vendor->role_id == 1) {
+        if ($vendor && $vendor->role_id == 1) {
             return $vp;
         } else {
             // Vendor exists and is not admin
@@ -789,7 +810,6 @@ class OrderCreationService
                 ]);
 
                  // Deduct from user's wallet (ensure this happens only once)
-                // The wallet deduction should ideally happen before this loop or be handled carefully
                 // Let's assume the wallet was already deducted in the main orderStore method.
                  \Log::info('Partial payment applied from wallet.', ['order_id' => $order->id, 'amount_applied' => $request->partial_paid - $amount]);
              }
@@ -988,13 +1008,33 @@ class OrderCreationService
             $vp = $price * $item->qty;
             $gt = $this->calculateGrandTotal($vendor, $vp); // Handles null vendor
 
+            // --- START: VARIATION DATA FIX (Location 3: processGuestOrder) ---
+            $attributes = $item->options->attributes ?? [];
+            $colorValue = $item->options->color ?? 'blank';
+            $sizeJsonData = null;
+
+            if (!empty($attributes) && is_array($attributes)) {
+                if (isset($attributes['size'])) {
+                    $sizeId = $attributes['size'];
+                    $sizeJsonData = json_encode(['size_id' => $sizeId]);
+                } else {
+                    $attributeData = [];
+                    foreach ($attributes as $attrSlug => $attrValueId) {
+                        $attributeData[] = ['attribute_value_id' => $attrValueId];
+                    }
+                    $sizeJsonData = json_encode($attributeData);
+                }
+            } else {
+                $sizeJsonData = json_encode([]);
+            }
+            // --- END: VARIATION DATA FIX ---
 
             $order->orderDetails()->create([
                 'product_id'  => $item->id,
                 'seller_id'   => $pp->user_id, // Can be null
                 'title'       => $item->name,
-                'color'       => $item->options->color ?? 'blank',
-                'size'        => json_encode($item->options->attributes), // Keep json_encode
+                'color'       => $colorValue,
+                'size'        => $sizeJsonData, // CORRECTED: Use transformed JSON data
                 'qty'         => $item->qty,
                 'price'       => $price,
                 'total_price' => $price * $item->qty,
@@ -1059,13 +1099,33 @@ class OrderCreationService
              $vp = $price * $item->qty;
              $gt = $this->calculateGrandTotal($vendor, $vp); // Handles null vendor
 
+             // --- START: VARIATION DATA FIX (Location 2: processCartItems) ---
+            $attributes = $item->options->attributes ?? [];
+            $colorValue = $item->options->color ?? 'blank';
+            $sizeJsonData = null;
+
+            if (!empty($attributes) && is_array($attributes)) {
+                if (isset($attributes['size'])) {
+                    $sizeId = $attributes['size'];
+                    $sizeJsonData = json_encode(['size_id' => $sizeId]);
+                } else {
+                    $attributeData = [];
+                    foreach ($attributes as $attrSlug => $attrValueId) {
+                        $attributeData[] = ['attribute_value_id' => $attrValueId];
+                    }
+                    $sizeJsonData = json_encode($attributeData);
+                }
+            } else {
+                $sizeJsonData = json_encode([]);
+            }
+            // --- END: VARIATION DATA FIX ---
 
             $order->orderDetails()->create([
                 'product_id'  => $item->id,
                 'seller_id'   => $pp->user_id, // Can be null
                 'title'       => $item->name,
-                'color'       => $item->options->color ?? 'blank',
-                'size'        => json_encode($item->options->attributes), // Keep json_encode
+                'color'       => $colorValue,
+                'size'        => $sizeJsonData, // CORRECTED: Use transformed JSON data
                 'qty'         => $item->qty,
                 'price'       => $price,
                 'total_price' => $price * $item->qty,

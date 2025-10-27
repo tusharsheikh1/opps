@@ -93,12 +93,12 @@ class OrderStatusManager
 
                     // Reverse vendor payment
                     $vendor = User::find($product->user_id);
-                    if ($vendor->role_id == 1) {
+                    if ($vendor && $vendor->role_id == 1) {
                         $amount = $vendor->vendorAccount->amount;
                         $vendor->vendorAccount()->update([
                             'amount' => $amount - $item->g_total
                         ]);
-                    } else {
+                    } elseif ($vendor) {
                         $grand_total = $item->g_total;
                         $admin_amount = Commission::where('order_id',$order->id)->first();
                         if ($admin_amount) {
@@ -241,13 +241,13 @@ class OrderStatusManager
                 $product = Product::find($item->product_id);
                 if ($product) {
                     $vendor = User::find($product->user_id);
-                    if ($vendor->role_id == 1) {
+                    if ($vendor && $vendor->role_id == 1) {
                         $amount = $vendor->vendorAccount->amount;
                         $vendor->vendorAccount()->update([
                             'amount' => $amount + $item->g_total
                         ]);
                     }
-                    else {
+                    elseif ($vendor) {
                         $grand_total = $item->g_total;
                         $admin_amount = Commission::where('order_id',$order->id)->first();
                         
@@ -391,13 +391,13 @@ class OrderStatusManager
                 $product = Product::find($item->product_id);
                 if ($product) {
                     $vendor = User::find($product->user_id);
-                    if ($vendor->role_id == 1) {
+                    if ($vendor && $vendor->role_id == 1) {
                         $amount = $vendor->vendorAccount->amount;
                         $vendor->vendorAccount()->update([
                             'amount' => $amount - $item->g_total
                         ]);
                     }
-                    else {
+                    elseif ($vendor) {
                         $grand_total = $item->g_total;
                         $admin_amount = Commission::where('order_id',$order->id)->first();
                         if ($admin_amount) {
@@ -424,7 +424,7 @@ class OrderStatusManager
                 }
             }
             // This logic is also buggy.
-            // if ($vendor->role_id != 1) {
+            // if ($vendor && $vendor->role_id != 1) {
             //     $adminAccount->update([
             //         'amount' => $amount - $admin_amount->amount
             //     ]);
