@@ -23,180 +23,80 @@
 
         body { font-family: 'Inter', sans-serif; color: var(--dark-color); background: #fafafa; }
         .product-page-wrapper { padding: 30px 0; }
-        .product-main-card { background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06); overflow: hidden; margin-bottom: 30px; border: 1px solid #f3f4f6; }
+        .product-main-card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); overflow: hidden; margin-bottom: 30px; }
         .product-gallery { position: relative; background: white; padding: 20px; }
-        .main-image-container { position: relative; width: 100%; height: 500px; border-radius: 12px; overflow: hidden; background: #fafafa; display: flex; align-items: center; justify-content: center; border: 1px solid #f0f0f0; }
-        .main-image { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.4s ease; }
-        .main-image:hover { transform: scale(1.03); }
+        .main-image-container { position: relative; width: 100%; height: 500px; border-radius: 8px; overflow: hidden; background: #f9fafb; display: flex; align-items: center; justify-content: center; }
+        .main-image { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.3s ease; }
+        .main-image:hover { transform: scale(1.05); }
         .image-thumbnails { display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; padding: 10px 0; }
-        .thumbnail-item { flex: 0 0 80px; height: 80px; border-radius: 10px; overflow: hidden; cursor: pointer; border: 2px solid #f0f0f0; transition: all 0.2s ease; background: white; }
-        .thumbnail-item:hover, .thumbnail-item.active { border-color: var(--primary-color); transform: translateY(-3px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        .thumbnail-item { flex: 0 0 80px; height: 80px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: all 0.3s ease; }
+        .thumbnail-item:hover, .thumbnail-item.active { border-color: var(--primary-color); transform: translateY(-2px); }
         .thumbnail-item img { width: 100%; height: 100%; object-fit: cover; }
         .product-info { padding: 30px; }
-        .product-title { font-size: 28px; font-weight: 700; color: var(--dark-color); margin-bottom: 15px; line-height: 1.3; }
+        .product-title { 
+            font-size: 32px; /* UPDATED from 28px to 32px */
+            font-weight: 700; 
+            color: var(--dark-color); 
+            margin-bottom: 15px; 
+            line-height: 1.3; 
+        }
         .product-meta { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
         .meta-item { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #6b7280; }
         .meta-item i { color: var(--primary-color); }
         .meta-item a { color: var(--primary-color); text-decoration: none; }
         .meta-item a:hover { text-decoration: underline; }
-        /* --- MODERN PRICE SECTION STYLES --- */
-        .price-section { 
-            background: white; 
-            padding: 24px; 
-            border-radius: 16px; 
-            margin-bottom: 25px; 
-            border: 1px solid var(--border-color); 
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05); 
-        }
-        .price-display { 
-            display: flex; 
-            align-items: flex-end; 
-            gap: 15px; 
-            flex-wrap: wrap; 
-        }
-        .current-price { 
-            font-size: 40px; 
-            font-weight: 800; 
-            color: var(--dark-color); 
-            line-height: 1;
-        }
-        .price-details {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .original-price { 
-            font-size: 16px; 
-            color: #9ca3af; 
-            text-decoration: line-through; 
-            margin-top: 5px;
-            line-height: 1;
-        }
-        .discount-badge { 
-            background: var(--danger-color); 
-            color: white; 
-            padding: 6px 14px; 
-            border-radius: 8px; 
-            font-size: 14px; 
-            font-weight: 700; 
-            margin-left: 10px;
-            line-height: 1;
-        }
-        /* --- END MODERN PRICE SECTION STYLES --- */
-        .stock-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; font-weight: 500; font-size: 14px; margin-left: 16px; }
+        .price-section { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 20px; border-radius: 10px; margin-bottom: 25px; }
+        .price-display { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .current-price { font-size: 36px; font-weight: 800; color: var(--danger-color); }
+        .original-price { font-size: 20px; color: #f9a200ff; text-decoration: line-through; }
+        .discount-badge { background: var(--danger-color); color: white; padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+        .stock-status { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; }
         .stock-status.in-stock { background: #d1fae5; color: #065f46; }
         .stock-status.low-stock { background: #fef3c7; color: #92400e; }
         .stock-status.out-of-stock { background: #fee2e2; color: #991b1b; }
-        .stock-status i { font-size: 12px; }
         .color-selection, .size-selection, .attribute-selection { margin-bottom: 25px; }
-        .section-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: var(--dark-color); letter-spacing: -0.01em; }
+        .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--dark-color); }
         .color-options { display: flex; flex-wrap: wrap; gap: 12px; }
-        /* START: MODIFIED COLOR OPTION STYLES */
-        .color-option { 
-            position: relative; 
-            cursor: pointer; 
-            border: 3px solid var(--border-color); 
-            border-radius: 12px; 
-            overflow: hidden; 
-            transition: all 0.3s ease; 
-        }
-        .color-option:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1); 
-            border-color: #ccc;
-        }
-        .color-option.active { 
-            border-color: var(--primary-color); 
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2); 
-        }
-        .color-option.active:hover {
-             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2); 
-             transform: translateY(0); 
-        }
-        /* Selected Checkmark Overlay for Active State */
-        .color-option.active::after {
-            content: "\f00c"; 
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            color: white;
-            background: var(--primary-color);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            z-index: 20;
-        }
+        .color-option { position: relative; cursor: pointer; border: 3px solid transparent; border-radius: 8px; overflow: hidden; transition: all 0.3s ease; }
+        .color-option:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+        .color-option.active { border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
         .color-option.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
         .color-option input { display: none; }
         .color-preview { width: 90px; height: 90px; object-fit: cover; display: block; }
         .color-swatch { width: 90px; height: 90px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
-        .color-name { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px; font-size: 11px; text-align: center; font-weight: 500; }
+        .color-name { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.7); color: white; padding: 4px 8px; font-size: 11px; text-align: center; }
         .attribute-options { display: flex; flex-wrap: wrap; gap: 10px; }
         .attribute-option { position: relative; }
         .attribute-option input { display: none; }
-        /* START: MODIFIED SIZE/ATTRIBUTE LABEL STYLES (PILL DESIGN) */
-        .attribute-option label { 
-            display: block; 
-            padding: 8px 18px; 
-            border: 1px solid var(--border-color); 
-            border-radius: 50px; 
-            cursor: pointer; 
-            transition: all 0.2s ease; 
-            font-weight: 500; 
-            background: white;
-            min-width: 60px;
-            text-align: center;
-            line-height: 1.2; /* Ensures vertical centering on mobile */
-        }
-        .attribute-option input:checked + label { 
-            background: var(--primary-color); 
-            color: white; 
-            border-color: var(--primary-color); 
-            box-shadow: 0 3px 6px rgba(37, 99, 235, 0.3); 
-        }
+        .attribute-option label { display: block; padding: 10px 20px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-weight: 500; background: white; }
+        .attribute-option input:checked + label { background: var(--primary-color); color: white; border-color: var(--primary-color); }
         .attribute-option input:disabled + label {
-            opacity: 0.6;
+            opacity: 0.7;
             cursor: not-allowed;
             background: #f9fafb;
             color: #9ca3af;
-            border-style: dashed; 
-            text-decoration: none; 
+            text-decoration: line-through;
         }
-        .attribute-option label:hover:not(.disabled) { 
-            border-color: var(--primary-color); 
-            background: var(--light-color); 
-            transform: none; 
-        }
-        .attribute-option input:checked + label:hover {
-            background: #1d4ed8; 
-            border-color: #1d4ed8;
-        }
-        /* END: MODIFIED SIZE/ATTRIBUTE LABEL STYLES */
+        .attribute-option label:hover:not(.disabled) { border-color: var(--primary-color); transform: translateY(-2px); }
         .attribute-stock-info { font-size: 11px; color: #6b7280; margin-top: 4px; }
-        .quantity-selector { margin-bottom: 25px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .quantity-controls { display: inline-flex; align-items: center; border: 2px solid var(--border-color); border-radius: 10px; overflow: hidden; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
-        .qty-btn { background: white; border: none; width: 44px; height: 44px; cursor: pointer; font-size: 18px; font-weight: bold; color: var(--dark-color); transition: all 0.2s; }
-        .qty-btn:hover { background: var(--light-color); color: var(--primary-color); }
-        .qty-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .qty-input { width: 65px; height: 44px; border: none; text-align: center; font-weight: 600; font-size: 16px; }
+        .quantity-selector { margin-bottom: 25px; }
+        .quantity-controls { display: inline-flex; align-items: center; border: 2px solid var(--border-color); border-radius: 8px; overflow: hidden; }
+        .qty-btn { background: white; border: none; width: 40px; height: 40px; cursor: pointer; font-size: 18px; font-weight: bold; color: var(--dark-color); transition: background 0.3s; }
+        .qty-btn:hover { background: var(--light-color); }
+        .qty-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .qty-input { width: 60px; height: 40px; border: none; text-align: center; font-weight: 600; font-size: 16px; }
         .action-buttons { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
-        .btn-primary, .btn-secondary { flex: 1; min-width: 200px; padding: 16px 28px; border-radius: 10px; font-weight: 600; font-size: 16px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        .btn-primary, .btn-secondary { flex: 1; min-width: 200px; padding: 14px 24px; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-primary { background: var(--primary-color); color: white; border: none; }
-        .btn-primary:hover:not(:disabled) { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary:hover:not(:disabled) { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-secondary { background: white; color: var(--primary-color); border: 2px solid var(--primary-color); }
-        .btn-secondary:hover:not(:disabled) { background: var(--primary-color); color: white; transform: translateY(-2px); box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2); }
+        .btn-secondary:hover:not(:disabled) { background: var(--primary-color); color: white; transform: translateY(-2px); }
         .btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
         .secondary-actions { display: flex; gap: 10px; margin-bottom: 20px; }
         .icon-btn { padding: 10px 16px; background: white; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--dark-color); }
         .icon-btn:hover { border-color: var(--primary-color); color: var(--primary-color); transform: translateY(-2px); }
-        .product-details-section { background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06); margin-top: 30px; overflow: hidden; border: 1px solid #f3f4f6; }
+        .product-details-section { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); margin-top: 30px; overflow: hidden; }
         .tabs-navigation { display: flex; border-bottom: 2px solid var(--border-color); overflow-x: auto; }
         .tab-btn { padding: 18px 24px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 600; color: #6b7280; transition: all 0.3s ease; white-space: nowrap; }
         .tab-btn:hover, .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); background: #f9fafb; }
@@ -210,117 +110,40 @@
         .review-date { font-size: 13px; color: #6b7280; }
         .notification { position: fixed; top: 20px; right: 20px; background: white; padding: 16px 20px; border-radius: 8px; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); z-index: 9999; min-width: 300px; display: none; }
         .notification.show { display: block; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideIn { from { transform: translateX(400px); opacity: 0); } to { transform: translateX(0); opacity: 1); } }
         .notification.success { border-left: 4px solid var(--secondary-color); }
         .notification.error { border-left: 4px solid var(--danger-color); }
-        
-        /* NEW: Share Dropdown Styles */
-        .share-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .share-content {
-            position: absolute;
-            bottom: 100%;
-            left: 0;
-            background-color: white;
-            min-width: 250px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            z-index: 100;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px; /* Space above the button */
-            display: none;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.2s ease-out;
-        }
-        .share-dropdown.open .share-content {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .social-share-links {
-            display: flex;
-            gap: 10px;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .social-share-link {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-size: 18px;
-            color: white;
-            transition: transform 0.2s ease;
-        }
-        .social-share-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .social-share-link.facebook { background-color: #1877f2; }
-        .social-share-link.twitter { background-color: #1da1f2; }
-        .social-share-link.whatsapp { background-color: #25d366; }
-        .copy-link-btn {
-            display: block;
-            width: 100%;
-            padding: 8px 12px;
-            text-align: left;
-            background: #f3f4f6;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 14px;
-            color: var(--dark-color);
-            transition: background-color 0.2s;
-            cursor: pointer;
-        }
-        .copy-link-btn:hover {
-            background: var(--light-color);
-        }
-        
-        /* --- MOBILE RESPONSIVENESS (<= 768px) --- */
         @media (max-width: 768px) {
-            .product-title { font-size: 22px; }
-            .current-price { font-size: 32px; } /* Price: Scales down */
+            .product-title { font-size: 26px; } /* UPDATED from 22px to 26px for mobile responsiveness */
+            .current-price { font-size: 28px; }
             .main-image-container { height: 350px; }
             .action-buttons { flex-direction: column; }
             .btn-primary, .btn-secondary { min-width: 100%; }
-
-            /* Color Section: Shrink swatches */
-            .color-option {
-                border-radius: 8px;
-            }
-            .color-preview, .color-swatch {
-                width: 60px; /* Reduced size */
-                height: 60px; /* Reduced size */
-            }
-            .color-name {
-                font-size: 10px;
-                padding: 3px 6px;
-            }
-            /* Checkmark: Shrink overlay */
-            .color-option.active::after {
-                width: 16px;
-                height: 16px;
-                font-size: 8px;
-                top: 3px;
-                right: 3px;
-            }
-
-            /* Size/Attribute Section: Ensure pill padding is appropriate */
-            .attribute-option label {
-                padding: 7px 15px; /* Slightly more compact padding */
-                font-size: 14px;
-            }
-
-            /* Price Section: Ensure everything wraps correctly on small screens */
-            .price-section {
-                padding: 18px;
-            }
+        }
+        /* Related Products Section */
+        .related-products-section { 
+            margin-top: 60px; 
+            padding: 40px 0 20px 0;
+            background: #fafafa;
+            border-top: 1px solid var(--border-color);
+        }
+        .section-header { 
+            text-align: center; 
+            margin-bottom: 40px; 
+        }
+        .section-title { 
+            font-size: 16px; 
+            font-weight: 700; 
+            color: var(--dark-color); 
+            margin-bottom: 10px; 
+        }
+        .section-subtitle { 
+            font-size: 12px; 
+            color: #6b7280; 
+        }
+        @media (max-width: 768px) {
+            .section-title { font-size: 24px; }
+            .related-products-section { margin-top: 40px; padding: 30px 0 15px 0; }
         }
     </style>
 @endpush
@@ -384,31 +207,45 @@
                             </div>
                         </div>
 
-                        {{-- MODIFIED PRICE SECTION HTML --}}
                         <div class="price-section">
                             <div class="price-display">
                                 @php
-                                    // Use discount price if available, otherwise use regular price as base price
                                     $basePrice = $product->discount_price > 0 ? $product->discount_price : $product->regular_price;
                                 @endphp
                                 
-                                {{-- Always display the current/discounted price as the main price --}}
-                                <span class="current-price">৳<span id="dynamicPrice">{{ number_format($basePrice, 0) }}</span></span>
-
                                 @if($product->discount_price > 0)
+                                    {{-- FIXED: Corrupted currency symbol 'à§³' replaced with Taka symbol '৳' (or its HTML entity) --}}
+                                    <span class="current-price">৳<span id="dynamicPrice">{{ number_format($product->discount_price, 0) }}</span></span>
+                                    <span class="original-price">৳{{ number_format($product->regular_price, 0) }}</span>
                                     @php
                                         $discount_percentage = round((($product->regular_price - $product->discount_price) / $product->regular_price) * 100);
                                     @endphp
-                                    <div class="price-details">
-                                        <span class="original-price">৳{{ number_format($product->regular_price, 0) }}</span>
-                                    </div>
-                                    <span class="discount-badge">-{{ $discount_percentage }}% Save</span>
+                                    <span class="discount-badge">-{{ $discount_percentage }}%</span>
+                                @else
+                                    {{-- FIXED: Corrupted currency symbol 'à§³' replaced with Taka symbol '৳' (or its HTML entity) --}}
+                                    <span class="current-price">৳<span id="dynamicPrice">{{ number_format($product->regular_price, 0) }}</span></span>
                                 @endif
                             </div>
                         </div>
-                        {{-- END MODIFIED PRICE SECTION HTML --}}
 
                         @php $totalStock = $product->getTotalStockAttribute(); @endphp
+
+                        @if($totalStock > 10)
+                            <div class="stock-status in-stock" id="stockStatus">
+                                {{-- Removed static icon, JS will add it --}}
+                                <span id="stockText">In Stock</span>
+                            </div>
+                        @elseif($totalStock > 0)
+                            <div class="stock-status low-stock" id="stockStatus">
+                                {{-- Removed static icon, JS will add it --}}
+                                <span id="stockText">Low Stock</span>
+                            </div>
+                        @else
+                            <div class="stock-status out-of-stock" id="stockStatus">
+                                {{-- Removed static icon, JS will add it --}}
+                                <span id="stockText">Out of Stock</span>
+                            </div>
+                        @endif
 
                         @if($product->short_description)
                             <div class="mb-4">
@@ -525,27 +362,12 @@
                                 <div class="quantity-selector">
                                     <div class="section-title">Quantity:</div>
                                     <div class="quantity-controls">
-                                        <button type="button" class="qty-btn" id="decreaseQty">-</button>
+                                        {{-- FIXED: Corrupted minus sign 'âˆ’' replaced with '&minus;' --}}
+                                        <button type="button" class="qty-btn" id="decreaseQty">&minus;</button>
                                         <input type="number" class="qty-input" id="qtyInput" value="1" min="1" readonly>
                                         <button type="button" class="qty-btn" id="increaseQty">+</button>
                                     </div>
-                                    {{-- The stock-status div now only contains the icon and the text span --}}
-                                    @if($totalStock > 10)
-                                        <div class="stock-status in-stock" id="stockStatus">
-                                            <i class="fas fa-check-circle"></i>
-                                            <span id="stockText">In Stock</span>
-                                        </div>
-                                    @elseif($totalStock > 0)
-                                        <div class="stock-status low-stock" id="stockStatus">
-                                            <i class="fas fa-exclamation-circle"></i>
-                                            <span id="stockText">Low Stock</span>
-                                        </div>
-                                    @else
-                                        <div class="stock-status out-of-stock" id="stockStatus">
-                                            <i class="fas fa-times-circle"></i>
-                                            <span id="stockText">Out of Stock</span>
-                                        </div>
-                                    @endif
+                                    <small class="text-muted ms-2">Available: <span id="availableStock">{{ $totalStock }}</span></small>
                                 </div>
 
                                 <div class="action-buttons">
@@ -564,7 +386,6 @@
                         </form>
 
                         <div class="secondary-actions">
-                            {{-- Wishlist Button --}}
                             @auth
                                 @if(App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists())
                                     @php $wishlist = App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->first(); @endphp
@@ -581,28 +402,6 @@
                                     </form>
                                 @endif
                             @endauth
-                            
-                            {{-- Share Dropdown (NEW) --}}
-                            <div class="share-dropdown">
-                                <button type="button" class="icon-btn" id="shareBtn">
-                                    <i class="fas fa-share-alt"></i> Share
-                                </button>
-                                <div class="share-content">
-                                    <div class="social-share-links">
-                                        @php
-                                            $productUrl = Request::url();
-                                            $productTitle = urlencode($product->title);
-                                        @endphp
-                                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ $productUrl }}" target="_blank" class="social-share-link facebook"><i class="fab fa-facebook-f"></i></a>
-                                        <a href="https://twitter.com/intent/tweet?text={{ $productTitle }}&url={{ $productUrl }}" target="_blank" class="social-share-link twitter"><i class="fab fa-twitter"></i></a>
-                                        <a href="https://api.whatsapp.com/send?text={{ $productTitle }} - {{ $productUrl }}" target="_blank" class="social-share-link whatsapp"><i class="fab fa-whatsapp"></i></a>
-                                    </div>
-                                    <button type="button" class="copy-link-btn" data-url="{{ $productUrl }}" id="copyLinkBtn">
-                                        <i class="fas fa-copy"></i> Copy Link
-                                    </button>
-                                </div>
-                            </div>
-
                         </div>
 
                         @if($product->shipping_charge == 0)
@@ -620,6 +419,7 @@
         <div class="product-details-section">
             <div class="tabs-navigation">
                 <button class="tab-btn active" data-tab="description">Description</button>
+                <button class="tab-btn" data-tab="specifications">Specifications</button>
                 <button class="tab-btn" data-tab="reviews">Reviews ({{ $product->reviews->count() }})</button>
                 <button class="tab-btn" data-tab="questions">Questions ({{ $product->comments->whereNull('parent_id')->count() }})</button>
             </div>
@@ -700,8 +500,20 @@
             </div>
         </div>
 
-        {{-- Similar Products Component --}}
-        @include('components.similar-products', ['products' => $relatedProducts, 'title' => 'Similar Products You May Like'])
+        {{-- You May Also Like Section --}}
+        @if(isset($relatedProducts) && $relatedProducts->count() > 0)
+        <div class="related-products-section">
+            <div class="section-header">
+                <h2 class="section-title">You May Also Like</h2>
+                <p class="section-subtitle">Similar products from the same category</p>
+            </div>
+            <div class="row" style="margin: 0 -8px;">
+                @foreach($relatedProducts as $product)
+                    @include('components.product-grid-view', ['product' => $product, 'classes' => 'col-lg-3 col-md-4 col-6'])
+                @endforeach
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection
@@ -710,34 +522,10 @@
 <script>
 $(document).ready(function() {
     // --- CONFIGURATION & STATE ---
-    const rawVariations = @json($variations ?? ['color_size' => [], 'size_only' => [], 'attributes' => []]);
-    
-    // Extract all unique sizes from variations data
-    const extractAllSizes = () => {
-        const sizesMap = new Map();
-        
-        if (rawVariations.color_size) {
-            Object.values(rawVariations.color_size).forEach(colorData => {
-                if (colorData.sizes && Array.isArray(colorData.sizes)) {
-                    colorData.sizes.forEach(size => {
-                        if (!sizesMap.has(size.size_id)) {
-                            sizesMap.set(size.size_id, {
-                                id: size.size_id,
-                                name: size.size_name
-                            });
-                        }
-                    });
-                }
-            });
-        }
-        
-        return Array.from(sizesMap.values());
-    };
-    
     const config = {
         basePrice: parseFloat('{{ $product->discount_price > 0 ? $product->discount_price : $product->regular_price }}'),
-        variations: rawVariations,
-        allSizes: extractAllSizes(),
+        variations: @json($variations ?? ['color_size' => [], 'size_only' => [], 'attributes' => []]),
+        allSizes: @json($allSizes ?? []),
         hasColorSize: {{ !empty($variations['color_size']) ? 'true' : 'false' }},
         hasAttributes: {{ !empty($variations['attributes']) && empty($variations['color_size']) ? 'true' : 'false' }},
         hasSizeOnly: {{ !empty($variations['size_only']) && empty($variations['color_size']) && empty($variations['attributes']) ? 'true' : 'false' }},
@@ -749,14 +537,6 @@ $(document).ready(function() {
         size: null,
         attribute: null
     };
-    
-    // Debug logging
-    console.log('Product Variations Debug:', {
-        hasColorSize: config.hasColorSize,
-        variationsKeys: Object.keys(config.variations.color_size || {}),
-        allSizesCount: config.allSizes.length,
-        allSizes: config.allSizes
-    });
 
     // --- INITIALIZATION ---
     function initialize() {
@@ -782,12 +562,6 @@ $(document).ready(function() {
         if ($(this).hasClass('disabled')) return;
         
         const colorId = $(this).data('color-id');
-        console.log('Color clicked:', {
-            colorId,
-            colorName: $(this).data('color-name'),
-            currentSelection: selection.color
-        });
-        
         let colorImages;
         try {
             colorImages = JSON.parse($(this).attr('data-color-images'));
@@ -797,7 +571,6 @@ $(document).ready(function() {
         }
 
         if (selection.color?.id === colorId) {
-            console.log('Re-clicking same color, resetting size');
             selection.size = null; 
             $('#selectedSize').val('');
             $('#selectedSizeName').text('');
@@ -815,13 +588,11 @@ $(document).ready(function() {
 
         $('.color-option').removeClass('active');
         $(this).addClass('active');
-        $('#selectedColor').val(selection.color.id);
+        $('#selectedColor').val(selection.color.id);  // Store color ID, not slug
         $('#selectedSize').val('');
         $('#selectedColorName').text(selection.color.name);
         $('#selectedSizeName').text('');
 
-        console.log('New color selected:', selection.color);
-        
         updateImageGallery(selection.color.images);
         populateSizeOptions(selection.color.id);
         updateUI();
@@ -863,6 +634,7 @@ $(document).ready(function() {
         updateUI();
     });
 
+    // Quantity Handlers
     $('#increaseQty').on('click', function() {
         const input = $('#qtyInput');
         const max = parseInt(input.attr('max'));
@@ -884,6 +656,7 @@ $(document).ready(function() {
         $('#quantity').val($(this).val());
     });
     
+    // Action Buttons
     $('#addToCartBtn, #buyNowBtn').on('click', function() {
         let isValid = false;
         
@@ -905,44 +678,14 @@ $(document).ready(function() {
             handleAction(isBuyNow);
         }
     });
-    
-    // --- NEW Share Logic ---
-    $('#shareBtn').on('click', function(e) {
-        e.stopPropagation();
-        $('.share-dropdown').toggleClass('open');
-    });
-
-    $(document).on('click', function(e) {
-        if (!$('.share-dropdown').is(e.target) && $('.share-dropdown').has(e.target).length === 0) {
-            $('.share-dropdown').removeClass('open');
-        }
-    });
-
-    $('#copyLinkBtn').on('click', function() {
-        const url = $(this).data('url');
-        navigator.clipboard.writeText(url).then(() => {
-            showNotification('Success', 'Product link copied to clipboard!', 'success');
-            $('.share-dropdown').removeClass('open');
-        }).catch(err => {
-            console.error('Failed to copy text: ', err);
-            showNotification('Error', 'Failed to copy link.', 'error');
-        });
-    });
 
     // --- UI & LOGIC FUNCTIONS ---
     function populateSizeOptions(colorId) {
-        console.log('populateSizeOptions called with colorId:', colorId);
-        console.log('Available variations for this color:', config.variations.color_size[colorId]);
-        
         const productVariationSizes = config.variations.color_size[colorId]?.sizes || [];
-        console.log('Product variation sizes:', productVariationSizes);
-        
         const sizeMap = new Map(productVariationSizes.map(s => [s.size_id, s]));
 
         const container = $('#sizeOptionsContainer');
         container.empty();
-        
-        console.log('All available sizes:', config.allSizes);
         
         if (config.allSizes && config.allSizes.length > 0) {
             let html = '';
@@ -951,13 +694,6 @@ $(document).ready(function() {
                 const stock = variationData ? variationData.stock : 0;
                 const price = variationData ? variationData.price : 0;
                 const isOutOfStock = stock <= 0;
-
-                console.log(`Size ${size.name} (ID: ${size.id}):`, {
-                    variationData,
-                    stock,
-                    price,
-                    isOutOfStock
-                });
 
                 html += `
                     <div class="attribute-option">
@@ -973,9 +709,6 @@ $(document).ready(function() {
             const previouslySelected = container.find(`input[value="${selection.size?.id}"]`);
             const firstAvailable = container.find('input[type="radio"]:not(:disabled):first');
             
-            console.log('Previously selected size:', selection.size?.id);
-            console.log('First available size:', firstAvailable.val());
-            
             if (previouslySelected.length && !previouslySelected.is(':disabled')) {
                 previouslySelected.prop('checked', true).trigger('change');
             } else if (firstAvailable.length) {
@@ -987,7 +720,6 @@ $(document).ready(function() {
                 updateUI();
             }
         } else {
-            console.warn('No sizes available! allSizes is empty');
             $('.size-selection').slideUp();
         }
     }
@@ -1068,35 +800,25 @@ $(document).ready(function() {
         const stockText = $('#stockText');
         stockStatus.removeClass('in-stock low-stock out-of-stock');
         
-        let text;
         let iconHtml;
+        let text;
 
         if (stock > 10) {
             stockStatus.addClass('in-stock');
-            text = `In Stock ${selectionComplete && (config.hasColorSize || config.hasSizeOnly || config.hasAttributes) ? `(${stock} available)` : ''}`;
             iconHtml = '<i class="fas fa-check-circle"></i> ';
+            text = `In Stock ${selectionComplete && (config.hasColorSize || config.hasSizeOnly || config.hasAttributes) ? `(${stock} available)` : ''}`;
         } else if (stock > 0) {
             stockStatus.addClass('low-stock');
-            text = `Low Stock ${selectionComplete && (config.hasColorSize || config.hasSizeOnly || config.hasAttributes) ? `(Only ${stock} left)` : ''}`;
             iconHtml = '<i class="fas fa-exclamation-circle"></i> ';
+            text = `Low Stock ${selectionComplete && (config.hasColorSize || config.hasSizeOnly || config.hasAttributes) ? `(Only ${stock} left)` : ''}`;
         } else {
             stockStatus.addClass('out-of-stock');
-            text = 'Out of Stock';
             iconHtml = '<i class="fas fa-times-circle"></i> ';
+            text = 'Out of Stock';
         }
         
-        // FIX: Update the text content of the span only, not the HTML, to avoid duplicating the icon.
-        stockText.text(text);
-
-        // Update the icon in the stockStatus div manually if it's dynamic
-        const currentIcon = stockStatus.find('i');
-        if(currentIcon.length) {
-            currentIcon.replaceWith(iconHtml);
-        } else {
-            // Should not happen if HTML is correct, but safe check
-            stockStatus.prepend(iconHtml);
-        }
-
+        // FIXED: The i tag was being added twice, removed the original i tag from HTML and only using JS-generated icon
+        stockText.html(iconHtml + text); 
 
         const canAddToCart = selectionComplete && stock > 0;
         $('#addToCartBtn, #buyNowBtn').prop('disabled', !canAddToCart);
@@ -1116,15 +838,25 @@ $(document).ready(function() {
                 method: 'POST',
                 data: $('#productForm').serialize(),
                 success: function(response) {
-                    showNotification('Success!', 'Product added to cart', 'success');
-                    
-                    if (response && typeof response.count !== 'undefined') {
-                        $('.cart-count-badge').text(response.count);
+                    if (response.alert === 'Success') {
+                        showNotification('Success!', response.message, 'success');
+                        
+                        if (response && typeof response.count !== 'undefined') {
+                            $('.cart-count-badge').text(response.count);
+                        }
+                    } else {
+                        showNotification(response.alert || 'Warning', response.message, 'error');
                     }
-                    
                 },
                 error: function(xhr) {
-                    showNotification('Error!', xhr.responseJSON?.message || 'Failed to add to cart', 'error');
+                    let message = 'Failed to add to cart';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        message = response.message || message;
+                    } catch (e) {
+                        // Use default message
+                    }
+                    showNotification('Error!', message, 'error');
                 }
             }).always(function() {
                 btn.prop('disabled', false).html(originalText);
@@ -1143,9 +875,12 @@ $(document).ready(function() {
     function showNotification(title, message, type) {
         const notification = $('#notification');
         notification.removeClass('success error').addClass(type).html(`<strong>${title}</strong><br>${message}`).addClass('show');
-        setTimeout(() => notification.removeClass('show'), 3000);
+        setTimeout(() => notification.removeClass('show'), 4000);
     }
 
+
+    // --- RUN ---
+    // --- RUN ---
     initialize();
 });
 </script>

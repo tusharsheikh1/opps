@@ -15,9 +15,26 @@ use App\Models\AttributeValue;
 use App\Models\Size;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
+    /**
+     * Constructor - Initialize cart instance for logged-in users
+     */
+    public function __construct()
+    {
+        // Set cart instance based on user authentication
+        $this->middleware(function ($request, $next) {
+            if (auth()->check()) {
+                Cart::instance('cart_' . auth()->id());
+            } else {
+                Cart::instance('default');
+            }
+            return $next($request);
+        });
+    }
+
     /**
      * Display cart page with server-side data to prevent slow loading
      */
@@ -35,7 +52,7 @@ class CartController extends Controller
     }
 
     /**
-     * Add product to cart - COMPREHENSIVE FIXED VERSION
+     * Add product to cart - WORKS FOR BOTH GUEST & LOGGED-IN USERS
      */
     public function addToCart(Request $request)
     {
@@ -239,30 +256,87 @@ class CartController extends Controller
                 'attributes'        => $attr,
             ];
 
-            // === ADD TO CART ===
-            $cart = Cart::add([
-                'id'      => $product->id,
-                'name'    => $product->title,
-                'qty'     => $request->qty,
-                'price'   => $finalPrice,
-                'weight'  => $product->user_id,
-                'options' => $cartOptions,
-            ]);
+            // === CHECK FOR EXISTING CART ITEM (PREVENT DUPLICATES) ===
+            $existingItem = null;
+            foreach (Cart::content() as $item) {
+                if ($item->id == $product->id) {
+                    // Check if same variation
+                    $sameVariation = true;
+                    
+                    if ($hasColorSize) {
+                        $sameVariation = ($item->options->selected_color_id == $selectedColorId && 
+                                         $item->options->selected_size_id == $selectedSizeId);
+                    } elseif ($hasSizeOnly) {
+                        $sameVariation = ($item->options->selected_size_id == $selectedSizeId);
+                    } elseif ($hasAttributes) {
+                        $sameVariation = ($item->options->selected_attr_id == $selectedAttributeId);
+                    }
+                    
+                    if ($sameVariation) {
+                        $existingItem = $item;
+                        break;
+                    }
+                }
+            }
 
-            // === SAVE TO DATABASE (for logged in users) ===
-            if (auth()->id()) {
-                CartInfo::updateOrCreate(
-                    [
-                        'user_id'    => auth()->id(),
-                        'product_id' => $product->id,
-                        'color'      => $selectedColorId ?? 'blank',
-                    ],
-                    [
-                        'ser'        => $cart->rowId,
-                        'qty'        => $request->qty,
-                        'attributes' => json_encode($attr),
-                    ]
-                );
+            // === ADD OR UPDATE CART ===
+            if ($existingItem) {
+                // Update existing item quantity
+                $newQty = $existingItem->qty + $request->qty;
+                
+                if ($newQty > $availableStock) {
+                    return response()->json([
+                        'alert'   => 'Warning',
+                        'message' => "You already have {$existingItem->qty} in cart. Maximum available: {$availableStock}",
+                    ]);
+                }
+                
+                Cart::update($existingItem->rowId, ['qty' => $newQty]);
+                $cartRowId = $existingItem->rowId;
+                
+                // Update database for logged-in users
+                if (auth()->check()) {
+                    try {
+                        CartInfo::where('ser', $cartRowId)
+                               ->where('user_id', auth()->id())
+                               ->update(['qty' => $newQty]);
+                    } catch (\Exception $e) {
+                        Log::error('Cart DB Update Error: ' . $e->getMessage());
+                    }
+                }
+            } else {
+                // Add new item to cart
+                $cart = Cart::add([
+                    'id'      => $product->id,
+                    'name'    => $product->title,
+                    'qty'     => $request->qty,
+                    'price'   => $finalPrice,
+                    'weight'  => $product->user_id,
+                    'options' => $cartOptions,
+                ]);
+                
+                $cartRowId = $cart->rowId;
+                
+                // Save to database for logged-in users
+                if (auth()->check()) {
+                    try {
+                        CartInfo::updateOrCreate(
+                            [
+                                'user_id'    => auth()->id(),
+                                'product_id' => $product->id,
+                                'color'      => $selectedColorId ?? 'blank',
+                            ],
+                            [
+                                'ser'        => $cartRowId,
+                                'qty'        => $request->qty,
+                                'attributes' => json_encode($attr),
+                            ]
+                        );
+                    } catch (\Exception $e) {
+                        Log::error('Cart DB Save Error: ' . $e->getMessage());
+                        // Don't fail the operation if DB save fails
+                    }
+                }
             }
 
             return response()->json([
@@ -272,7 +346,9 @@ class CartController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Add to Cart Error: ' . $e->getMessage());
+            Log::error('Add to Cart Error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
             return response()->json([
                 'alert'   => 'Error',
                 'message' => 'Sorry, something went wrong. Please try again.',
@@ -322,7 +398,7 @@ class CartController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Get Cart Error: ' . $e->getMessage());
+            Log::error('Get Cart Error: ' . $e->getMessage());
             return response()->json([
                 'count'    => 0,
                 'carts'    => [],
@@ -365,7 +441,7 @@ class CartController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            \Log::error('Format Color-Size Attributes Error: ' . $e->getMessage());
+            Log::error('Format Color-Size Attributes Error: ' . $e->getMessage());
         }
     }
 
@@ -382,7 +458,7 @@ class CartController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            \Log::error('Format Size-Only Attributes Error: ' . $e->getMessage());
+            Log::error('Format Size-Only Attributes Error: ' . $e->getMessage());
         }
     }
 
@@ -415,7 +491,7 @@ class CartController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            \Log::error('Format Generic Attributes Error: ' . $e->getMessage());
+            Log::error('Format Generic Attributes Error: ' . $e->getMessage());
         }
     }
 
@@ -454,11 +530,15 @@ class CartController extends Controller
 
             Cart::update($rowId, ['qty' => $qty]);
             
-            // Sync with database
-            if (auth()->id()) {
-                CartInfo::where('ser', $rowId)
-                        ->where('user_id', auth()->id())
-                        ->update(['qty' => $qty]);
+            // Sync with database for logged-in users
+            if (auth()->check()) {
+                try {
+                    CartInfo::where('ser', $rowId)
+                           ->where('user_id', auth()->id())
+                           ->update(['qty' => $qty]);
+                } catch (\Exception $e) {
+                    Log::error('Cart DB Update Error: ' . $e->getMessage());
+                }
             }
             
             return response()->json([
@@ -468,7 +548,7 @@ class CartController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Update Cart Error: ' . $e->getMessage());
+            Log::error('Update Cart Error: ' . $e->getMessage());
             return response()->json([
                 'alert'   => 'Error',
                 'message' => 'Failed to update cart',
@@ -531,11 +611,15 @@ class CartController extends Controller
         try {
             Cart::remove($rowId);
             
-            // Remove from database
-            if (auth()->id()) {
-                CartInfo::where('ser', $rowId)
-                        ->where('user_id', auth()->id())
-                        ->delete();
+            // Remove from database for logged-in users
+            if (auth()->check()) {
+                try {
+                    CartInfo::where('ser', $rowId)
+                           ->where('user_id', auth()->id())
+                           ->delete();
+                } catch (\Exception $e) {
+                    Log::error('Cart DB Delete Error: ' . $e->getMessage());
+                }
             }
             
             return response()->json([
@@ -545,7 +629,7 @@ class CartController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Destroy Cart Error: ' . $e->getMessage());
+            Log::error('Destroy Cart Error: ' . $e->getMessage());
             return response()->json([
                 'alert'   => 'Error',
                 'message' => 'Failed to remove product from cart',
@@ -609,7 +693,7 @@ class CartController extends Controller
             }
 
             // Check user usage limit
-            if (auth()->id()) {
+            if (auth()->check()) {
                 $coupon_limit = DB::table('coupon_user')
                                   ->where('user_id', auth()->id())
                                   ->where('coupon_id', $coupon->id)
@@ -643,7 +727,7 @@ class CartController extends Controller
                 'discount' => $discount
             ]);
 
-            if (auth()->id()) {
+            if (auth()->check()) {
                 $coupon->users()->attach(auth()->id());
             }
             $coupon->decrement('available_limit');
@@ -656,11 +740,59 @@ class CartController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Apply Coupon Error: ' . $e->getMessage());
+            Log::error('Apply Coupon Error: ' . $e->getMessage());
             return response()->json([
                 'message' => 'Failed to apply coupon',
                 'alert'   => 'error'
             ], 500);
+        }
+    }
+    
+    /**
+     * Load user's saved cart from database when they log in
+     * Call this method after user login
+     */
+    public function loadUserCart()
+    {
+        if (!auth()->check()) {
+            return;
+        }
+
+        try {
+            // Get user's saved cart items from database
+            $savedCartItems = CartInfo::where('user_id', auth()->id())->get();
+
+            foreach ($savedCartItems as $savedItem) {
+                $product = Product::find($savedItem->product_id);
+                
+                if (!$product || $product->status != 1) {
+                    continue;
+                }
+
+                // Reconstruct cart options from saved data
+                $attributes = json_decode($savedItem->attributes, true) ?? [];
+                
+                $cartOptions = [
+                    'slug'              => $product->slug,
+                    'image'             => $product->image,
+                    'color'             => $savedItem->color ?? 'blank',
+                    'vendor'            => $product->user_id,
+                    'seller'            => $product->user->name ?? 'Unknown',
+                    'attributes'        => $attributes,
+                ];
+
+                // Add to cart
+                Cart::add([
+                    'id'      => $product->id,
+                    'name'    => $product->title,
+                    'qty'     => $savedItem->qty,
+                    'price'   => $product->discount_price > 0 ? $product->discount_price : $product->regular_price,
+                    'weight'  => $product->user_id,
+                    'options' => $cartOptions,
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Load User Cart Error: ' . $e->getMessage());
         }
     }
 }

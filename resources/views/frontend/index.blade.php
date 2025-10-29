@@ -717,39 +717,7 @@ $pop=App\Models\Slider::where('is_pop','1')->orderBy('id','desc')->first() ;
 @endif
 @endif
 
-@if (setting('SELLER_STATUS') != 0 || setting('SELLER_STATUS') == "")
-<div class="modern-section">
-    <div class="container">
-        <div class="section-header">
-            <div>
-                <h2 class="section-title">ðŸ‘‘ Featured Designers</h2> </div>
-            <a href="{{route('vendors')}}" class="view-all-btn">
-                <span>See More</span>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-        <div class="autoplay slick-slides">
-            @foreach ($shops as $shop)
-            <div>
-                <a href="{{route('vendor', $shop->slug)}}" class="publisher-card">
-                    <div class="cover-image"></div>
-                    <div class="profile-section">
-                        <img src="{{asset('uploads/shop/profile/'.$shop->profile)}}" alt="{{$shop->name}}" class="profile-image">
-                        <h4>{{$shop->name}}</h4>
-                        <p class="publisher-label">Designer</p> </div>
-                </a>
-            </div>
-            @endforeach
-        </div>
-        <div class="mobile-see-more">
-            <a href="{{route('vendors')}}" class="view-all-btn">
-                <span>See More</span>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-    </div>
-</div>
-@endif
+{{-- Removed SELLER_STATUS section --}}
 
 @if (setting('FEATURE_PRODUCT_STATUS') != 0 || setting('FEATURE_PRODUCT_STATUS') == "")
 <div class="products-section modern-section">

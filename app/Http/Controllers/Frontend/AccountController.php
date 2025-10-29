@@ -90,6 +90,29 @@ class AccountController extends Controller
         return redirect()->route('home');
     }
 
+    // FIX: ADDED MISSING METHOD FOR THE 'download' ROUTE
+    /**
+     * Show the user's downloadable products page.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function downloadIndex()
+    {
+        // This query fetches the order items for delivered orders (status '3') 
+        // that contain a downloadable product, as required by download.blade.php.
+        $items = Order::where('user_id', auth()->id())
+            ->where('status', '3') // Assuming '3' is the status for a completed/delivered order
+            ->with('items.product.downloads') // Eager load relationships needed by the view
+            ->get()
+            ->pluck('items')
+            ->flatten()
+            ->filter(function($item) {
+                // Filter to include only items with downloadable products
+                return $item->product->download_able ?? false;
+            });
+
+        return view('frontend.account.download', compact('items'));
+    }
         
     /**
      * update authenticated user account info

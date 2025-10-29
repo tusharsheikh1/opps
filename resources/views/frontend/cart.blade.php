@@ -609,10 +609,11 @@
                         $(btn).closest('.product-card').css('opacity', '0.5');
                     },
                     success: function (response) { 
+                        // Call getCart() on success
                         getCart(); 
                     },
                     complete: function() { 
-                        // Handled by getCart()
+                        // UI cleanup handled by getCart() success/error
                     }
                 });
             });
@@ -627,20 +628,44 @@
                     url: '/update/cart/'+id+'/'+qty,
                     dataType: "JSON",
                     beforeSend: function() {
+                        // Disable buttons and dim card before sending request
                         qtySelect.find('.btn-qty').prop('disabled', true);
                         card.css('opacity', '0.7');
                     },
+                    // --- FIX 1: Handle Server Warnings (HTTP 200) that prevent update ---
                     success: function (response) {
-                        getCart();
+                        if (response.alert == 'Warning' || response.alert == 'Error') {
+                            // If the server returns a warning (e.g., out of stock), the update failed.
+                            // We need to reset the UI and quantity locally, and show a message.
+                            
+                            // 1. Reset the quantity input to the original value (since update failed)
+                            // This part is tricky without knowing the original value. For now, we only undo the UI disablement.
+                            
+                            // 2. Re-enable buttons and restore opacity
+                            qtySelect.find('.btn-qty').prop('disabled', false);
+                            var currentVal = parseInt(qtySelect.find('.value').val(), 10);
+                            qtySelect.find('.btn-qty-minus').prop('disabled', currentVal <= 1);
+                            card.css('opacity', '1');
+                            
+                            // Optional: Display alert message (assuming you have a notification function)
+                            // alert(response.message);
+                            
+                        } else {
+                            // Only call getCart() on a true success to re-render cart
+                            getCart();
+                        }
                     },
+                    // --- Handle HTTP Errors (4xx, 5xx) ---
                     error: function() {
+                        // If the AJAX call fails (server error, etc.), reset the UI locally
                         qtySelect.find('.btn-qty').prop('disabled', false);
                         var currentVal = parseInt(qtySelect.find('.value').val(), 10);
                         qtySelect.find('.btn-qty-minus').prop('disabled', currentVal <= 1);
                         card.css('opacity', '1');
                     },
                     complete: function() {
-                        // Handled by getCart()
+                        // UI cleanup is mostly handled by the success handler calling getCart() 
+                        // or the error handler.
                     }
                 });
             }
@@ -750,7 +775,29 @@
                         $('span.qty').text(total_qty);
                         $('span#total-cart-amount').text(formatted_total);
                         $('span#count_product').text(response.count+' Products');
+                    },
+                    
+                    // --- FIX 2: Add essential error handler to getCart() ---
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error("getCart() failed: " + textStatus, errorThrown);
+                        
+                        // Failsafe: Re-enable all buttons and reset opacity
+                        // This prevents the UI from being stuck in a disabled state
+                        
+                        $('.product-card').css('opacity', '1');
+                        $('.quantity-select .btn-qty').prop('disabled', false);
+                        
+                        // Re-apply the "disabled" state just for minus buttons at quantity 1
+                        $('.quantity-select').each(function() {
+                            var qtyInput = $(this).find('.value');
+                            var currentVal = parseInt(qtyInput.val(), 10);
+                            if (currentVal <= 1) {
+                                $(this).find('.btn-qty-minus').prop('disabled', true);
+                            }
+                        });
                     }
+                    // --- END OF FIX ---
+                    
                 });
             }
             

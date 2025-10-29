@@ -128,6 +128,10 @@ Route::middleware(['account', 'auth'])->group(function () {
     Route::get('apply/coupon/buy-now/{code}/{id}/{qty}/{dynamic}', [CartController::class, 'applyCouponBuyNow'])->name('apply.coupon.buy');
     Route::get('order', [OrderController::class, 'order'])->name('order');
     Route::get('returns', [OrderController::class, 'returns'])->name('returns');
+    
+    // FIX: ADDED MISSING ROUTE
+    Route::get('download', [AccountController::class, 'downloadIndex'])->name('download');
+    
     Route::post('order', [OrderController::class, 'orderStore'])->name('order.store');
     Route::post('order/buy-now', [OrderController::class, 'orderBuyNowStore'])->name('order.buy.store');
     Route::get('order/invoice/{id}', [OrderController::class, 'orderInvoice'])->name('order.invoice');

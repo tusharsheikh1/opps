@@ -8,9 +8,45 @@
     @php echo setting('fb_pixel'); @endphp
     {{-- --}}
     @php echo setting('header_code'); @endphp
+    
+    {{-- Page Loader Styles --}}
+    <style>
+        #page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        
+        #page-loader.show {
+            display: flex;
+        }
+        
+        #page-loader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loader-logo {
+            width: 150px;
+            height: auto;
+        }
+    </style>
 </head>
 <body{{--  class="" --}}>
     @php echo setting('body_code'); @endphp
+
+    {{-- Page Loader --}}
+    <div id="page-loader">
+        <img src="{{ asset('Opps_logo.png') }}" alt="Loading..." class="loader-logo">
+    </div>
 
     {{-- Facebook SDK --}}
     @if (env('FACEBOOK_SKD_ON') == 1)
@@ -62,5 +98,22 @@
 
     @include('layouts.frontend.partials.script')
     <script src="{{ asset('js/product-variations.js') }}"></script>
+    
+    {{-- Page Loader Script --}}
+    <script>
+        // Only show loader if page takes more than 200ms to load
+        var loaderTimer = setTimeout(function() {
+            document.getElementById('page-loader').classList.add('show');
+        }, 200);
+        
+        window.addEventListener('load', function() {
+            clearTimeout(loaderTimer);
+            var loader = document.getElementById('page-loader');
+            loader.classList.add('fade-out');
+            setTimeout(function() {
+                loader.style.display = 'none';
+            }, 300);
+        });
+    </script>
 </body>
 </html>

@@ -3,6 +3,16 @@
     @inject('campaignModel', 'App\Models\Campaign')
     @php
         $campaigns = $campaignModel::where('status', 1)->get(); // Assuming 'status' is used to filter active campaigns
+        
+        // SET CORRECT CART INSTANCE FOR LOGGED-IN USERS
+        if (auth()->check()) {
+            Cart::instance('cart_' . auth()->id());
+        } else {
+            Cart::instance('default');
+        }
+        
+        // Get cart count using the correct instance
+        $cartCount = Cart::count();
     @endphp
 
     {{-- Include the dedicated CSS partial --}}
@@ -122,11 +132,13 @@
                     <i class="fal fa-search" aria-hidden="true"></i>
                 </a>
 
+                {{-- CART COUNT ELEMENT: Fixed to use correct cart instance for logged-in users --}}
                 <a href="{{route('cart')}}" class="action-item" title="Shopping Cart" aria-label="Shopping cart">
                     <i class="fal fa-shopping-bag" aria-hidden="true"></i>
                     <span>Cart</span>
-                    <span class="badge cart-count-badge" aria-live="polite">{{Cart::count()}}</span>
+                    <span class="badge cart-count-badge" aria-live="polite">{{ $cartCount }}</span>
                 </a>
+                {{-- END CART COUNT ELEMENT --}}
 
                 @guest
                 <a href="{{route('login')}}" class="action-item d-none d-lg-flex" title="Sign In" aria-label="Sign in">
@@ -136,8 +148,7 @@
                 <a href="{{route('dashboard')}}" class="action-item d-none d-lg-flex" title="My Account" aria-label="My account">
                     <i class="fal fa-user-circle" aria-hidden="true"></i>
                 </a>
-                <a href="{{route('logout')}}" class="action-item d-none d-lg-flex" title="Logout" aria-label="Logout"
-                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <a href="{{route('logout')}}" class="action-item d-none d-lg-flex" title="Logout" aria-label="Logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <i class="fal fa-sign-out-alt" aria-hidden="true"></i>
                 </a>
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
@@ -159,121 +170,97 @@
 
     <div class="mobile-menu-panel" id="mobile-menu-panel" aria-hidden="true">
         <div class="mobile-menu-header">
-            <h3 style="margin: 0; color: #111827; font-size: 18px; font-weight: 700;">Menu</h3>
-            <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Close menu">
-                <i class="fal fa-times" aria-hidden="true"></i>
-            </button>
-        </div>
-        <div class="mobile-menu-content">
-            @auth
-            <div class="mobile-menu-section">
-                @if(auth()->user()->role_id != 1)
-                <a href="{{route('dashboard')}}" class="mobile-menu-item"><i class="fal fa-user-circle"></i>My Account</a>
-                @endif
-                @if(auth()->user()->role_id == 2)
-                <a href="{{routeHelper('dashboard')}}" class="mobile-menu-item"><i class="fal fa-tachometer-alt"></i>Dashboard</a>
-                @endif
-            </div>
-            @endauth
-
-            <div class="mobile-menu-section">
-                
-                {{-- START: Campaigns Collapsible Menu - Now uses the injected $campaigns variable --}}
-                <button class="mobile-category-item" data-category-id="campaigns-list">
-                    <span><i class="fal fa-bullhorn category-icon"></i>Campaigns</span>
-                    <i class="fal fa-chevron-down expand-icon"></i>
-                </button>
-                <div class="mobile-subcategory-list" id="subcategory-campaigns-list">
-                    @foreach($campaigns as $campaign)
-                        <a href="{{ route('campaing.product', $campaign->slug) }}" class="mobile-subcategory-item" style="justify-content: flex-start;">
-                            <span>{{ $campaign->name }}</span>
-                        </a>
-                    @endforeach
-                    {{-- Direct link to all campaigns at the end of the list --}}
-                    <a href="{{ route('campaing.index') }}" class="mobile-subcategory-item" style="justify-content: flex-start; background: #f9f9f9; color: var(--brand-accent); font-weight: 700;">
-                        <span>View All Campaigns</span>
-                    </a>
-                </div>
-                {{-- END: Campaigns Collapsible Menu --}}
-
-                {{-- START: Collections Collapsible Menu - Updated to use the new route('collection.list') --}}
-                <button class="mobile-category-item" data-category-id="collections-list">
-                    <span><i class="fal fa-layer-group category-icon"></i>Collections</span>
-                    <i class="fal fa-chevron-down expand-icon"></i>
-                </button>
-                <div class="mobile-subcategory-list" id="subcategory-collections-list">
-                    @foreach($collections as $collection)
-                        <a href="{{ route('collection.product', $collection->slug) }}" class="mobile-subcategory-item" style="justify-content: flex-start;">
-                            <span>{{ $collection->name }}</span>
-                        </a>
-                    @endforeach
-                    {{-- Direct link to all collections at the end of the list --}}
-                    <a href="{{ route('collection.list') }}" class="mobile-subcategory-item" style="justify-content: flex-start; background: #f9f9f9; color: var(--brand-accent); font-weight: 700;">
-                        <span>View All Collections</span>
-                    </a>
-                </div>
-                {{-- END: Collections Collapsible Menu --}}
-
-                @foreach($categories as $category)
-                    @if($category->sub_categories && $category->sub_categories->count() > 0)
-                        {{-- Category with subcategories - expandable --}}
-                        <button class="mobile-category-item" data-category-id="{{$category->id}}">
-                            <span><i class="fal fa-folder category-icon"></i>{{ $category->name }}</span>
-                            <i class="fal fa-chevron-down expand-icon"></i>
-                        </button>
-                        <div class="mobile-subcategory-list" id="subcategory-{{$category->id}}">
-                            @foreach($category->sub_categories->where('status', true) as $subCategory)
-                                @if($subCategory->miniCategory && $subCategory->miniCategory->count() > 0)
-                                    {{-- Subcategory with mini categories - expandable --}}
-                                    <button class="mobile-subcategory-item" data-subcategory-id="{{$subCategory->id}}">
-                                        <span>{{ $subCategory->name }}</span>
-                                        <i class="fal fa-chevron-down expand-icon"></i>
-                                    </button>
-                                    <div class="mobile-mini-category-list" id="minicategory-{{$subCategory->id}}">
-                                        @foreach($subCategory->miniCategory->where('status', true) as $miniCat)
-                                            @if($miniCat->extraCategory && $miniCat->extraCategory->count() > 0)
-                                                {{-- Mini category with extra categories - expandable --}}
-                                                <button class="mobile-mini-category-item" data-mini-id="{{$miniCat->id}}">
-                                                    <span>{{ $miniCat->name }}</span>
-                                                    <i class="fal fa-chevron-down expand-icon"></i>
-                                                </button>
-                                                <div class="mobile-extra-category-list" id="extracategory-{{$miniCat->id}}">
-                                                    @foreach($miniCat->extraCategory->where('status', true) as $extraCat)
-                                                        <a href="{{ route('extraCategory.product', $extraCat->slug) }}" class="mobile-extra-category-link">{{ $extraCat->name }}</a>
-                                                    @endforeach
-                                                </div>
-                                            @else
-                                                {{-- Mini category without extra categories - direct link --}}
-                                                <a href="{{ route('miniCategory.product', $miniCat->slug) }}" class="mobile-mini-category-item" style="justify-content: flex-start;">
-                                                    <span>{{ $miniCat->name }}</span>
-                                                </a>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                @else
-                                    {{-- Subcategory without mini categories - direct link --}}
-                                    <a href="{{ route('subCategory.product', $subCategory->slug) }}" class="mobile-subcategory-item" style="justify-content: flex-start;">
-                                        <span>{{ $subCategory->name }}</span>
-                                    </a>
-                                @endif
-                            @endforeach
-                        </div>
-                    @else
-                        {{-- Category without subcategories - direct link --}}
-                        <a href="{{ route('category.product', $category->slug) }}" class="mobile-category-link">
-                            <i class="fal fa-folder"></i>{{ $category->name }}
-                        </a>
-                    @endif
-                @endforeach
-                <a href="{{ route('product') }}" class="mobile-menu-item">
-                    <i class="fal fa-box"></i>All Products
+            <div class="logo-area">
+                <a href="{{route('home')}}" aria-label="Home">
+                    <img src="{{asset('uploads/setting/'.setting('logo'))}}" alt="Application Logo">
                 </a>
             </div>
+            <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Close mobile menu">
+                <i class="fal fa-times"></i>
+            </button>
+        </div>
 
+        <nav class="mobile-menu-nav" aria-label="Mobile navigation">
+            <ul class="mobile-menu-list">
+                @foreach($categories as $category)
+                    <li>
+                        <a href="{{ route('category.product', $category->slug) }}" 
+                           class="mobile-category-item" 
+                           data-category-id="{{$category->id}}" 
+                           aria-expanded="false" 
+                           aria-controls="subcategory-{{$category->id}}">
+                            <span>{{ $category->name }}</span>
+                            @if($category->sub_categories && $category->sub_categories->count() > 0)
+                                <i class="fal fa-angle-right expand-icon"></i>
+                            @endif
+                        </a>
+                        
+                        @if($category->sub_categories && $category->sub_categories->count() > 0)
+                            <div class="mobile-subcategory-list" id="subcategory-{{$category->id}}">
+                                <a href="{{ route('category.product', $category->slug) }}" class="mobile-menu-item category-title">
+                                    <i class="fal fa-th-large"></i>All {{ $category->name }}
+                                </a>
+
+                                @foreach($category->sub_categories->where('status', true) as $subCategory)
+                                    <a href="{{ route('subCategory.product', $subCategory->slug) }}" 
+                                       class="mobile-subcategory-item" 
+                                       data-subcategory-id="{{$subCategory->id}}" 
+                                       aria-expanded="false" 
+                                       aria-controls="minicategory-{{$subCategory->id}}">
+                                        <span>{{ $subCategory->name }}</span>
+                                        @if($subCategory->miniCategory && $subCategory->miniCategory->count() > 0)
+                                            <i class="fal fa-angle-right expand-icon"></i>
+                                        @endif
+                                    </a>
+
+                                    @if($subCategory->miniCategory && $subCategory->miniCategory->count() > 0)
+                                        <div class="mobile-mini-category-list" id="minicategory-{{$subCategory->id}}">
+                                            <a href="{{ route('subCategory.product', $subCategory->slug) }}" class="mobile-menu-item subcategory-title">
+                                                <i class="fal fa-cube"></i>All {{ $subCategory->name }}
+                                            </a>
+                                            @foreach($subCategory->miniCategory->where('status', true) as $miniCat)
+                                                <a href="{{ route('miniCategory.product', $miniCat->slug) }}" class="mobile-menu-item mini-category-item">
+                                                    <span>{{ $miniCat->name }}</span>
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @endif
+                    </li>
+                @endforeach
+                
+                <li class="mobile-separator"></li>
+                
+                {{-- Collections --}}
+                <li>
+                    <a href="{{ route('collection.list') }}" class="mobile-menu-item">
+                        <i class="fal fa-gem"></i>Collections
+                    </a>
+                </li>
+                
+                {{-- Campaigns --}}
+                <li>
+                    <a href="{{ route('campaing.index') }}" class="mobile-menu-item" style="color: var(--brand-accent);">
+                        <i class="fal fa-badge-percent"></i>Campaigns
+                    </a>
+                </li>
+
+                {{-- All Products --}}
+                <li>
+                    <a href="{{ route('product') }}" class="mobile-menu-item">
+                        <i class="fal fa-tags"></i>All Products
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="mobile-menu-footer">
             <div class="mobile-menu-section">
                 <a href="{{route('cart')}}" class="mobile-menu-item">
                     <i class="fal fa-shopping-bag"></i>Shopping Cart
-                    <span class="badge cart-count-badge">{{Cart::count()}}</span>
+                    <span class="badge cart-count-badge">{{ $cartCount }}</span>
                 </a>
             </div>
 

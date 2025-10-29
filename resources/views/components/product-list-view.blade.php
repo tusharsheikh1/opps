@@ -1,541 +1,550 @@
-<?php if(!isset($classes)){$classes='col-lg-3 col-md-3 col-sm-4 col-4';}?>
+<?php if(!isset($classes)){$classes='modern-product-col';}?>
 
 <div class="product {{$classes}} pxc">
-    <?php 
-       $typeid=$product->slug;
-    ?>
-
-    <div class="modern-product-card {{ 
-        (isset($product->category) && (
-            str_contains(strtolower($product->category->name ?? ''), 'book') || 
-            str_contains(strtolower($product->category->name ?? ''), 'bengali_book') ||
-            str_contains(strtolower($product->category->name ?? ''), 'kitab')
-        )) || 
-        str_contains(strtolower($product->title), 'book') || 
-        str_contains(strtolower($product->title), 'bengali_book') 
-        ? 'book-product' : '' }}">
+    <div class="modern-product-card">
         <style>
+            .modern-product-col {
+                padding: 8px;
+                flex: 0 0 auto;
+            }
+
             .modern-product-card {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
                 background: #ffffff;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+                border-radius: 20px;
                 overflow: hidden;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                height: auto;
-                min-height: 340px;
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 display: flex;
                 flex-direction: column;
                 position: relative;
-                border: 1px solid rgba(0, 0, 0, 0.05);
+                border: 1px solid rgba(0, 0, 0, 0.04);
+                height: 100%;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             }
 
             .modern-product-card:hover {
-                transform: translateY(-8px);
-                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+                transform: translateY(-6px);
+                box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12), 
+                           0 8px 16px rgba(0, 0, 0, 0.08);
+                border-color: rgba(99, 102, 241, 0.2);
+            }
+
+            /* Sale Badge - More Dynamic */
+            .sale-badge {
+                position: absolute;
+                top: 12px;
+                left: 12px;
+                background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+                color: white;
+                padding: 8px 14px;
+                border-radius: 30px;
+                font-size: 0.7rem;
+                font-weight: 700;
+                letter-spacing: 0.8px;
+                z-index: 10;
+                box-shadow: 0 6px 20px rgba(255, 71, 87, 0.35);
+                animation: gentlePulse 3s ease-in-out infinite;
+                text-transform: uppercase;
+            }
+
+            @keyframes gentlePulse {
+                0%, 100% {
+                    transform: scale(1);
+                    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.35);
+                }
+                50% {
+                    transform: scale(1.05);
+                    box-shadow: 0 8px 24px rgba(255, 71, 87, 0.45);
+                }
             }
 
             .product-image-container {
                 position: relative;
                 overflow: hidden;
-                height: 200px;
-                background: #f8fafc;
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                aspect-ratio: 1 / 1;
             }
 
             .product-image-container img {
                 width: 100%;
                 height: 100%;
-                object-fit: contain;
-                transition: transform 0.3s ease;
-                background: white;
-            }
-
-            .modern-product-card.book-product .product-image-container img {
-                object-fit: contain;
-                padding: 8px;
-            }
-
-            .modern-product-card:not(.book-product) .product-image-container img {
+                display: block;
                 object-fit: cover;
-                padding: 0;
+                transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
             }
-
+            
             .modern-product-card:hover .product-image-container img {
-                transform: scale(1.05);
+                transform: scale(1.08);
             }
 
-            .discount-badge {
+            /* Quick View Overlay - Enhanced */
+            .quick-view-overlay {
                 position: absolute;
-                top: 12px;
-                left: 12px;
-                background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-                color: white;
-                padding: 6px 12px;
-                border-radius: 20px;
-                font-size: 0.75rem;
-                font-weight: 600;
-                z-index: 2;
-                box-shadow: 0 2px 8px rgba(238, 90, 36, 0.3);
-            }
-
-            .wishlist-btn {
-                position: absolute;
-                top: 12px;
-                right: 12px;
-                width: 36px;
-                height: 36px;
-                border-radius: 50%;
-                border: none;
-                background: rgba(255, 255, 255, 0.9);
-                backdrop-filter: blur(10px);
+                inset: 0;
+                background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.8) 100%);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                z-index: 2;
+                opacity: 0;
+                transition: opacity 0.4s ease;
+                pointer-events: none;
             }
 
-            .wishlist-btn:hover {
+            .modern-product-card:hover .quick-view-overlay {
+                opacity: 1;
+                pointer-events: all;
+            }
+
+            .quick-view-btn {
                 background: white;
-                transform: scale(1.1);
+                color: #111827;
+                padding: 14px 28px;
+                border-radius: 14px;
+                font-weight: 700;
+                font-size: 0.875rem;
+                border: none;
+                cursor: pointer;
+                transform: translateY(25px);
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+                letter-spacing: 0.3px;
             }
 
-            .wishlist-btn i {
-                font-size: 16px;
-                transition: color 0.3s ease;
+            .modern-product-card:hover .quick-view-btn {
+                transform: translateY(0);
+            }
+
+            .quick-view-btn:hover {
+                background: #6366f1;
+                color: white;
+                transform: scale(1.05) translateY(-2px);
+                box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
             }
 
             .product-content {
-                padding: 14px;
-                flex: 1;
+                padding: 18px;
                 display: flex;
                 flex-direction: column;
+                flex-grow: 1;
+                background: white;
             }
 
-            .rating-container {
-                display: flex;
-                align-items: center;
-                gap: 8px;
+            .product-vendor {
+                font-size: 0.7rem;
+                color: #6366f1;
                 margin-bottom: 6px;
+                text-transform: uppercase;
+                letter-spacing: 1.2px;
+                font-weight: 700;
+                display: inline-block;
             }
 
-            .star-rating {
-                display: flex;
-                gap: 2px;
-            }
-
-            .star-rating i {
-                font-size: 14px;
-                color: #fbbf24;
-            }
-
-            .star-rating .far {
-                color: #e5e7eb;
+            .product-title-link {
+                text-decoration: none;
+                color: #111827;
             }
 
             .product-title {
-                font-size: 0.95rem;
+                font-size: 1rem;
                 font-weight: 600;
-                color: #1f2937;
                 line-height: 1.4;
-                margin: 6px 0 8px 0;
+                margin: 0 0 10px 0;
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
                 overflow: hidden;
-                min-height: 2.8rem;
+                min-height: 44px;
+                color: #1f2937;
+                transition: color 0.3s ease;
             }
 
-            .product-title:hover {
-                color: var(--primary_color, #3b82f6);
+            .product-title-link:hover .product-title {
+                color: #6366f1;
+            }
+
+            .product-rating {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                margin-bottom: 12px;
+            }
+
+            .stars {
+                display: flex;
+                gap: 1px;
+            }
+
+            .stars span {
+                color: #fbbf24;
+                font-size: 0.95rem;
+            }
+
+            .review-count {
+                font-size: 0.75rem;
+                color: #6b7280;
+                background: #f9fafb;
+                padding: 3px 8px;
+                border-radius: 10px;
+                font-weight: 500;
+            }
+
+            .stock-indicator {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                margin-bottom: 12px;
+                padding: 6px 12px;
+                border-radius: 12px;
+                width: fit-content;
+            }
+
+            .stock-dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+            }
+
+            .in-stock {
+                color: #065f46;
+                background: #d1fae5;
+            }
+
+            .in-stock .stock-dot {
+                background: #10b981;
+            }
+
+            .low-stock {
+                color: #92400e;
+                background: #fef3c7;
+            }
+
+            .low-stock .stock-dot {
+                background: #f59e0b;
+            }
+
+            .out-of-stock {
+                color: #991b1b;
+                background: #fee2e2;
+            }
+
+            .out-of-stock .stock-dot {
+                background: #ef4444;
             }
 
             .price-container {
-                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 16px;
+                flex-wrap: wrap;
             }
 
             .current-price {
                 font-size: 1.25rem;
-                font-weight: 700;
-                color: var(--primary_color, #3b82f6);
+                font-weight: 800;
+                color: #111827;
+                letter-spacing: -0.025em;
             }
 
             .original-price {
-                font-size: 0.9rem;
+                font-size: 0.875rem;
                 color: #9ca3af;
                 text-decoration: line-through;
-                margin-left: 8px;
+                font-weight: 500;
             }
 
-            .product-message {
-                font-size: 0.8rem;
-                color: #6b7280;
-                margin-bottom: 6px;
-                min-height: 1rem;
-            }
-
-            .action-buttons {
-                display: flex;
-                gap: 8px;
-                margin-top: auto;
-                min-height: 0;
-            }
-            
-            .action-buttons:empty {
-                display: none;
-            }
-
-            .btn-primary {
-                flex: 1;
-                background: var(--primary_color, #3b82f6);
-                color: white;
-                border: none;
-                padding: 12px 16px;
+            .discount-percentage {
+                background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
+                color: #78350f;
+                padding: 4px 8px;
                 border-radius: 10px;
-                font-weight: 600;
-                font-size: 0.875rem;
-                cursor: pointer;
-                transition: all 0.3s ease;
+                font-size: 0.7rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+                height: 24px;
                 display: flex;
                 align-items: center;
-                justify-content: center;
-                gap: 8px;
-            }
-
-            .btn-primary:hover {
-                background: var(--primary_color_dark, #2563eb);
-                transform: translateY(-1px);
-            }
-
-            .btn-secondary {
-                background: #f3f4f6;
-                color: #6b7280;
-                border: none;
-                padding: 12px 16px;
-                border-radius: 10px;
-                font-weight: 600;
-                font-size: 0.875rem;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                white-space: nowrap;
-            }
-
-            .btn-secondary:hover {
-                background: #e5e7eb;
-                color: #374151;
-            }
-
-            .btn-out-of-stock {
-                background: #ef4444;
-                color: white;
-            }
-
-            .btn-out-of-stock:hover {
-                background: #dc2626;
-            }
-
-            .quick-view-overlay {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-                color: white;
-                padding: 20px;
-                transform: translateY(100%);
-                transition: transform 0.3s ease;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .modern-product-card:hover .quick-view-overlay {
-                transform: translateY(0);
-            }
-
-            .quick-view-btn {
-                color: white;
-                text-decoration: none;
-                font-weight: 600;
-                font-size: 0.9rem;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                padding: 8px 16px;
-                border-radius: 8px;
-                background: rgba(255, 255, 255, 0.2);
-                backdrop-filter: blur(10px);
-                transition: all 0.3s ease;
-            }
-
-            .quick-view-btn:hover {
-                background: rgba(255, 255, 255, 0.3);
-                color: white;
-                text-decoration: none;
-            }
-
-            .modern-product-card.book-product .product-image-container {
-                height: 220px;
-            }
-
-            .modern-product-card.book-product {
-                min-height: 360px;
             }
 
             .add-to-cart-btn {
+                background: linear-gradient(135deg, #000000ff 0%, #111119ff 100%);
+                color: white;
+                border: none;
+                padding: 14px 18px;
+                border-radius: 16px;
+                font-weight: 700;
+                font-size: 0.875rem;
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 8px; 
-                flex: 1;
-                padding: 12px 16px;
-                border: none;
-                border-radius: 10px;
-                text-decoration: none;
-                color: #fff;
-                font-weight: 600;
-                background-color: #000000ff;
-                font-size: 0.875rem;
-                cursor: pointer;
-                transition: all 0.2s ease-in-out;
+                gap: 8px;
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.25);
+                letter-spacing: 0.3px;
+                margin-top: auto;
             }
 
             .add-to-cart-btn:hover {
-                background-color: #e65c00;
-                color: #fff;
+                background: linear-gradient(135deg, #39f57eff 0%, #3730a3 100%);
                 transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(255, 103, 0, 0.4);
+                box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
             }
+
+            .add-to-cart-btn:active {
+                transform: translateY(0);
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            }
+
+            .add-to-cart-btn svg {
+                transition: transform 0.3s ease;
+            }
+
+            .add-to-cart-btn:hover svg {
+                transform: scale(1.1);
+            }
+
+            /* Responsive Design */
             @media (max-width: 768px) {
+                .modern-product-col {
+                    padding: 6px;
+                }
+
                 .modern-product-card {
-                    height: auto;
-                    min-height: 300px;
+                    border-radius: 16px;
                 }
-                
-                .modern-product-card.book-product {
-                    min-height: 320px;
-                }
-                
-                .modern-product-card.book-product .product-image-container {
-                    height: 180px;
-                }
-                
-                .product-image-container {
-                    height: 160px;
-                }
-                
-                .product-image-container img {
-                    object-fit: contain;
-                    padding: 4px;
-                }
-                
-                .modern-product-card:not(.book-product) .product-image-container img {
-                    object-fit: contain;
-                    padding: 4px;
-                }
-                
+
                 .product-content {
-                    padding: 10px;
+                    padding: 16px;
                 }
-                
+
                 .product-title {
-                    font-size: 0.85rem;
-                    margin: 4px 0 6px 0;
-                    min-height: 2.2rem;
-                    -webkit-line-clamp: 2;
+                    font-size: 0.9rem;
+                    min-height: 40px;
                 }
-                
+
                 .current-price {
                     font-size: 1.1rem;
                 }
-                
-                .action-buttons {
-                    flex-direction: column;
-                    margin-top: 6px;
+
+                .original-price {
+                    font-size: 0.75rem;
                 }
-                
-                .discount-badge {
-                    top: 8px;
-                    left: 8px;
-                    padding: 4px 8px;
+
+                .discount-percentage {
+                    font-size: 0.6rem;
+                    padding: 2px 6px;
+                    height: 20px;
+                }
+
+                .add-to-cart-btn {
+                    padding: 10px 14px;
+                    font-size: 0.8rem;
+                    gap: 6px;
+                    border-radius: 12px;
+                }
+
+                .add-to-cart-btn svg {
+                    width: 16px;
+                    height: 16px;
+                }
+
+                .sale-badge {
+                    padding: 5px 8px;
+                    font-size: 0.6rem;
+                }
+
+                .product-vendor {
+                    font-size: 0.6rem;
+                    margin-bottom: 4px;
+                }
+
+                .product-rating {
+                    margin-bottom: 10px;
+                    gap: 4px;
+                }
+
+                .stars {
+                    gap: 0;
+                }
+
+                .stars span {
+                    font-size: 0.8rem;
+                }
+
+                .review-count {
+                    font-size: 0.65rem;
+                    padding: 2px 6px;
+                }
+
+                .stock-indicator {
                     font-size: 0.7rem;
+                    padding: 4px 10px;
+                    margin-bottom: 10px;
                 }
-                
-                .wishlist-btn {
-                    top: 8px;
-                    right: 8px;
-                    width: 32px;
-                    height: 32px;
+
+                .stock-dot {
+                    width: 5px;
+                    height: 5px;
                 }
-                
-                .wishlist-btn i {
-                    font-size: 14px;
+
+                .price-container {
+                    gap: 6px;
+                    margin-bottom: 12px;
                 }
+            }
+
+            /* Extra Small Devices (360px and below) */
+            @media (max-width: 360px) {
+                .modern-product-col {
+                    padding: 3px;
+                }
+
+                .product-title {
+                    font-size: 0.8rem;
+                    min-height: 36px;
+                }
+
+                .product-content {
+                    padding: 10px;
+                }
+
+                .current-price {
+                    font-size: 0.95rem;
+                }
+
+                .add-to-cart-btn {
+                    padding: 9px 12px;
+                    font-size: 0.75rem;
+                }
+
+                .add-to-cart-btn span {
+                    display: none;
+                }
+
+                .add-to-cart-btn svg {
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+
+            /* Hover Effects Only on Non-Touch Devices */
+            @media (hover: hover) and (pointer: fine) {
+                .modern-product-card:hover {
+                    transform: translateY(-6px);
+                }
+            }
+
+            /* Touch Device Optimization */
+            @media (hover: none) {
+                .modern-product-card {
+                    transition: transform 0.2s ease;
+                }
+
+                .modern-product-card:active {
+                    transform: scale(0.98);
+                }
+
+                .quick-view-overlay {
+                    display: none !important;
+                }
+            }
+
+            /* Loading Animation */
+            @keyframes shimmer {
+                0% {
+                    background-position: -1000px 0;
+                }
+                100% {
+                    background-position: 1000px 0;
+                }
+            }
+
+            .product-loading {
+                background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                background-size: 1000px 100%;
+                animation: shimmer 2s infinite;
             }
         </style>
 
-        <div class="product-image-container">
-            <a href="{{route('product.details', $product->slug)}}">
-                <img src="{{asset('uploads/product/'.$product->image)}}" alt="{{$product->title}}">
-            </a>
-
-            @if($product->discount_price > 0)
-                @php
-                    if($product->dis_type == '2') {
-                        $discount_price = round((($product->regular_price - $product->discount_price) / ($product->regular_price)) * 100) . '%';
-                    } else {
-                        $currency_icon = (setting('CURRENCY_ICON')) ? setting('CURRENCY_ICON') : '৳';
-                        $discount_price = $currency_icon . ($product->regular_price - $product->discount_price);
-                    }
-                @endphp
-                <div class="discount-badge">{{$discount_price}} OFF</div>
-            @endif
-
+        @if($product->discount_price > 0)
             @php
-                $hw = App\Models\wishlist::where('product_id', $product->id)->where('user_id', auth()->id())->first();
-                $wishlist_color = $hw ? '#ef4444' : '#6b7280';
+                $discountPercent = round((($product->regular_price - $product->discount_price) / $product->regular_price) * 100);
             @endphp
-            <form action="{{route('wishlist.add')}}" method="post" id="submit_payment_form{{$typeid}}">
-                @csrf
-                <input type="hidden" name="product_id" value="{{$product->slug}}">
-                <button type="submit" class="wishlist-btn" title="Add to Wishlist">
-                    <i class="{{$hw ? 'fas' : 'far'}} fa-heart" style="color: {{$wishlist_color}}"></i>
-                </button>
-            </form>
+            <span class="sale-badge">-{{$discountPercent}}% OFF</span>
+        @endif
 
+        <a href="{{route('product.details', $product->slug)}}" class="product-image-container">
+            <img src="{{asset('uploads/product/'.$product->image)}}" alt="{{$product->title}}" loading="lazy">
             <div class="quick-view-overlay">
-                <a href="{{route('product.details', $product->slug)}}" class="quick-view-btn">
-                    <i class="fas fa-search"></i>
-                    Quick View
-                </a>
+                <button class="quick-view-btn">Quick View</button>
             </div>
-        </div>
+        </a>
 
         <div class="product-content">
-            <div class="rating-container">
-                @php
-                    if ($product->reviews->count() > 0) {
-                        $average_rating = $product->reviews->sum('rating') / $product->reviews->count();
-                    } else {
-                        $average_rating = 0;
-                    }
-                @endphp
-                <div class="star-rating">
-                    @for ($i = 1; $i <= 5; $i++)
-                        @if ($average_rating >= $i)
-                            <i class="fas fa-star"></i>
-                        @elseif ($average_rating >= $i - 0.5)
-                            <i class="fas fa-star-half-alt"></i>
-                        @else
-                            <i class="far fa-star"></i>
-                        @endif
-                    @endfor
-                </div>
-            </div>
-
-            <a href="{{route('product.details', $product->slug)}}" style="text-decoration: none;">
-                <h5 class="product-title">{{implode(' ', array_slice(explode(' ', $product->title), 0, 10))}}...</h5>
+            <p class="product-vendor">OPPS</p>
+            
+            <a href="{{route('product.details', $product->slug)}}" class="product-title-link">
+                <h3 class="product-title">{{$product->title}}</h3>
             </a>
+            
+            @if($product->reviews->count() > 0)
+                @php
+                    $rating = round($product->reviews->avg('rating'));
+                @endphp
+                <div class="product-rating">
+                    <div class="stars">
+                        @for($i = 1; $i <= 5; $i++)
+                            @if($i <= $rating)
+                                <span>★</span>
+                            @else
+                                <span>☆</span>
+                            @endif
+                        @endfor
+                    </div>
+                    <span class="review-count">{{$product->reviews->count()}} reviews</span>
+                </div>
+            @endif
+
+            @if(isset($product->stock))
+                @if($product->stock > 10)
+                    <div class="stock-indicator in-stock">
+                        <span class="stock-dot"></span>
+                        <span>In Stock</span>
+                    </div>
+                @elseif($product->stock > 0 && $product->stock <= 10)
+                    <div class="stock-indicator low-stock">
+                        <span class="stock-dot"></span>
+                        <span>Only {{$product->stock}} left</span>
+                    </div>
+                @else
+                    <div class="stock-indicator out-of-stock">
+                        <span class="stock-dot"></span>
+                        <span>Out of Stock</span>
+                    </div>
+                @endif
+            @endif
 
             <div class="price-container">
-                @if($product->discount_price > 0 || $product->price)
-                    <span class="current-price">{{ setting('CURRENCY_ICON') ?? '৳' }}{{$product->price ?? $product->discount_price}}</span>
-                    <span class="original-price">{{ setting('CURRENCY_ICON') ?? '৳' }}{{$product->regular_price}}</span>
+                @if($product->discount_price > 0)
+                    <span class="original-price">&#2547;{{number_format($product->regular_price, 0)}}</span>
+                    <span class="current-price">&#2547;{{number_format($product->discount_price, 0)}}</span>
+                    <span class="discount-percentage"> Save {{$discountPercent}}%</span>
                 @else
-                    <span class="current-price">{{ setting('CURRENCY_ICON') ?? '৳' }}{{$product->regular_price}}</span>
+                    <span class="current-price">&#2547;{{number_format($product->regular_price, 0)}}</span>
                 @endif
             </div>
 
-            <div class="product-message">
-                @if ($product->prdct_extra_msg)
-                    <small>{{ $product->prdct_extra_msg }}</small>
-                @endif
-            </div>
-
-            <div class="action-buttons">
-                @if($product->quantity <= '0')
-                    <a href="{{route('product.details', $product->slug)}}" class="btn-primary btn-out-of-stock">
-                        <i class="fas fa-clock"></i>
-                        Pre Order
-                    </a>
-                @else
-                    <button class="add-to-cart-btn" id="productInfo" data-url="{{route('product.info', $product->slug)}}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
-                        </svg>
-                        <span>Add to cart</span>
-                    </button>
-                @endif
-            </div>
+            <button class="add-to-cart-btn" id="productInfo" data-url="{{route('product.info', $product->slug)}}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                <span>Add to Cart</span>
+            </button>
         </div>
     </div>
 </div>
-
-@push('js')
-<script>
-    // Wishlist form submit 
-    $(document).on('submit', '#submit_payment_form{{$typeid}}', function(e) {
-        e.preventDefault();
-        
-        let action = $(this).attr('action');
-        var formData = $(this).serialize();
-        
-        $.ajax({
-            type: 'POST',
-            url: action,
-            data: formData,
-            dataType: "JSON",
-            beforeSend: function() {
-                loader(true);
-            },
-            success: function (response) {
-                responseMessage(response.alert, response.message, response.alert.toLowerCase());
-                
-                const button = $('#submit_payment_form{{$typeid}} .wishlist-btn i');
-                if (response.action === 'added') {
-                    button.removeClass('far').addClass('fas').css('color', '#ef4444');
-                } else {
-                    button.removeClass('fas').addClass('far').css('color', '#6b7280');
-                }
-            },
-            complete: function() {
-                loader(false);
-            },
-            error: function (xhr) {
-                if (xhr.status == 422) {
-                    if (typeof(xhr.responseJSON.errors) !== 'undefined') {
-                        $.each(xhr.responseJSON.errors, function (key, error) { 
-                            $('small.' + key + '').text(error);
-                            $('#' + key + '').addClass('is-invalid');
-                        });
-                        responseMessage('Error', xhr.responseJSON.message, 'error');
-                    }
-                } else if (xhr.status == 401) {
-                    alert('Please login to continue');
-                    window.location = '/login';
-                } else {
-                    responseMessage(xhr.status, xhr.statusText, 'error');
-                }
-            }
-        });
-    });
-
-    function responseMessage(heading, message, icon) {
-        $.toast({
-            heading: heading,
-            text: message,
-            icon: icon,
-            position: 'top-right',
-            stack: false
-        });
-    }
-
-    function loader(status) {
-        if (status == true) {
-            $('#loading-image').removeClass('d-none').addClass('d-block');
-        } else {
-            $('#loading-image').addClass('d-none').removeClass('d-block');
-        }
-    }
-</script>
-@endpush

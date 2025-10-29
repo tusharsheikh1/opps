@@ -1,6 +1,5 @@
 <style>
-    /* 
-    ENHANCED MOBILE-FIRST NAVBAR DESIGN
+    /* ENHANCED MOBILE-FIRST NAVBAR DESIGN
     - Touch-friendly interactions (minimum 44px touch targets)
     - Better mobile dropdown positioning
     - Improved mobile navigation flow
@@ -34,6 +33,13 @@
         --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.2);
         --transition-fast: 0.15s ease;
         --transition-normal: 0.25s ease;
+        
+        /* Added for clarity, matching aside.blade.php */
+        --sidebar-width-full: 200px; 
+        --sidebar-width-collapsed: 55px; 
+        
+        /* Navbar height variable */
+        --navbar-height: 60px;
     }
 
     /* Enhanced Navbar Base - Mobile First */
@@ -42,14 +48,14 @@
         border-bottom: 1px solid var(--navbar-border) !important;
         box-shadow: var(--shadow-sm) !important;
         padding: 0 var(--mobile-spacing-md) !important;
-        min-height: 60px !important;
-        height: 60px !important;
-        max-height: 60px !important;
+        min-height: var(--navbar-height) !important;
+        height: var(--navbar-height) !important;
+        max-height: var(--navbar-height) !important;
         display: flex !important;
         align-items: center !important;
         position: fixed !important;
         top: 0 !important;
-        left: 0 !important;
+        left: 0 !important; /* Default for mobile */
         right: 0 !important;
         z-index: 1030 !important;
         margin: 0 !important;
@@ -57,16 +63,30 @@
         border-radius: 0 !important;
         transition: left var(--transition-normal) !important;
     }
+    
+    /* FIX: Push main content down to clear the fixed navbar */
+    /* Assuming a `.content-wrapper` exists outside this file */
+    .content-wrapper {
+        margin-top: calc(var(--navbar-height) + 5px) !important;
+        padding-top: 0 !important;
+    }
 
-    /* Desktop positioning adjustments */
+    /* Desktop positioning adjustments (>= 992px) */
     @media (min-width: 992px) {
         .main-header.navbar {
-            left: 200px !important;
+            /* Full sidebar width */
+            left: var(--sidebar-width-full) !important;
             padding: 0 1.5rem !important;
         }
         
         .sidebar-collapse .main-header.navbar {
-            left: 55px !important;
+            /* Collapsed sidebar width */
+            left: var(--sidebar-width-collapsed) !important;
+        }
+
+        /* Ensure .content-wrapper top spacing remains correct on desktop */
+        .content-wrapper {
+            margin-top: calc(var(--navbar-height) + 5px) !important;
         }
     }
 
@@ -92,7 +112,7 @@
         margin: 0 !important;
         padding: 0 !important;
         gap: var(--mobile-spacing-sm) !important;
-        height: 60px !important;
+        height: var(--navbar-height) !important;
     }
 
     .navbar-nav .nav-item {
@@ -224,10 +244,10 @@
         display: flex !important;
         align-items: center !important;
         gap: var(--mobile-spacing-sm) !important;
-        height: 60px !important;
+        height: var(--navbar-height) !important;
     }
 
-    .navbar-nav.ml-auto .nav-link {
+    .navbar-nav.ml-auto .nav-item:not(.dropdown) .nav-link {
         width: var(--mobile-touch-target) !important;
         height: var(--mobile-touch-target) !important;
         display: flex !important;
@@ -260,32 +280,50 @@
         margin: 0 !important;
     }
 
-    /* Enhanced User Profile Dropdown - Desktop */
+    /* --- Consolidated User Profile Dropdown --- */
     .user-dropdown {
-        display: none !important;
+        /* Use a standard dropdown container */
+        margin-left: var(--mobile-spacing-sm) !important;
+    }
+
+    .user-dropdown-toggle {
+        /* Style for the link/button */
+        display: flex !important;
         align-items: center !important;
         background: var(--gray-50) !important;
         border: 1px solid var(--gray-300) !important;
         border-radius: 0.75rem !important;
         padding: 0.5rem 1rem !important;
-        margin-left: var(--mobile-spacing-lg) !important;
         transition: all var(--transition-normal) !important;
         cursor: pointer !important;
-        min-width: 180px !important;
         color: var(--text-muted) !important;
         text-decoration: none !important;
         min-height: var(--mobile-touch-target) !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
+        margin: 0 !important;
+        min-width: 44px !important; /* Mobile touch target fallback */
     }
 
-    @media (min-width: 992px) {
-        .user-dropdown {
-            display: flex !important;
+    @media (max-width: 991.98px) {
+        /* Mobile: Show only the avatar (icon) */
+        .user-dropdown-info {
+            display: none !important;
+        }
+        .user-dropdown-toggle {
+            padding: 0 !important;
+            width: 44px !important;
+            height: 44px !important;
+            justify-content: center !important;
         }
     }
 
-    .user-dropdown:hover {
+    @media (min-width: 992px) {
+        /* Desktop: Show avatar and name */
+        .user-dropdown-toggle {
+            min-width: 180px !important;
+        }
+    }
+
+    .user-dropdown-toggle:hover {
         background: var(--gray-200) !important;
         border-color: #ced4da !important;
         text-decoration: none !important;
@@ -294,7 +332,7 @@
         box-shadow: var(--shadow-md) !important;
     }
 
-    .user-dropdown:focus {
+    .user-dropdown-toggle:focus {
         outline: 2px solid var(--primary-color) !important;
         outline-offset: 2px !important;
     }
@@ -310,20 +348,23 @@
         justify-content: center !important;
         font-weight: 600 !important;
         font-size: 12px !important;
-        margin-right: 0.75rem !important;
         flex-shrink: 0 !important;
         line-height: 1 !important;
         text-transform: uppercase !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
+        margin: 0 !important; /* Reset margin */
     }
 
-    .user-info {
+    @media (min-width: 992px) {
+        .user-avatar {
+            margin-right: 0.75rem !important;
+        }
+    }
+
+    .user-dropdown-info {
         display: flex !important;
         flex-direction: column !important;
         flex-grow: 1 !important;
         min-width: 0 !important;
-        margin: 0 !important;
         padding: 0 !important;
     }
 
@@ -346,42 +387,6 @@
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        margin: 0 !important;
-    }
-
-    /* Enhanced Mobile User Dropdown */
-    .mobile-user-dropdown {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        width: var(--mobile-touch-target) !important;
-        height: var(--mobile-touch-target) !important;
-        border-radius: 0.5rem !important;
-        border: 1px solid var(--gray-300) !important;
-        background: var(--gray-50) !important;
-        color: var(--text-muted) !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    @media (min-width: 992px) {
-        .mobile-user-dropdown {
-            display: none !important;
-        }
-    }
-
-    .mobile-user-dropdown:hover {
-        background: var(--gray-200) !important;
-        border-color: #ced4da !important;
-        color: var(--text-dark) !important;
-        text-decoration: none !important;
-        transform: translateY(-1px) !important;
-    }
-
-    .mobile-user-dropdown .user-avatar {
-        width: 28px !important;
-        height: 28px !important;
-        font-size: 10px !important;
         margin: 0 !important;
     }
 
@@ -595,7 +600,7 @@
             gap: 0.25rem !important;
         }
         
-        .navbar-nav.ml-auto .nav-link {
+        .navbar-nav.ml-auto .nav-item:not(.dropdown) .nav-link {
             width: 40px !important;
             height: 40px !important;
         }
@@ -609,11 +614,6 @@
         .visit-site-btn {
             padding: 0.625rem 0.75rem !important;
             font-size: 13px !important;
-            height: 40px !important;
-        }
-
-        .mobile-user-dropdown {
-            width: 40px !important;
             height: 40px !important;
         }
 
@@ -667,7 +667,7 @@
     /* Enhanced Accessibility */
     .navbar-nav .nav-link:focus-visible,
     .dropdown-item:focus-visible,
-    .user-dropdown:focus-visible {
+    .user-dropdown-toggle:focus-visible {
         outline: 3px solid var(--primary-color) !important;
         outline-offset: 2px !important;
     }
@@ -717,7 +717,6 @@
 </style>
 
 <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-    <!-- Left navbar links -->
     <ul class="navbar-nav">
         <li class="nav-item">
             <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="Toggle navigation">
@@ -732,9 +731,7 @@
         </li>
     </ul>
 
-    <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
-        <!-- Notifications -->
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-label="Notifications">
                 <i class="fas fa-bell"></i>
@@ -773,7 +770,6 @@
             </div>
         </li>
 
-        <!-- Quick Actions -->
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-label="Quick Actions">
                 <i class="fas fa-plus"></i>
@@ -810,64 +806,19 @@
             </div>
         </li>
 
-        <!-- Fullscreen -->
         <li class="nav-item">
             <a class="nav-link" data-widget="fullscreen" href="#" role="button" aria-label="Toggle fullscreen">
                 <i class="fas fa-expand-arrows-alt"></i>
             </a>
         </li>
-
-        <!-- Mobile User Dropdown (hidden on desktop) -->
-        <li class="nav-item dropdown d-md-none">
-            <a class="nav-link mobile-user-dropdown" data-toggle="dropdown" href="#" role="button" aria-label="User menu">
-                <div class="user-avatar">
-                    {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}{{ strtoupper(substr(auth()->user()->name ?? 'ser', 1, 1)) }}
-                </div>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right">
-                <div class="dropdown-header">
-                    {{ auth()->user()->name ?? 'User' }}
-                    <br>
-                    <small class="text-muted">
-                        @if(auth()->user()->desig == 1)
-                            Super Admin
-                        @elseif(auth()->user()->desig == 2)
-                            Admin
-                        @elseif(auth()->user()->desig == 3)
-                            Product Manager
-                        @elseif(auth()->user()->desig == 4)
-                            Order Manager
-                        @else
-                            User
-                        @endif
-                    </small>
-                </div>
-                <div class="dropdown-divider"></div>
-                <a href="{{ route('admin.dashboard') }}" class="dropdown-item">
-                    <i class="fas fa-tachometer-alt"></i>
-                    Dashboard
-                </a>
-                <a href="{{ route('admin.profile.change.password') }}" class="dropdown-item">
-                    <i class="fas fa-key"></i>
-                    Change Password
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="{{ route('logout') }}" class="dropdown-item logout-item" 
-                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a>
-            </div>
-        </li>
     </ul>
 
-    <!-- Desktop User Profile Dropdown -->
-    <div class="dropdown d-none d-md-block">
-        <a href="#" class="user-dropdown dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    <div class="dropdown user-dropdown">
+        <a href="#" class="user-dropdown-toggle" data-toggle="dropdown" aria-expanded="false" role="button" aria-label="User Profile Menu">
             <div class="user-avatar">
                 {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}{{ strtoupper(substr(auth()->user()->name ?? 'ser', 1, 1)) }}
             </div>
-            <div class="user-info">
+            <div class="user-dropdown-info">
                 <div class="user-name">{{ auth()->user()->name ?? 'User' }}</div>
                 <div class="user-role">
                     @if(auth()->user()->desig == 1)
@@ -912,7 +863,6 @@
         </div>
     </div>
 
-    <!-- Hidden logout form -->
     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
         @csrf
     </form>
@@ -944,7 +894,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Touch feedback for mobile devices
-    const touchElements = document.querySelectorAll('.nav-link, .dropdown-item, .user-dropdown');
+    const touchElements = document.querySelectorAll('.nav-link, .dropdown-item, .user-dropdown-toggle');
     touchElements.forEach(function(element) {
         element.addEventListener('touchstart', function() {
             this.classList.add('touching');
@@ -967,7 +917,10 @@ document.addEventListener('DOMContentLoaded', function() {
             openDropdowns.forEach(dropdown => {
                 const toggle = dropdown.previousElementSibling;
                 if (toggle && typeof bootstrap !== 'undefined') {
-                    bootstrap.Dropdown.getInstance(toggle)?.hide();
+                    // Check if Bootstrap's Dropdown is available
+                    if (bootstrap.Dropdown.getInstance(toggle)) {
+                        bootstrap.Dropdown.getInstance(toggle).hide();
+                    }
                 }
             });
         }
@@ -999,12 +952,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Auto-hide dropdowns when clicking outside
     document.addEventListener('click', function(e) {
+        // Only close if the click is outside any dropdown toggle/menu
         if (!e.target.closest('.dropdown')) {
             const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
             openDropdowns.forEach(dropdown => {
                 const toggle = dropdown.previousElementSibling;
                 if (toggle && typeof bootstrap !== 'undefined') {
-                    bootstrap.Dropdown.getInstance(toggle)?.hide();
+                    if (bootstrap.Dropdown.getInstance(toggle)) {
+                        bootstrap.Dropdown.getInstance(toggle).hide();
+                    }
                 }
             });
         }
@@ -1018,14 +974,16 @@ document.addEventListener('DOMContentLoaded', function() {
             openDropdowns.forEach(dropdown => {
                 const toggle = dropdown.previousElementSibling;
                 if (toggle && typeof bootstrap !== 'undefined') {
-                    bootstrap.Dropdown.getInstance(toggle)?.hide();
+                    if (bootstrap.Dropdown.getInstance(toggle)) {
+                        bootstrap.Dropdown.getInstance(toggle).hide();
+                    }
                 }
             });
         }
     });
 
     // Accessibility enhancements
-    const navLinks = document.querySelectorAll('.nav-link');
+    const navLinks = document.querySelectorAll('.nav-link, .user-dropdown-toggle');
     navLinks.forEach(function(link) {
         link.addEventListener('focus', function() {
             this.classList.add('focused');
@@ -1045,6 +1003,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addTouchClass();
 
-    console.log('Enhanced Mobile-Friendly Navbar initialized');
+    console.log('Optimized Responsive Navbar initialized');
 });
 </script>

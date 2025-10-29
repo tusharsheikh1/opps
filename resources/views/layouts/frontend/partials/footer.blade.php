@@ -1,4 +1,4 @@
-{{-- Modern Footer for Book Selling E-commerce - White Theme --}}
+{{-- Modern Footer for Book Selling E-commerce - Enhanced Design --}}
 <style>
     .fixed-cart {
         width: 60px;
@@ -56,7 +56,6 @@
         box-shadow: 0 15px 40px rgba(37, 211, 102, 0.5);
     }
 
-    /* WhatsApp Text Bubble */
     .whatsapp-text {
         background: #ffffff;
         color: #1f2937;
@@ -103,7 +102,6 @@
         z-index: -1;
     }
 
-    /* Enhanced hover effect */
     .fixed_what:hover .whatsapp-text {
         animation-play-state: paused;
         opacity: 1 !important;
@@ -111,51 +109,24 @@
         pointer-events: auto;
     }
 
-    /* WhatsApp Text Animation Cycle */
     @keyframes whatsappTextCycle {
-        0% {
-            opacity: 0;
-            transform: translateX(10px) scale(0.8);
-        }
-        5% {
-            opacity: 1;
-            transform: translateX(0) scale(1);
-        }
-        50% {
-            opacity: 1;
-            transform: translateX(0) scale(1);
-        }
-        55% {
-            opacity: 0;
-            transform: translateX(10px) scale(0.8);
-        }
-        100% {
-            opacity: 0;
-            transform: translateX(10px) scale(0.8);
-        }
+        0% { opacity: 0; transform: translateX(10px) scale(0.8); }
+        5% { opacity: 1; transform: translateX(0) scale(1); }
+        50% { opacity: 1; transform: translateX(0) scale(1); }
+        55% { opacity: 0; transform: translateX(10px) scale(0.8); }
+        100% { opacity: 0; transform: translateX(10px) scale(0.8); }
     }
 
-    /* Visual pulse effect only */
     .whatsapp-text.active {
         animation: whatsappNotificationPulse 0.6s ease-out;
     }
 
     @keyframes whatsappNotificationPulse {
-        0% {
-            transform: translateX(0) scale(1);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-        50% {
-            transform: translateX(0) scale(1.05);
-            box-shadow: 0 12px 30px rgba(37, 211, 102, 0.3);
-        }
-        100% {
-            transform: translateX(0) scale(1);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
+        0% { transform: translateX(0) scale(1); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
+        50% { transform: translateX(0) scale(1.05); box-shadow: 0 12px 30px rgba(37, 211, 102, 0.3); }
+        100% { transform: translateX(0) scale(1); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
     }
 
-    /* Show text on mobile with different positioning */
     @media (max-width: 768px) {
         .fixed_what {
             flex-direction: column;
@@ -167,18 +138,14 @@
             max-width: 180px;
             font-size: 13px;
             padding: 10px 14px;
-            order: -1; /* Show text above button on mobile */
+            order: -1;
             transform: translateY(-10px) scale(0.8);
         }
 
         .whatsapp-text:after {
-            content: '';
-            position: absolute;
             bottom: -8px;
             right: 15px;
             transform: none;
-            width: 0;
-            height: 0;
             border-top: 8px solid #ffffff;
             border-left: 8px solid transparent;
             border-right: 8px solid transparent;
@@ -186,13 +153,9 @@
         }
 
         .whatsapp-text:before {
-            content: '';
-            position: absolute;
             bottom: -9px;
             right: 14px;
             transform: none;
-            width: 0;
-            height: 0;
             border-top: 9px solid #e5e7eb;
             border-left: 9px solid transparent;
             border-right: 9px solid transparent;
@@ -200,37 +163,11 @@
             z-index: -1;
         }
 
-        /* Mobile animation cycle */
-        @keyframes whatsappTextCycle {
-            0% {
-                opacity: 0;
-                transform: translateY(-10px) scale(0.8);
-            }
-            5% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            50% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            55% {
-                opacity: 0;
-                transform: translateY(-10px) scale(0.8);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-10px) scale(0.8);
-            }
-        }
-
-        /* Mobile hover effect */
         .fixed_what:hover .whatsapp-text {
             transform: translateY(0) scale(1) !important;
         }
     }
 
-    /* WhatsApp specific styling */
     .fixed_what .fa-whatsapp {
         color: white;
         background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
@@ -242,7 +179,6 @@
         border-radius: 50%;
     }
 
-    /* Live Chat styling */
     .fixed_what .fa-headset {
         color: white;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -358,14 +294,8 @@
     }
 
     @keyframes messageSlideIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .whatsapp-message::before {
@@ -448,7 +378,6 @@
         transform: scale(1);
     }
 
-    /* Mobile Responsive */
     @media (max-width: 768px) {
         .whatsapp-chat-modal {
             bottom: 90px;
@@ -462,7 +391,6 @@
         }
     }
 
-    /* Overlay for modal */
     .whatsapp-overlay {
         position: fixed;
         top: 0;
@@ -481,55 +409,53 @@
         pointer-events: auto;
     }
 
-    /* Trust Badges & Payment Icons Section */
+    /* Modern Trust Section */
     .trust-section {
-        background: #f9fafb;
-        padding: 40px 0;
-        margin-top: 40px;
+        background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+        padding: 50px 0;
+        margin-top: 60px;
         border-top: 1px solid #e5e7eb;
-        border-bottom: 1px solid #e5e7eb;
     }
 
-   .trust-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 40px;
-        align-items: center;
-        justify-content: center; /* This line was changed */
+    .trust-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        align-items: start;
     }
 
-    .trust-badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 25px;
-        align-items: center;
+    .trust-badges-wrapper {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
     }
-
 
     .trust-badge {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 12px 20px;
+        gap: 15px;
+        padding: 20px;
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        transition: all 0.3s ease;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(79, 70, 229, 0.1);
     }
 
     .trust-badge:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 28px rgba(79, 70, 229, 0.15);
+        border-color: rgba(79, 70, 229, 0.3);
     }
 
     .trust-badge-icon {
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%;
-        font-size: 20px;
+        border-radius: 14px;
+        font-size: 22px;
         flex-shrink: 0;
     }
 
@@ -554,28 +480,32 @@
     }
 
     .trust-badge-text h5 {
-        margin: 0;
-        font-size: 14px;
-        font-weight: 600;
+        margin: 0 0 4px 0;
+        font-size: 15px;
+        font-weight: 700;
         color: #1f2937;
     }
 
     .trust-badge-text p {
-        margin: 2px 0 0;
-        font-size: 12px;
+        margin: 0;
+        font-size: 13px;
         color: #6b7280;
+        font-weight: 500;
     }
 
     .payment-methods {
-        flex: 1;
-        min-width: 300px;
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(79, 70, 229, 0.1);
     }
 
     .payment-methods h5 {
-        font-size: 14px;
-        font-weight: 600;
+        font-size: 16px;
+        font-weight: 700;
         color: #1f2937;
-        margin: 0 0 15px 0;
+        margin: 0 0 20px 0;
         text-align: center;
     }
 
@@ -588,136 +518,73 @@
     }
 
     .payment-icon {
-        background: white;
-        padding: 8px 16px;
-        border-radius: 8px;
+        background: #f9fafb;
+        padding: 10px 18px;
+        border-radius: 10px;
         border: 1px solid #e5e7eb;
         transition: all 0.3s ease;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 70px;
-        height: 45px;
+        min-width: 75px;
+        height: 48px;
     }
 
     .payment-icon:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
         border-color: #4f46e5;
+        background: white;
     }
 
     .payment-icon img {
         max-width: 100%;
-        max-height: 30px;
+        max-height: 32px;
         width: auto;
         height: auto;
         object-fit: contain;
     }
 
     .payment-icon i {
-        font-size: 28px;
+        font-size: 30px;
     }
 
-    .payment-icon.visa i {
-        color: #1434CB;
-    }
+    .payment-icon.visa i { color: #1434CB; }
+    .payment-icon.mastercard i { color: #EB001B; }
+    .payment-icon.amex i { color: #006FCF; }
+    .payment-icon.ssl i { color: #10b981; }
 
-    .payment-icon.mastercard i {
-        color: #EB001B;
-    }
-
-    .payment-icon.amex i {
-        color: #006FCF;
-    }
-
-    .payment-icon.ssl i {
-        color: #10b981;
-    }
-
-    /* Mobile Responsive for Trust Section */
-    @media (max-width: 991px) {
-        .trust-section {
-            padding: 30px 0;
-        }
-
-        .trust-container {
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        .trust-badges {
-            justify-content: center;
-        }
-
-        .payment-methods {
-            width: 100%;
-        }
-    }
-
-    @media (max-width: 767px) {
-        .trust-badges {
-            gap: 15px;
-        }
-
-        .trust-badge {
-            padding: 10px 15px;
-            gap: 10px;
-        }
-
-        .trust-badge-icon {
-            width: 35px;
-            height: 35px;
-            font-size: 16px;
-        }
-
-        .trust-badge-text h5 {
-            font-size: 13px;
-        }
-
-        .trust-badge-text p {
-            font-size: 11px;
-        }
-
-        .payment-icons {
-            gap: 10px;
-        }
-
-        .payment-icon {
-            min-width: 60px;
-            height: 40px;
-            padding: 6px 12px;
-        }
-    }
-
+    /* Modern Footer */
     footer {
-        background: #ffffff;
+        background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
         border-top: 1px solid #e5e7eb;
-        padding: 60px 0 0;
-        margin-top: 80px;
+        padding: 70px 0 0;
+        margin-top: 0;
     }
 
     .footer-content {
-        padding-bottom: 40px;
+        padding-bottom: 50px;
     }
 
     .footer-section {
-        margin-bottom: 30px;
+        margin-bottom: 40px;
     }
 
     .footer-logo {
-        margin-bottom: 20px;
+        margin-bottom: 25px;
     }
 
     .footer-logo img {
-        max-height: 60px;
+        max-height: 65px;
         width: auto;
     }
 
     .footer-description {
         color: #6b7280;
-        font-size: 14px;
+        font-size: 15px;
         line-height: 1.8;
-        margin-bottom: 25px;
+        margin-bottom: 30px;
+        font-weight: 400;
     }
 
     .footer-title {
@@ -726,9 +593,9 @@
         font-weight: 700;
         margin-bottom: 25px;
         position: relative;
-        padding-bottom: 12px;
-        /* Default for desktop: text align left */
+        padding-bottom: 15px;
         text-align: left;
+        letter-spacing: -0.02em;
     }
 
     .footer-title:after {
@@ -736,51 +603,37 @@
         position: absolute;
         bottom: 0;
         left: 0;
-        width: 40px;
-        height: 3px;
+        width: 50px;
+        height: 4px;
         background: linear-gradient(90deg, #4f46e5, #7c3aed);
-        border-radius: 2px;
+        border-radius: 4px;
     }
 
-    /* Collapsible footer for mobile */
     @media (max-width: 767px) {
         .footer-title {
             cursor: pointer;
             user-select: none;
             display: flex;
-            justify-content: space-between; /* Puts space between title and icon */
+            justify-content: space-between;
             align-items: center;
         }
 
-        /* The icon (caret) is set to appear AFTER the title text by using ::after */
         .footer-title::after {
-            content: '\f078'; /* Font Awesome down arrow */
+            content: '\f078';
             font-family: 'Font Awesome 5 Free';
             font-weight: 900;
             font-size: 14px;
             color: #4f46e5;
             transition: transform 0.3s ease;
-            position: static; /* Override position: absolute from base style */
-            width: auto; /* Override width: 40px from base style */
-            height: auto; /* Override height: 3px from base style */
-            background: none; /* Remove blue bar for icon */
+            position: static;
+            width: auto;
+            height: auto;
+            background: none;
         }
         
-        /* Remove the blue line from mobile view */
-        .footer-title:after {
-            content: none;
-        }
-        
-        /* The collapsible icon (caret) */
         .footer-title.active::after {
-            transform: rotate(180deg); /* Icon points up when active */
+            transform: rotate(180deg);
         }
-        
-        /* Custom Mobile Title Styling for collapsible sections */
-        .col-lg-2 .footer-title {
-             padding-right: 20px; /* Add some padding for the icon */
-        }
-
 
         .footer-collapsible {
             max-height: 0;
@@ -792,32 +645,23 @@
             max-height: 500px;
         }
 
-        /* Don't make Company Info and Contact Us collapsible - only show the text and the line */
         .footer-section:first-child .footer-title,
         .footer-section:last-child .footer-title {
             cursor: default;
-            justify-content: flex-start; /* Title text is fully left */
+            justify-content: flex-start;
         }
 
-        /* Remove the icon from non-collapsible sections (Company Info and Contact Us) */
         .footer-section:first-child .footer-title::after,
         .footer-section:last-child .footer-title::after {
-            content: none;
-        }
-        
-        /* Restore the blue line for non-collapsible sections */
-        .footer-section:first-child .footer-title:after,
-        .footer-section:last-child .footer-title:after {
             content: '';
             position: absolute;
             bottom: 0;
             left: 0;
-            width: 40px;
-            height: 3px;
+            width: 50px;
+            height: 4px;
             background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            border-radius: 2px;
+            border-radius: 4px;
         }
-
 
         .footer-section:first-child .footer-collapsible,
         .footer-section:last-child .footer-collapsible {
@@ -825,27 +669,9 @@
         }
     }
 
-    /* Desktop - no collapsible behavior */
     @media (min-width: 768px) {
         .footer-collapsible {
             max-height: none !important;
-        }
-        
-        /* Ensure only the blue line (::after) exists on desktop */
-        .footer-title::before {
-            content: none !important;
-        }
-        
-        /* Restore the blue line on desktop for all titles */
-        .footer-title:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 40px;
-            height: 3px;
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            border-radius: 2px;
         }
     }
 
@@ -853,47 +679,61 @@
         list-style: none;
         padding: 0;
         margin: 0;
-        text-align: left; /* Ensure list content is left aligned */
+        text-align: left;
     }
 
     .footer-links li {
-        margin-bottom: 12px;
+        margin-bottom: 14px;
     }
 
     .footer-links a {
         color: #6b7280;
         text-decoration: none;
-        font-size: 14px;
+        font-size: 15px;
         transition: all 0.3s ease;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
     }
 
     .footer-links a:hover {
         color: #4f46e5;
-        transform: translateX(3px);
+        transform: translateX(5px);
+    }
+
+    .footer-links a::before {
+        content: '→';
+        margin-right: 8px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .footer-links a:hover::before {
+        opacity: 1;
     }
 
     .contact-info {
         list-style: none;
         padding: 0;
         margin: 0;
-        text-align: left; /* Ensure contact info is left aligned */
+        text-align: left;
     }
 
     .contact-info li {
         color: #6b7280;
-        font-size: 14px;
-        margin-bottom: 15px;
+        font-size: 15px;
+        margin-bottom: 18px;
         display: flex;
         align-items: flex-start;
-        gap: 12px;
-        line-height: 1.6;
+        gap: 15px;
+        line-height: 1.7;
         text-align: left;
+        font-weight: 500;
     }
 
     .contact-info i {
         color: #4f46e5;
-        font-size: 16px;
+        font-size: 18px;
         margin-top: 2px;
         flex-shrink: 0;
     }
@@ -901,38 +741,46 @@
     .social-links {
         display: flex;
         gap: 12px;
-        margin-top: 25px;
+        margin-top: 30px;
         flex-wrap: wrap;
-        justify-content: flex-start; /* Ensure social links are left aligned */
+        justify-content: flex-start;
     }
 
     .social-links a {
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 18px;
+        font-size: 20px;
         transition: all 0.3s ease;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
 
     .social-links a:hover {
-        transform: translateY(-3px);
+        transform: translateY(-5px);
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
     }
 
     .app-download {
-        margin-top: 25px;
-        text-align: left; /* Ensure app download section is left aligned */
+        margin-top: 30px;
+        text-align: left;
+    }
+
+    .app-download h5 {
+        color: #1f2937;
+        margin-bottom: 15px;
+        font-size: 16px;
+        font-weight: 700;
     }
 
     .app-download img {
-        max-width: 160px;
+        max-width: 170px;
         height: auto;
         transition: transform 0.3s ease;
+        border-radius: 8px;
     }
 
     .app-download img:hover {
@@ -940,76 +788,88 @@
     }
 
     .footer-bottom {
-        background: #f9fafb;
+        background: #1f2937;
         padding: 25px 0;
         text-align: center;
-        border-top: 1px solid #e5e7eb;
     }
 
     .footer-bottom p {
-        color: #6b7280;
+        color: #d1d5db;
         font-size: 14px;
         margin: 0;
+        font-weight: 500;
     }
 
-    @media (max-width: 991px) {
-        footer {
-            padding: 40px 0 0;
-        }
-
-        .footer-content {
-            padding-bottom: 30px;
-        }
-
-        .footer-section {
-            margin-bottom: 25px;
-        }
-    }
-
-    @media (max-width: 767px) {
-        .footer-section {
-            text-align: left;
-        }
-
-        .footer-description {
-            max-width: 100%;
-        }
-
-        .social-links {
-            justify-content: flex-start;
-        }
-
-        .app-download {
-            text-align: left;
-        }
-    }
-
-    /* Book-specific styling */
+    /* Book Categories */
     .book-categories {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        margin-top: 20px;
-        justify-content: flex-start; /* Ensure tags are left aligned */
+        margin-top: 25px;
+        justify-content: flex-start;
     }
 
     .book-category-tag {
-        background: #f3f4f6;
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
         color: #4f46e5;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 24px;
+        font-size: 13px;
+        font-weight: 600;
         text-decoration: none;
         transition: all 0.3s ease;
         border: 1px solid #e5e7eb;
     }
 
     .book-category-tag:hover {
-        background: #e0e7ff;
-        transform: translateY(-1px);
-        border-color: #4f46e5;
-        color: #4f46e5;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        footer {
+            padding: 50px 0 0;
+        }
+
+        .trust-section {
+            padding: 40px 0;
+        }
+
+        .trust-badges-wrapper {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .trust-section {
+            padding: 30px 0;
+        }
+
+        .trust-container {
+            gap: 20px;
+        }
+
+        .trust-badge {
+            padding: 15px;
+        }
+
+        .trust-badge-icon {
+            width: 42px;
+            height: 42px;
+            font-size: 18px;
+        }
+
+        .payment-icon {
+            min-width: 65px;
+            height: 44px;
+        }
+
+        .footer-section {
+            text-align: left;
+        }
     }
 </style>
 
@@ -1028,7 +888,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const whatsappText = document.querySelector('.whatsapp-text');
 
     if (whatsappText) {
-        // Function to add visual pulse effect only
         function addPulseEffect() {
             whatsappText.classList.add('active');
             setTimeout(() => {
@@ -1036,15 +895,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 600);
         }
 
-        // Set up the visual notification cycle (every 20 seconds)
         setInterval(() => {
-            // Small delay to sync with CSS animation
             setTimeout(() => {
                 addPulseEffect();
-            }, 1000); // 1s delay to match the 5% point in CSS animation
+            }, 1000);
         }, 20000);
 
-        // Initial pulse effect after 1 second
         setTimeout(() => {
             addPulseEffect();
         }, 1000);
@@ -1060,7 +916,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const whatsappPhone = document.querySelector('.fixed_what a[title*="WhatsApp"]')?.getAttribute('href')?.replace('https://wa.me/', '');
 
     if (whatsappBtn && whatsappModal) {
-        // Open modal
         whatsappBtn.addEventListener('click', function(e) {
             e.preventDefault();
             whatsappModal.classList.add('active');
@@ -1068,7 +923,6 @@ document.addEventListener('DOMContentLoaded', function() {
             whatsappInput.focus();
         });
 
-        // Close modal
         function closeModal() {
             whatsappModal.classList.remove('active');
             whatsappOverlay.classList.remove('active');
@@ -1082,26 +936,20 @@ document.addEventListener('DOMContentLoaded', function() {
             whatsappOverlay.addEventListener('click', closeModal);
         }
 
-        // Handle form submission
         if (whatsappForm) {
             whatsappForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const message = whatsappInput.value.trim();
 
                 if (message && whatsappPhone) {
-                    // Encode the message for URL
                     const encodedMessage = encodeURIComponent(message);
-                    // Redirect to WhatsApp
                     window.open(`https://wa.me/${whatsappPhone}?text=${encodedMessage}`, '_blank');
-                    // Close modal
                     closeModal();
-                    // Clear input
                     whatsappInput.value = '';
                 }
             });
         }
 
-        // Close modal on Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && whatsappModal.classList.contains('active')) {
                 closeModal();
@@ -1114,17 +962,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const footerTitles = document.querySelectorAll('.footer-section .footer-title');
 
         footerTitles.forEach((title, index) => {
-            // Skip first and last sections (Company Info and Contact Us)
             const parentSection = title.closest('.footer-section');
 
-            // This ensures only the very first and very last .footer-section are skipped from the click event.
             if (parentSection && (parentSection.matches(':first-child') || parentSection.matches(':last-child'))) {
                 return;
             }
 
             const collapsibleContent = title.nextElementSibling;
             if (collapsibleContent && collapsibleContent.classList.contains('footer-collapsible')) {
-                // Initial check to keep collapsible sections collapsed on mobile load
                 if (!title.classList.contains('active')) {
                     collapsibleContent.style.maxHeight = '0';
                 }
@@ -1133,19 +978,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.classList.toggle('active');
                     collapsibleContent.classList.toggle('active');
                     
-                    // Toggle max-height in JS for smooth transition effect
                     if (collapsibleContent.classList.contains('active')) {
-                        // Set height to scrollHeight to enable transition to full height
                         collapsibleContent.style.maxHeight = collapsibleContent.scrollHeight + "px";
                     } else {
                         collapsibleContent.style.maxHeight = '0';
                     }
                 });
                 
-                // Set initial state for the collapsible sections (Quick Links and My Account)
-                title.classList.add('active'); // Start expanded (or use logic to start collapsed if preferred)
+                title.classList.add('active');
                 collapsibleContent.classList.add('active');
-                collapsibleContent.style.maxHeight = collapsibleContent.scrollHeight + "px"; // Start expanded
+                collapsibleContent.style.maxHeight = collapsibleContent.scrollHeight + "px";
             }
         });
     }
@@ -1193,7 +1035,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-{{-- Floating Action Buttons - Always visible on all pages --}}
+{{-- Floating Action Buttons --}}
 @if (setting('FLOAT_LIVE_CHAT') != 1 || setting('FLOAT_LIVE_CHAT') == "")
     @if(!empty(setting('whatsapp')))
     <li class="fixed_what">
@@ -1226,7 +1068,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="container">
             <div class="trust-container">
                 {{-- Trust Badges --}}
-                <div class="trust-badges">
+                <div class="trust-badges-wrapper">
                     <div class="trust-badge">
                         <div class="trust-badge-icon secure">
                             <i class="fas fa-shield-alt"></i>
@@ -1272,7 +1114,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="payment-methods">
                     <h5>We Accept</h5>
                     <div class="payment-icons">
-                        {{-- Add your actual payment method logos here --}}
                         <div class="payment-icon visa" title="Visa">
                             <i class="fab fa-cc-visa"></i>
                         </div>
@@ -1283,7 +1124,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             <i class="fab fa-cc-amex"></i>
                         </div>
 
-                        {{-- Bangladesh Specific Payment Methods --}}
                         @if(!empty(setting('payment_bkash_logo')))
                         <div class="payment-icon" title="bKash">
                             <img src="{{asset('uploads/setting/'.setting('payment_bkash_logo'))}}" alt="bKash">
@@ -1314,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         @endif
 
-                        <div class="payment-icon" title="Cash on Delivery" style="font-size: 11px; font-weight: 600; color: #1f2937;">
+                        <div class="payment-icon" title="Cash on Delivery" style="font-size: 11px; font-weight: 700; color: #1f2937;">
                             COD
                         </div>
 
@@ -1340,21 +1180,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     {{setting('footer_description') ?: 'Discover your next great read with our extensive collection of books. From bestsellers to hidden gems, we have something for every reader.'}}
                 </p>
 
-                {{-- Dynamic Categories from Database --}}
+                {{-- Dynamic Categories --}}
                 @php
-                    // Fetch active categories with their relationships
                     $footerCategories = App\Models\Category::where('status', true)
                         ->orderBy('pos', 'asc')
                         ->take(8)
                         ->get();
 
-                    // Fetch active subcategories
                     $footerSubCategories = App\Models\SubCategory::where('status', true)
                         ->orderBy('id', 'asc')
                         ->take(5)
                         ->get();
 
-                    // Fetch active mini categories
                     $footerMiniCategories = App\Models\miniCategory::where('status', true)
                         ->orderBy('id', 'asc')
                         ->take(3)
@@ -1362,19 +1199,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 @endphp
 
                 <div class="book-categories">
-                    {{-- Display Categories --}}
                     @foreach($footerCategories as $category)
                         <a href="{{route('category.product', $category->slug)}}" class="book-category-tag">{{$category->name}}</a>
                     @endforeach
 
-                    {{-- Display SubCategories if categories are less than 8 --}}
                     @if($footerCategories->count() < 8)
                         @foreach($footerSubCategories as $subCategory)
                             <a href="{{route('subCategory.product', $subCategory->slug)}}" class="book-category-tag">{{$subCategory->name}}</a>
                         @endforeach
                     @endif
 
-                    {{-- Display Mini Categories if total is still less than 8 --}}
                     @if(($footerCategories->count() + $footerSubCategories->count()) < 8)
                         @foreach($footerMiniCategories as $miniCategory)
                             <a href="{{route('miniCategory.product', $miniCategory->slug)}}" class="book-category-tag">{{$miniCategory->name}}</a>
@@ -1412,7 +1246,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
 
-            {{-- Quick Links (Collapsible on Mobile) --}}
+            {{-- Quick Links --}}
             <div class="col-lg-2 col-md-6 footer-section">
                 <h4 class="footer-title">Quick Links</h4>
                 <div class="footer-collapsible active">
@@ -1427,7 +1261,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
 
-            {{-- Account & Services (Collapsible on Mobile, Removed "Become a Seller") --}}
+            {{-- My Account --}}
             <div class="col-lg-2 col-md-6 footer-section">
                 <h4 class="footer-title">My Account</h4>
                 <div class="footer-collapsible active">
@@ -1459,22 +1293,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 <ul class="contact-info">
                     <li>
                         <i class="fas fa-map-marker-alt"></i>
-                        {{setting('SITE_INFO_ADDRESS')}}
+                        <span>{{setting('SITE_INFO_ADDRESS')}}</span>
                     </li>
                     <li>
                         <i class="fas fa-envelope"></i>
-                        {{setting('SITE_INFO_SUPPORT_MAIL')}}
+                        <span>{{setting('SITE_INFO_SUPPORT_MAIL')}}</span>
                     </li>
                     <li>
                         <i class="fas fa-phone"></i>
-                        {{setting('SITE_INFO_PHONE')}}
+                        <span>{{setting('SITE_INFO_PHONE')}}</span>
                     </li>
                 </ul>
 
                 {{-- App Download --}}
                 @if(setting('android_app'))
                 <div class="app-download">
-                    <h5 style="color: #1f2937; margin-bottom: 15px; font-size: 16px;">Download Our App</h5>
+                    <h5>Download Our App</h5>
                     <a href="https://drive.google.com/file/d/16neRUFZf20QHgGXxtjFZdGAqU3kxr492/view?usp=drivesdk">
                         <img src="{{asset('/')}}/assets/uploads/images/google-play-png-logo-3799.png" alt="Download on Google Play">
                     </a>

@@ -7,15 +7,15 @@
 <table>
     <tr>
         <td>Logo Size</td>
-        <td>200*30</td>
+        <td>200*120</td>
     </tr>
      <tr>
         <td>Banner Size</td>
-        <td>950*480</td>
+        <td>2400*990</td>
     </tr>
     <tr>
         <td>Mini Banner Size</td>
-        <td>650*180</td>
+        <td>2400*990</td>
     </tr>
 </table>
 @endsection

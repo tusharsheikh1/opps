@@ -5,7 +5,6 @@
 
 @section('content')
 
-<!-- Content Header (Page header) -->
 <section class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
@@ -19,10 +18,8 @@
                 </ol>
             </div>
         </div>
-    </div><!-- /.container-fluid -->
-</section>
+    </div></section>
 
-<!-- Main content -->
 <section class="content">
     <div class="card">
         <div class="card-header">
@@ -43,80 +40,6 @@
                             <div class="card-body">
                                 <ul class="form-row">
                                     <li class="col-12 col-md-12 bg-light"><b>Global Layout</b></li>
-                                        <li class="col-12 col-md-12 form-group">
-                                            <label for="TOP_HEADER_STYLE" class="text-capitalize">Top Header Style: </label>
-                                            <select class="form-control w-25" name="TOP_HEADER_STYLE" id="TOP_HEADER_STYLE">
-                                                <option class="text-white bg-success" value="{{ $TOP_HEADER_STYLE->value }}">Style {{ $TOP_HEADER_STYLE->value }}</option>
-                                                <option value="1">Style 1</option>
-                                                <option value="2">Style 2</option>
-                                                <option value="3">Style 3</option>
-                                            </select>
-                                        </li>
-                                        <div class="col-10 offset-md-1 px-3 bg-light border border-info {{ $TOP_HEADER_STYLE->value == 3 ? 'visible' : 'd-none' }}">
-                                            <li class="col-12 col-md-12 form-group">
-                                                <label for="STYLE_3_TOP_MENU" class="text-capitalize">Style 3 top menu add: </label>
-                                                <br>
-                                                <textarea class="form-control w-75" style="border:1.5px dotted rgb(9, 102, 41);padding:5px;order-radius:2%;outline:none;" name="STYLE_3_TOP_MENU" id="STYLE_3_TOP_MENU" cols="30" rows="3">{{ $STYLE_3_TOP_MENU->value }}</textarea>
-                                                <br>
-                                                <div class="w-75">
-                                                    <small>Copy the menu code and paste in above box and customized as per your rquiements (Multi-menu add multi li and a tag):</small>
-                                                    <script src="https://gist.github.com/finvasoft/c380eaf18b41491d650c28f152ce79a4.js"></script>
-                                                </div>
-                                            </li>
-                                            <li class="col-12 col-md-6 form-group">
-                                                <label class="text-capitalize d-block" for="STYLE_3_TOP_MENU_BG_COLOR">Style 3 Top Menu Background Color: </label>
-                                                <input class="form-control w-25 d-inline-block" type="color" id="STYLE_3_TOP_MENU_BG_COLOR_CHOOSER" value="{{ $STYLE_3_TOP_MENU_BG_COLOR->value }}">
-                                                <input class="form-control w-50 d-inline-block" type="text" id="STYLE_3_TOP_MENU_BG_COLOR" name="STYLE_3_TOP_MENU_BG_COLOR" value="{{ $STYLE_3_TOP_MENU_BG_COLOR->value }}">
-                                            </li>
-                                            <li class="col-12 col-md-6 form-group">
-                                                <label class="text-capitalize d-block" for="STYLE_3_TOP_MENU_LINK_COLOR">Style 3 Top Menu Link Color: </label>
-                                                <input class="form-control w-25 d-inline-block" type="color" id="STYLE_3_TOP_MENU_LINK_COLOR_CHOOSER" value="{{ $STYLE_3_TOP_MENU_LINK_COLOR->value }}">
-                                                <input class="form-control w-50 d-inline-block" type="text" id="STYLE_3_TOP_MENU_LINK_COLOR" name="STYLE_3_TOP_MENU_LINK_COLOR" value="{{ $STYLE_3_TOP_MENU_LINK_COLOR->value }}">
-                                            </li>
-                                            <li class="col-12 col-md-6 form-group">
-                                                <label class="text-capitalize d-block" for="STYLE_3_TOP_MENU_LINK_HOVER_COLOR">Style 3 Top Menu Link Hover Color: </label>
-                                                <input class="form-control w-25 d-inline-block" type="color" id="STYLE_3_TOP_MENU_LINK_HOVER_COLOR_CHOOSER" value="{{ $STYLE_3_TOP_MENU_LINK_HOVER_COLOR->value }}">
-                                                <input class="form-control w-50 d-inline-block" type="text" id="STYLE_3_TOP_MENU_LINK_HOVER_COLOR" name="STYLE_3_TOP_MENU_LINK_HOVER_COLOR" value="{{ $STYLE_3_TOP_MENU_LINK_HOVER_COLOR->value }}">
-                                            </li>
-                                            <li class="col-12 col-md-6 form-group">
-                                                <label class="text-capitalize d-block" for="STYLE_3_HEADER_SEARCH_INPUT_BAR_WIDHT">Style 3 Search Input Width: </label>
-                                                <input class="form-control w-50 d-inline-block" type="text" class="border" id="STYLE_3_HEADER_SEARCH_INPUT_BAR_WIDHT" name="STYLE_3_HEADER_SEARCH_INPUT_BAR_WIDHT" value="{{ setting('STYLE_3_HEADER_SEARCH_INPUT_BAR_WIDHT') ?? '' }}">
-                                            </li>
-                                            @push('js')
-                                            <script>
-                                                $(document).ready(function () {
-                                                    $("#STYLE_3_TOP_MENU_BG_COLOR_CHOOSER").on("input", function () {
-                                                        $("#STYLE_3_TOP_MENU_BG_COLOR").val($(this).val());
-                                                    });
-                                                    $("#STYLE_3_TOP_MENU_BG_COLOR").on("keyup", function () {
-                                                        $("#STYLE_3_TOP_MENU_BG_COLOR_CHOOSER").val($(this).val());
-                                                    });
-                                                    $("#STYLE_3_TOP_MENU_LINK_COLOR_CHOOSER").on("input", function () {
-                                                        $("#STYLE_3_TOP_MENU_LINK_COLOR").val($(this).val());
-                                                    });
-                                                    $("#STYLE_3_TOP_MENU_LINK_COLOR").on("keyup", function () {
-                                                        $("#STYLE_3_TOP_MENU_LINK_COLOR_CHOOSER").val($(this).val());
-                                                    });
-                                                    $("#STYLE_3_TOP_MENU_LINK_HOVER_COLOR_CHOOSER").on("input", function () {
-                                                        $("#STYLE_3_TOP_MENU_LINK_HOVER_COLOR").val($(this).val());
-                                                    });
-                                                    $("#STYLE_3_TOP_MENU_LINK_HOVER_COLOR").on("keyup", function () {
-                                                        $("#STYLE_3_TOP_MENU_LINK_HOVER_COLOR_CHOOSER").val($(this).val());
-                                                    });
-                                                });
-                                            </script>
-                                            @endpush
-                                        </div>
-                                    <li class="col-12 col-md-6 form-group">
-                                        <label for="MAIN_MENU_STYLE" class="text-capitalize">Main Menu Style: </label>
-                                        <select class="form-control w-25" name="MAIN_MENU_STYLE" id="MAIN_MENU_STYLE">
-                                            <option class="text-white bg-success" value="{{ $MAIN_MENU_STYLE->value }}">Style {{ $MAIN_MENU_STYLE->value }}</option>
-                                            <option value="1">Style 1</option>
-                                            <option value="2">Style 2</option>
-                                            <option value="3">Style 3</option>
-                                        </select>
-                                    </li>
-
                                     <li class="col-12 col-md-6 form-group">
                                         <label for="placeholder_one" class="text-capitalize">Place Holder One</label>
                                         <input class="form-control" type="text" name="placeholder_one" id="placeholder_one" value="{{ setting('placeholder_one') ?? 'Search by product name' }}">
@@ -195,14 +118,6 @@
                                         <br>
                                         <label for="TOP_CAT" class="text-capitalize">Top Category Title</label>
                                         <input class="form-control w-75" class="border" type="text" name="TOP_CAT" value="{{ setting('TOP_CAT') ?? '' }}">
-                                    </li>
-                                    <li class="col-12 col-md-6 form-group">
-                                        <label for="SELLER_STATUS" class="text-capitalize">Seller Status</label>
-                                        <select class="form-control w-25" name="SELLER_STATUS" id="SELLER_STATUS">
-                                            <option class="text-white bg-success" value="{{ $SELLER_STATUS->value }}">{{ ($SELLER_STATUS->value == 1 ? "On"  : "Off" ) }}</option>
-                                            <option value="1">On</option>
-                                            <option value="0">Off</option>
-                                        </select>
                                     </li>
                                     <li class="col-12 col-md-6 form-group">
                                         <label for="LATEST_PRODUCT_STATUS" class="text-capitalize">Latest Products Status</label>
@@ -302,7 +217,6 @@
 
 
 </section>
-<!-- /.content -->
 @endsection
 
 @push('css')
@@ -327,4 +241,3 @@
     }
 </style>    
 @endpush
-

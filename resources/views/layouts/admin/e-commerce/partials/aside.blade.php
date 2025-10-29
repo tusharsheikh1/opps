@@ -524,6 +524,7 @@
 </style>
 
 <aside class="main-sidebar sidebar-light-primary elevation-1">
+    {{-- KEEPING the onclick here as this is the brand link/close button on mobile --}}
     <a href="{{route('admin.dashboard')}}" class="brand-link" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
         <img src="/uploads/setting/{{setting('logo')}}" alt="Logo" class="brand-image">
     </a>
@@ -535,7 +536,8 @@
                 <li class="nav-section-header">Overview</li>
                 
                 <li class="nav-item {{Request::is('admin') ? 'menu-is-opening menu-open':''}}">
-                    <a href="{{route('admin.dashboard')}}" class="nav-link {{Request::is('admin') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                    {{-- onclick removed previously --}}
+                    <a href="{{route('admin.dashboard')}}" class="nav-link {{Request::is('admin') ? 'active':''}}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>
@@ -545,6 +547,7 @@
                 <li class="nav-section-header">Orders</li>
                 
                 <li class="nav-item {{Request::is('admin/order*') ? 'menu-is-opening menu-open':''}}">
+                    {{-- Dropdown trigger, no onclick needed --}}
                     <a href="javascript:void(0)" class="nav-link">
                         <i class="nav-icon fas fa-shopping-cart"></i>
                         <p>
@@ -554,50 +557,57 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.order.index')}}"
-                                class="nav-link {{Request::is('admin/order') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/order') ? 'active':''}}">
                                 <i class="fas fa-list nav-icon"></i>
                                 <p>All Orders</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.order.pending')}}"
-                                class="nav-link {{Request::is('admin/order/pending') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/order/pending') ? 'active':''}}">
                                 <i class="fas fa-clock nav-icon"></i>
                                 <p>New Orders</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.order.processing')}}"
-                                class="nav-link {{Request::is('admin/order/processing') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/order/processing') ? 'active':''}}">
                                 <i class="fas fa-cog nav-icon"></i>
                                 <p>Processing</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.order.delivered')}}"
-                                class="nav-link {{Request::is('admin/order/delivered') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/order/delivered') ? 'active':''}}">
                                 <i class="fas fa-check nav-icon"></i>
                                 <p>Delivered</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.order.pre')}}"
-                                class="nav-link {{Request::is('admin/order/pre') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/order/pre') ? 'active':''}}">
                                 <i class="fas fa-calendar-plus nav-icon"></i>
                                 <p>Pre Orders</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.order.partials')}}"
-                                class="nav-link {{Request::is('admin/order/partials') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/order/partials') ? 'active':''}}">
                                 <i class="fas fa-shipping-fast nav-icon"></i>
                                 <p>Partial Delivery</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.order.cancel')}}"
-                                class="nav-link {{Request::is('admin/order/cancel') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/order/cancel') ? 'active':''}}">
                                 <i class="fas fa-ban nav-icon"></i>
                                 <p>Cancelled</p>
                             </a>
@@ -619,57 +629,65 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.product.create')}}"
-                                class="nav-link {{Request::is('admin/product/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/product/create') ? 'active':''}}">
                                 <i class="fas fa-plus nav-icon"></i>
                                 <p>Add Product</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.product.index')}}"
-                                class="nav-link {{Request::is('admin/product') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/product') ? 'active':''}}">
                                 <i class="fas fa-boxes nav-icon"></i>
                                 <p>All Products</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.product.active')}}"
-                                class="nav-link {{Request::is('admin/product/active') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/product/active') ? 'active':''}}">
                                 <i class="fas fa-check-circle nav-icon"></i>
                                 <p>Active Products</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.product.unaproved')}}"
-                                class="nav-link {{Request::is('admin/product/unaproved') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/product/unaproved') ? 'active':''}}">
                                 <i class="fas fa-clock nav-icon"></i>
                                 <p>Pending Approval</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.product.disable')}}"
-                                class="nav-link {{Request::is('admin/product/disable') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/product/disable') ? 'active':''}}">
                                 <i class="fas fa-times-circle nav-icon"></i>
                                 <p>Disabled</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.low.product')}}"
-                                class="nav-link {{Request::is('admin/low-stock-products') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/low-stock-products') ? 'active':''}}">
                                 <i class="fas fa-exclamation-triangle nav-icon"></i>
                                 <p>Low Stock</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.product.reached')}}"
-                                class="nav-link {{Request::is('admin/product/reached') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/product/reached') ? 'active':''}}">
                                 <i class="fas fa-star nav-icon"></i>
                                 <p>Featured</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.product.imex')}}"
-                                class="nav-link {{Request::is('admin/product/bulk') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/product/bulk') ? 'active':''}}">
                                 <i class="fas fa-file-import nav-icon"></i>
                                 <p>Import/Export</p>
                             </a>
@@ -689,15 +707,17 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.classic.form')}}"
-                                class="nav-link {{Request::is('admin/classic/form') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/classic/form') ? 'active':''}}">
                                 <i class="fas fa-plus nav-icon"></i>
                                 <p>Add Classic</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.classic.index')}}"
-                                class="nav-link {{Request::is('admin/classic/list') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/classic/list') ? 'active':''}}">
                                 <i class="fas fa-list nav-icon"></i>
                                 <p>List Classic</p>
                             </a>
@@ -724,15 +744,17 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    {{-- onclick removed previously --}}
                                     <a href="{{route('admin.category.create')}}"
-                                        class="nav-link {{Request::is('admin/category/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                        class="nav-link {{Request::is('admin/category/create') ? 'active':''}}">
                                         <i class="fas fa-plus nav-icon"></i>
                                         <p>Add</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    {{-- onclick removed previously --}}
                                     <a href="{{route('admin.category.index')}}"
-                                        class="nav-link {{Request::is('admin/category') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                        class="nav-link {{Request::is('admin/category') ? 'active':''}}">
                                         <i class="fas fa-list nav-icon"></i>
                                         <p>List</p>
                                     </a>
@@ -750,15 +772,17 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    {{-- onclick removed previously --}}
                                     <a href="{{route('admin.sub-category.create')}}"
-                                        class="nav-link {{Request::is('admin/sub-category/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                        class="nav-link {{Request::is('admin/sub-category/create') ? 'active':''}}">
                                         <i class="fas fa-plus nav-icon"></i>
                                         <p>Add</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    {{-- onclick removed previously --}}
                                     <a href="{{route('admin.sub-category.index')}}"
-                                        class="nav-link {{Request::is('admin/sub-category') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                        class="nav-link {{Request::is('admin/sub-category') ? 'active':''}}">
                                         <i class="fas fa-list nav-icon"></i>
                                         <p>List</p>
                                     </a>
@@ -776,13 +800,15 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{route('admin.minicategory')}}" class="nav-link" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                    {{-- onclick removed previously --}}
+                                    <a href="{{route('admin.minicategory')}}" class="nav-link">
                                         <i class="fas fa-plus nav-icon"></i>
                                         <p>Add</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{route('admin.minicategory.list')}}" class="nav-link" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                    {{-- onclick removed previously --}}
+                                    <a href="{{route('admin.minicategory.list')}}" class="nav-link">
                                         <i class="fas fa-list nav-icon"></i>
                                         <p>List</p>
                                     </a>
@@ -800,13 +826,15 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{route('admin.extracategory')}}" class="nav-link" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                    {{-- onclick removed previously --}}
+                                    <a href="{{route('admin.extracategory')}}" class="nav-link">
                                         <i class="fas fa-plus nav-icon"></i>
                                         <p>Add</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{route('admin.extracategory.list')}}" class="nav-link" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                    {{-- onclick removed previously --}}
+                                    <a href="{{route('admin.extracategory.list')}}" class="nav-link">
                                         <i class="fas fa-list nav-icon"></i>
                                         <p>List</p>
                                     </a>
@@ -826,15 +854,17 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.brand.create')}}"
-                                class="nav-link {{Request::is('admin/brand/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/brand/create') ? 'active':''}}">
                                 <i class="fas fa-plus nav-icon"></i>
                                 <p>Add Brand</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.brand.index')}}"
-                                class="nav-link {{Request::is('admin/brand') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/brand') ? 'active':''}}">
                                 <i class="fas fa-list nav-icon"></i>
                                 <p>Brand List</p>
                             </a>
@@ -852,15 +882,17 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.collection.create')}}"
-                                class="nav-link {{Request::is('admin/collection/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/collection/create') ? 'active':''}}">
                                 <i class="fas fa-plus nav-icon"></i>
                                 <p>Add Collection</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.collection.index')}}"
-                                class="nav-link {{Request::is('admin/collection') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/collection') ? 'active':''}}">
                                 <i class="fas fa-list nav-icon"></i>
                                 <p>Collection List</p>
                             </a>
@@ -880,15 +912,17 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.attribute.form')}}"
-                                class="nav-link {{Request::is('admin/attribute/form') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/attribute/form') ? 'active':''}}">
                                 <i class="fas fa-plus nav-icon"></i>
                                 <p>Add Attribute</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.attribute.index')}}"
-                                class="nav-link {{Request::is('admin/attribute/list') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/attribute/list') ? 'active':''}}">
                                 <i class="fas fa-list nav-icon"></i>
                                 <p>Attribute List</p>
                             </a>
@@ -903,15 +937,17 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    {{-- onclick removed previously --}}
                                     <a href="{{route('admin.color.create')}}"
-                                        class="nav-link {{Request::is('admin/color/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                        class="nav-link {{Request::is('admin/color/create') ? 'active':''}}">
                                         <i class="fas fa-plus nav-icon"></i>
                                         <p>Add Color</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    {{-- onclick removed previously --}}
                                     <a href="{{route('admin.color.index')}}"
-                                        class="nav-link {{Request::is('admin/color') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                        class="nav-link {{Request::is('admin/color') ? 'active':''}}">
                                         <i class="fas fa-list nav-icon"></i>
                                         <p>Color List</p>
                                     </a>
@@ -928,15 +964,17 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
+                                    {{-- onclick removed previously --}}
                                     <a href="{{route('admin.size.create')}}"
-                                        class="nav-link {{Request::is('admin/size/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                        class="nav-link {{Request::is('admin/size/create') ? 'active':''}}">
                                         <i class="fas fa-plus nav-icon"></i>
                                         <p>Add Size</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    {{-- onclick removed previously --}}
                                     <a href="{{route('admin.size.index')}}"
-                                        class="nav-link {{Request::is('admin/size') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                        class="nav-link {{Request::is('admin/size') ? 'active':''}}">
                                         <i class="fas fa-list nav-icon"></i>
                                         <p>Size List</p>
                                     </a>
@@ -956,15 +994,17 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.tag.create')}}"
-                                class="nav-link {{Request::is('admin/tag/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/tag/create') ? 'active':''}}">
                                 <i class="fas fa-plus nav-icon"></i>
                                 <p>Add Tag</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.tag.index')}}"
-                                class="nav-link {{Request::is('admin/tag') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/tag') ? 'active':''}}">
                                 <i class="fas fa-list nav-icon"></i>
                                 <p>Tag List</p>
                             </a>
@@ -986,22 +1026,25 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.customer.create')}}"
-                                class="nav-link {{Request::is('admin/customer/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/customer/create') ? 'active':''}}">
                                 <i class="fas fa-user-plus nav-icon"></i>
                                 <p>Add Customer</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.customer.index')}}"
-                                class="nav-link {{Request::is('admin/customer') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/customer') ? 'active':''}}">
                                 <i class="fas fa-users nav-icon"></i>
                                 <p>Customer List</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.subscribe')}}" 
-                                class="nav-link {{Request::is('admin/subscribe') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/subscribe') ? 'active':''}}">
                                 <i class="fas fa-envelope nav-icon"></i>
                                 <p>Subscribers</p>
                             </a>
@@ -1009,39 +1052,6 @@
                     </ul>
                 </li>
                 @endif
-
-                <li class="nav-item {{Request::is('admin/vendor*') ? 'menu-is-opening menu-open':''}}">
-                    <a href="javascript:void(0)" class="nav-link">
-                        <i class="nav-icon fas fa-store"></i>
-                        <p>
-                            Vendors
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{{route('admin.vendor.create')}}"
-                                class="nav-link {{Request::is('admin/vendor/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
-                                <i class="fas fa-plus nav-icon"></i>
-                                <p>Add Vendor</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{route('admin.vendor.index')}}"
-                                class="nav-link {{Request::is('admin/vendor') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
-                                <i class="fas fa-list nav-icon"></i>
-                                <p>Vendor List</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{route('admin.vendor.withdraw')}}"
-                                class="nav-link {{Request::is('admin/vendor/withdraw') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
-                                <i class="fas fa-money-bill-wave nav-icon"></i>
-                                <p>Withdrawals</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
 
                 @if(auth()->user()->desig ==1)
                 <li class="nav-section-header">Marketing</li>
@@ -1056,15 +1066,17 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.campaing.create')}}"
-                                class="nav-link {{Request::is('admin/campaing/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/campaing/create') ? 'active':''}}">
                                 <i class="fas fa-plus nav-icon"></i>
                                 <p>Create Campaign</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.campaing.index')}}"
-                                class="nav-link {{Request::is('admin/campaing/list') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/campaing/list') ? 'active':''}}">
                                 <i class="fas fa-list nav-icon"></i>
                                 <p>Campaign List</p>
                             </a>
@@ -1082,15 +1094,17 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.coupon.create')}}"
-                                class="nav-link {{Request::is('admin/coupon/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/coupon/create') ? 'active':''}}">
                                 <i class="fas fa-plus nav-icon"></i>
                                 <p>Add Coupon</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.coupon.index')}}"
-                                class="nav-link {{Request::is('admin/coupon') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/coupon') ? 'active':''}}">
                                 <i class="fas fa-list nav-icon"></i>
                                 <p>Coupon List</p>
                             </a>
@@ -1108,15 +1122,17 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.slider.create')}}"
-                                class="nav-link {{Request::is('admin/slider/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/slider/create') ? 'active':''}}">
                                 <i class="fas fa-plus nav-icon"></i>
                                 <p>Add Slider</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.slider.index')}}"
-                                class="nav-link {{Request::is('admin/slider') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/slider') ? 'active':''}}">
                                 <i class="fas fa-list nav-icon"></i>
                                 <p>Slider List</p>
                             </a>
@@ -1129,7 +1145,8 @@
                 <li class="nav-section-header">Content</li>
 
                 <li class="nav-item">
-                    <a href="{{ route('admin.notice_index') }}" class="nav-link {{Request::is('admin/notice*') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                    {{-- onclick removed previously --}}
+                    <a href="{{ route('admin.notice_index') }}" class="nav-link {{Request::is('admin/notice*') ? 'active':''}}">
                         <i class="nav-icon fas fa-bell"></i>
                         <p>Notices</p>
                     </a>
@@ -1145,22 +1162,25 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.new_blog')}}"
-                                class="nav-link {{Request::is('admin/Create-new-blog') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/Create-new-blog') ? 'active':''}}">
                                 <i class="fas fa-plus nav-icon"></i>
                                 <p>Create Blog</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.index')}}"
-                                class="nav-link {{Request::is('admin/blogs') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/blogs') ? 'active':''}}">
                                 <i class="fas fa-edit nav-icon"></i>
                                 <p>My Blogs</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.user_blog')}}"
-                                class="nav-link {{Request::is('admin/user-blogs') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/user-blogs') ? 'active':''}}">
                                 <i class="fas fa-users nav-icon"></i>
                                 <p>User Blogs</p>
                             </a>
@@ -1180,15 +1200,17 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.page.create')}}"
-                                class="nav-link {{Request::is('admin/page/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/page/create') ? 'active':''}}">
                                 <i class="fas fa-plus nav-icon"></i>
                                 <p>Create Page</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.pages')}}"
-                                class="nav-link {{Request::is('admin/pages') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/pages') ? 'active':''}}">
                                 <i class="fas fa-list nav-icon"></i>
                                 <p>All Pages</p>
                             </a>
@@ -1197,8 +1219,9 @@
                 </li>
 
                 <li class="nav-item">
+                    {{-- onclick removed previously --}}
                     <a href="{{route('admin.gallery')}}" 
-                        class="nav-link {{Request::is('admin/gallery') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                        class="nav-link {{Request::is('admin/gallery') ? 'active':''}}">
                         <i class="nav-icon fas fa-images"></i>
                         <p>Media Gallery</p>
                     </a>
@@ -1218,22 +1241,25 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.connection.live.chat')}}"
-                                class="nav-link {{Request::is('admin/connection/live-chat') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/connection/live-chat') ? 'active':''}}">
                                 <i class="fas fa-comment-dots nav-icon"></i>
                                 <p>Live Chat</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.mail')}}" 
-                                class="nav-link {{Request::is('admin/mail') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/mail') ? 'active':''}}">
                                 <i class="fas fa-envelope nav-icon"></i>
                                 <p>Mail</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.ticket')}}" 
-                                class="nav-link {{Request::is('admin/ticket') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/ticket') ? 'active':''}}">
                                 <i class="fas fa-ticket-alt nav-icon"></i>
                                 <p>Support Tickets</p>
                             </a>
@@ -1255,15 +1281,17 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.staff.create')}}"
-                                class="nav-link {{Request::is('admin/staf/create') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/staf/create') ? 'active':''}}">
                                 <i class="fas fa-plus nav-icon"></i>
                                 <p>Add Staff</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.staff.list')}}"
-                                class="nav-link {{Request::is('admin/staf/list') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/staf/list') ? 'active':''}}">
                                 <i class="fas fa-list nav-icon"></i>
                                 <p>Staff List</p>
                             </a>
@@ -1285,98 +1313,102 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.setting')}}" 
-                                class="nav-link {{Request::is('admin/setting') && !Request::is('admin/setting/*') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/setting') && !Request::is('admin/setting/*') ? 'active':''}}">
                                 <i class="fas fa-cog nav-icon"></i>
                                 <p>Basic Settings</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.setting.site_info')}}" 
-                                class="nav-link {{Request::is('admin/setting/site_info') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/setting/site_info') ? 'active':''}}">
                                 <i class="fas fa-info-circle nav-icon"></i>
                                 <p>Site Information</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.setting.shop_settings')}}" 
-                                class="nav-link {{Request::is('admin/setting/shop_settings') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/setting/shop_settings') ? 'active':''}}">
                                 <i class="fas fa-store nav-icon"></i>
                                 <p>Shop Settings</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.setting.getway')}}" 
-                                class="nav-link {{Request::is('admin/setting/getway') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/setting/getway') ? 'active':''}}">
                                 <i class="fas fa-credit-card nav-icon"></i>
                                 <p>Payment Gateway</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.setting.mailsmsapireglog')}}" 
-                                class="nav-link {{Request::is('admin/setting/mailsmsapireglog') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/setting/mailsmsapireglog') ? 'active':''}}">
                                 <i class="fas fa-envelope-open nav-icon"></i>
                                 <p>Mail & SMS</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.setting.home')}}" 
-                                class="nav-link {{Request::is('admin/setting/home') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/setting/home') ? 'active':''}}">
                                 <i class="fas fa-home nav-icon"></i>
                                 <p>Homepage</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.setting.layout')}}" 
-                                class="nav-link {{Request::is('admin/setting/layout') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/setting/layout') ? 'active':''}}">
                                 <i class="fas fa-th-large nav-icon"></i>
                                 <p>Layout</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.setting.header')}}" 
-                                class="nav-link {{Request::is('admin/setting/header') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/setting/header') ? 'active':''}}">
                                 <i class="fas fa-window-maximize nav-icon"></i>
                                 <p>Header & Footer</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.setting.seo')}}" 
-                                class="nav-link {{Request::is('admin/setting/seo') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/setting/seo') ? 'active':''}}">
                                 <i class="fas fa-search nav-icon"></i>
                                 <p>SEO Settings</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.setting.color')}}" 
-                                class="nav-link {{Request::is('admin/setting/color') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/setting/color') ? 'active':''}}">
                                 <i class="fas fa-palette nav-icon"></i>
                                 <p>Color Scheme</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.setting.courier')}}" 
-                                class="nav-link {{Request::is('admin/setting/courier') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/setting/courier') ? 'active':''}}">
                                 <i class="fas fa-shipping-fast nav-icon"></i>
                                 <p>Courier</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            {{-- onclick removed previously --}}
                             <a href="{{route('admin.setting.docs')}}" 
-                                class="nav-link {{Request::is('admin/setting/docs') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                                class="nav-link {{Request::is('admin/setting/docs') ? 'active':''}}">
                                 <i class="fas fa-file-alt nav-icon"></i>
                                 <p>Documents</p>
                             </a>
                         </li>
                     </ul>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{{route('admin.shop')}}" 
-                        class="nav-link {{Request::is('admin/shop') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
-                        <i class="nav-icon fas fa-external-link-alt"></i>
-                        <p>Visit Shop</p>
-                    </a>
                 </li>
                 @endif
 
@@ -1384,14 +1416,16 @@
                     <li class="nav-section-header">Account</li>
                     
                     <li class="nav-item">
+                        {{-- REMOVING conflicting inline onclick on this regular link --}}
                         <a href="{{route('admin.profile.change.password')}}" 
-                            class="nav-link {{Request::is('admin/profile/change-password') ? 'active':''}}" onclick="if(window.innerWidth < 992) document.body.classList.remove('sidebar-open')">
+                            class="nav-link {{Request::is('admin/profile/change-password') ? 'active':''}}">
                             <i class="fas fa-key nav-icon"></i>
                             <p>Change Password</p>
                         </a>
                     </li>
                     
                     <li class="nav-item">
+                        {{-- KEEPING the onclick here as it's required for the logout form submission --}}
                         <a href="{{ route('logout') }}" class="nav-link" 
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <i class="nav-icon fas fa-sign-out-alt"></i>

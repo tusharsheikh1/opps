@@ -625,7 +625,7 @@ header.scrolled {
 
 .mobile-menu-content {
     padding: 0;
-    padding-bottom: 100px; /* Space for fixed buttons at bottom */
+    padding-bottom: 20px;
 }
 
 .mobile-menu-section {
@@ -633,27 +633,20 @@ header.scrolled {
     padding: 8px 0;
 }
 
-/* Auth buttons container at bottom */
+/* Auth buttons container at bottom - Positioned after menu items */
 .mobile-auth-buttons {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 16px 20px;
-    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.98) 20%);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    position: relative;
+    padding: 20px;
+    background: transparent;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    z-index: 11;
-    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+    gap: 10px;
+    margin-top: 16px;
 }
 
 .mobile-auth-btn {
-    padding: 14px 20px;
-    border-radius: 12px;
+    padding: 12px 20px;
+    border-radius: 10px;
     text-decoration: none;
     font-weight: 700;
     font-size: 14px;
@@ -663,32 +656,37 @@ header.scrolled {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
+    cursor: pointer;
 }
 
+/* Sign In Button - Outlined Style (matching UI image) */
 .mobile-auth-btn.signin {
-    background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(6,182,212,0.05)); /* Changed from orange */
+    background: rgba(255, 255, 255, 0.8);
     color: var(--brand-accent);
-    border-color: var(--brand-accent);
+    border: 2px solid var(--brand-accent);
+    box-shadow: 0 2px 8px rgba(6, 182, 212, 0.15);
 }
 
 .mobile-auth-btn.signin:hover {
-    background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(6,182,212,0.1)); /* Changed from orange */
+    background: rgba(6, 182, 212, 0.08);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(6,182,212,0.2); /* Changed from orange */
+    box-shadow: 0 4px 16px rgba(6,182,212,0.25);
+    border-color: var(--brand-accent);
 }
 
+/* Sign Up Button - Solid Filled Style (matching UI image) */
 .mobile-auth-btn.signup {
-    background: linear-gradient(135deg, var(--brand-accent), #0284c7); /* Changed from orange/red */
+    background: linear-gradient(135deg, var(--brand-accent), #0284c7);
     color: white;
-    border-color: transparent;
-    box-shadow: 0 4px 12px rgba(6,182,212,0.3); /* Changed from orange */
+    border: 2px solid transparent;
+    box-shadow: 0 4px 12px rgba(6,182,212,0.35);
 }
 
 .mobile-auth-btn.signup:hover {
-    background: linear-gradient(135deg, #0284c7, var(--brand-accent)); /* Changed from orange/red */
+    background: linear-gradient(135deg, #0891b2, var(--brand-accent));
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(6,182,212,0.4); /* Changed from orange */
+    box-shadow: 0 6px 20px rgba(6,182,212,0.45);
 }
 
 .mobile-auth-btn i {

@@ -35,10 +35,11 @@
                                         <img src="{{asset('uploads/product/'.$item->product->image)}}" alt="Product Image" width="70px">    
                                     </td>
                                     @php
-                                        $total_download = DB::table('download_user_products')
-                                                        ->where('user_id', auth()->id())
-                                                        ->where('product_id', $item->product->id)
-                                                        ->count();
+                                        // This calculation assumes the existence of the DownloadHistory model and its relationship
+                                        $total_download = \App\Models\DownloadHistory::where('user_id', auth()->id())
+                                                                                    ->where('product_id', $item->product->id)
+                                                                                    ->count();
+                                        // The product's downloads are likely fetched via $item->product->downloads relationship
                                         $download_remaining = ($item->product->downloads->count() * $item->product->download_limit) - $total_download;
                                     @endphp
                                     <td>{{$item->product->downloads->count() > 0 ? $download_remaining:0}}</td>

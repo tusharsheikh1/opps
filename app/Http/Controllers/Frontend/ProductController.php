@@ -36,6 +36,11 @@ class ProductController extends Controller
         $category = Category::with(['products' => function($query) use ($skip) {
             return $query->where('status', true)->latest('id')->take(15)->skip($skip);
         }])
+        // FIX: EAGER LOAD THE SUB CATEGORY RELATIONSHIP AND EXPLICITLY SELECT 'cover_photo' COLUMN
+        ->with(['sub_categories' => function($query) {
+            // Corrected column name to 'cover_photo'
+            $query->select('id', 'name', 'slug', 'category_id', 'status', 'cover_photo'); 
+        }])
         ->where('slug', $slug)
         ->where('status', true)
         ->firstOrFail();
@@ -57,7 +62,11 @@ class ProductController extends Controller
             }
             return json_encode(array($data, $data2));
         }
-        return view('frontend.category-product', compact('category', 'slug'));
+
+        // Extract the eager-loaded sub-categories and prepare for the view
+        $subCategories = $category->sub_categories;
+        
+        return view('frontend.category-product', compact('category', 'slug', 'subCategories'));
     }
     
     public function showProductByBrand($slug, Request $request)
@@ -106,6 +115,8 @@ class ProductController extends Controller
         $subCategory = SubCategory::with(['products' => function($query) use ($skip) {
             return $query->where('status', true)->latest('id')->take(16)->skip($skip);
         }])
+        // EAGER LOAD THE MINI CATEGORY RELATIONSHIP
+        ->with('miniCategory') 
         ->where('slug', $slug)
         ->where('status', true)
         ->firstOrFail();
@@ -123,8 +134,13 @@ class ProductController extends Controller
             }
             return json_encode(array($data, $data2));
         }
+        
+        // Extract the eager-loaded mini-categories
+        $miniCategories = $subCategory->miniCategory;
+        
         $type = '0';
-        return view('frontend.sub-category-product', compact('subCategory', 'slug', 'type'));
+        // PASS miniCategories TO THE VIEW
+        return view('frontend.sub-category-product', compact('subCategory', 'slug', 'type', 'miniCategories'));
     }
     
     public function showProductByMiniCategory($slug, Request $request)
@@ -351,7 +367,29 @@ class ProductController extends Controller
         // Get all active sizes to display all options
         $allSizes = Size::where('status', true)->orderBy('id')->get();
 
-        return view('frontend.single-product', compact('product', 'attributes', 'variations', 'allSizes'));
+        // Get related products from the same categories
+        $relatedProducts = collect();
+        if ($product->categories->count() > 0) {
+            $categoryIds = $product->categories->pluck('id');
+            
+            // Get product IDs from the same categories
+            $relatedProductIds = DB::table('category_product')
+                ->whereIn('category_id', $categoryIds)
+                ->where('product_id', '!=', $product->id) // Exclude current product
+                ->pluck('product_id')
+                ->unique();
+            
+            // Get the related products
+            $relatedProducts = Product::whereIn('id', $relatedProductIds)
+                ->where('status', true)
+                ->where('quantity', '>', 0) // Only in-stock products
+                ->inRandomOrder()
+                ->take(8) // Limit to 8 products
+                ->get();
+        }
+
+
+        return view('frontend.single-product', compact('product', 'attributes', 'variations', 'allSizes', 'relatedProducts'));
     }
     
     // show product details for campaign

@@ -54,7 +54,8 @@ class CouponController extends Controller
             'discount'        => $request->discount,
             'limit_per_user'  => $request->limit_per_user,
             'total_use_limit' => $request->total_use_limit,
-            'available_limit' => $request->total_use_limit,
+            // Correctly sets available limit to total limit on creation
+            'available_limit' => $request->total_use_limit, 
             'expire_date'     => $request->expire_date,
             'description'     => $request->description,
             'status'          => $request->filled('status')
@@ -96,7 +97,8 @@ class CouponController extends Controller
     public function update(Request $request, Coupon $coupon)
     {
         $this->validate($request, [
-            'code'            => 'required|string|max:255|unique:coupons,code,'.$coupon->id,
+            // Ensure the code is unique, excluding the current coupon's ID
+            'code'            => 'required|string|max:255|unique:coupons,code,'.$coupon->id, 
             'discount_type'   => 'required|string|max:255',
             'discount'        => 'required|numeric',
             'limit_per_user'  => 'required|integer',
@@ -105,17 +107,31 @@ class CouponController extends Controller
             'description'     => 'required|string'
         ]);
         
-        $coupon->update([
+        $data = [
             'code'            => $request->code,
             'discount_type'   => $request->discount_type,
             'discount'        => $request->discount,
             'limit_per_user'  => $request->limit_per_user,
             'total_use_limit' => $request->total_use_limit,
-            'available_limit' => $request->total_use_limit,
             'expire_date'     => $request->expire_date,
             'description'     => $request->description,
             'status'          => $request->filled('status')
-        ]);
+        ];
+
+        // 🚀 FIX: The issue was here. It was resetting available_limit to total_use_limit.
+        // We only adjust available_limit if total_use_limit has changed.
+        // The adjustment maintains the number of times the coupon has already been used.
+        if ($coupon->total_use_limit != $request->total_use_limit) {
+            $difference = $request->total_use_limit - $coupon->total_use_limit;
+            
+            // Adjust the available limit by the difference in the total limit.
+            $newAvailableLimit = $coupon->available_limit + $difference;
+
+            // Ensure available limit is not less than 0 (in case total limit was drastically reduced)
+            $data['available_limit'] = max(0, $newAvailableLimit);
+        }
+
+        $coupon->update($data);
 
         notify()->success("Coupon successfully updated", "Added");
         return redirect()->to(routeHelper('coupon'));
